@@ -416,6 +416,7 @@ lookin doctor
 lookin apps [--json] [--include-icon]
 lookin inspect --bundle-id ... --oid ... [--json]
 lookin attrs --bundle-id ... --oid ... [--group ...] [--json]
+lookin screenshot --bundle-id ... --oid ... --out ... [--type group|solo] [--json]
 lookin tree [--bundle-id ...] [--name ...] [--index ...] [--depth N] [--filter text] [--oid oid] [--json]
 ```
 
@@ -523,4 +524,4 @@ codesign --force --deep --sign - lookin Frameworks/*.framework
 
 当前 Phase 1 基础版已完成：`lookin tree --bundle-id <bundle-id> [--json] [--depth N]` 可按 bundle id 拉取 UI 层级，并输出稳定文本或 JSON。
 
-当前 Phase 1.5 已完成基础链路：设备命令已加跨进程锁和空结果重试，降低真机 USB 并发扫描不稳定；`lookin inspect --bundle-id <bundle-id> --oid <oid> [--json]` 可按 oid 拉取对象信息和基础属性；`lookin attrs --bundle-id <bundle-id> --oid <oid> [--group <filter>] [--json]` 可单独输出属性详情。后续继续补 `screenshot/export` 和设备选择参数。
+当前 Phase 1.5 已完成基础链路：设备命令已加跨进程锁和空结果重试，降低真机 USB 并发扫描不稳定；`lookin inspect --bundle-id <bundle-id> --oid <oid> [--json]` 可按 oid 拉取对象信息和基础属性；`lookin attrs --bundle-id <bundle-id> --oid <oid> [--group <filter>] [--json]` 可单独输出属性详情；`lookin screenshot --bundle-id <bundle-id> --oid <oid> --out <path> [--type group|solo] [--json]` 可导出节点截图。后续继续补 `export` 和设备选择参数。

@@ -50,6 +50,20 @@
 }
 
 - (LKCLIExitCode)fetchBundleID:(NSString *)bundleID oid:(unsigned long)oid result:(LKCLIDisplayItemFetchResult **)result {
+    return [self fetchBundleID:bundleID
+                           oid:oid
+                      taskType:LookinStaticAsyncUpdateTaskTypeNoScreenshot
+                   attrRequest:LookinDetailUpdateTaskAttrRequest_Need
+            needBasisVisualInfo:YES
+                        result:result];
+}
+
+- (LKCLIExitCode)fetchBundleID:(NSString *)bundleID
+                            oid:(unsigned long)oid
+                       taskType:(LookinStaticAsyncUpdateTaskType)taskType
+                    attrRequest:(LookinDetailUpdateTaskAttrRequest)attrRequest
+             needBasisVisualInfo:(BOOL)needBasisVisualInfo
+                         result:(LKCLIDisplayItemFetchResult **)result {
     LKCLIAppScanner *scanner = [LKCLIAppScanner new];
     id appsValue = nil;
     NSError *appsError = nil;
@@ -104,7 +118,11 @@
         return LKCLIExitCodeObjectNotFound;
     }
 
-    NSArray *packages = [self detailPackagesForDisplayItem:displayItem detailOID:detailOID];
+    NSArray *packages = [self detailPackagesForDisplayItem:displayItem
+                                                  detailOID:detailOID
+                                                   taskType:taskType
+                                                attrRequest:attrRequest
+                                         needBasisVisualInfo:needBasisVisualInfo];
     id detailsValue = nil;
     NSError *detailsError = nil;
     BOOL fetchedDetails = [LKCLISignalRunner waitForSignal:[scanner fetchHierarchyDetailsWithTaskPackages:packages forApp:app] timeout:12 value:&detailsValue error:&detailsError];
@@ -115,12 +133,14 @@
         return LKCLIExitCodeConnection;
     }
 
+    LookinDisplayItemDetail *detail = [self detailFromDetailsValue:detailsValue detailOID:detailOID];
     LKCLIDisplayItemFetchResult *fetchResult = [LKCLIDisplayItemFetchResult new];
     fetchResult.app = app;
     fetchResult.hierarchyInfo = hierarchyInfo;
     fetchResult.displayItem = displayItem;
     fetchResult.object = object;
-    fetchResult.attributeGroups = [self attributeGroupsFromDetailsValue:detailsValue detailOID:detailOID fallbackItem:displayItem];
+    fetchResult.detail = detail;
+    fetchResult.attributeGroups = [self attributeGroupsFromDetail:detail fallbackItem:displayItem];
     fetchResult.requestedOID = oid;
     fetchResult.detailOID = detailOID;
     if (result) {
@@ -172,12 +192,16 @@
     return item.displayingObject ?: item.layerObject ?: item.hostViewControllerObject;
 }
 
-- (NSArray *)detailPackagesForDisplayItem:(LookinDisplayItem *)item detailOID:(unsigned long)detailOID {
+- (NSArray *)detailPackagesForDisplayItem:(LookinDisplayItem *)item
+                                  detailOID:(unsigned long)detailOID
+                                   taskType:(LookinStaticAsyncUpdateTaskType)taskType
+                                attrRequest:(LookinDetailUpdateTaskAttrRequest)attrRequest
+                         needBasisVisualInfo:(BOOL)needBasisVisualInfo {
     LookinStaticAsyncUpdateTask *task = [LookinStaticAsyncUpdateTask new];
     task.oid = detailOID;
-    task.taskType = LookinStaticAsyncUpdateTaskTypeNoScreenshot;
-    task.attrRequest = LookinDetailUpdateTaskAttrRequest_Need;
-    task.needBasisVisualInfo = YES;
+    task.taskType = taskType;
+    task.attrRequest = attrRequest;
+    task.needBasisVisualInfo = needBasisVisualInfo;
     task.frameSize = item.frame.size;
     task.clientReadableVersion = [LKCLIVersionProvider cliVersion];
 
@@ -186,21 +210,30 @@
     return @[package];
 }
 
-- (NSArray<LookinAttributesGroup *> *)attributeGroupsFromDetailsValue:(id)detailsValue detailOID:(unsigned long)detailOID fallbackItem:(LookinDisplayItem *)fallbackItem {
+- (LookinDisplayItemDetail *)detailFromDetailsValue:(id)detailsValue detailOID:(unsigned long)detailOID {
+    if (![detailsValue isKindOfClass:[NSArray class]]) {
+        return nil;
+    }
+
+    for (LookinDisplayItemDetail *detail in (NSArray *)detailsValue) {
+        if (![detail isKindOfClass:[LookinDisplayItemDetail class]] || detail.failureCode == -1) {
+            continue;
+        }
+        if (detail.displayItemOid != 0 && detail.displayItemOid != detailOID) {
+            continue;
+        }
+        return detail;
+    }
+    return nil;
+}
+
+- (NSArray<LookinAttributesGroup *> *)attributeGroupsFromDetail:(LookinDisplayItemDetail *)detail fallbackItem:(LookinDisplayItem *)fallbackItem {
     NSMutableArray<LookinAttributesGroup *> *groups = [NSMutableArray array];
-    if ([detailsValue isKindOfClass:[NSArray class]]) {
-        for (LookinDisplayItemDetail *detail in (NSArray *)detailsValue) {
-            if (![detail isKindOfClass:[LookinDisplayItemDetail class]] || detail.failureCode == -1) {
-                continue;
-            }
-            if (detail.displayItemOid != 0 && detail.displayItemOid != detailOID) {
-                continue;
-            }
-            [groups addObjectsFromArray:detail.attributesGroupList ?: @[]];
-            [groups addObjectsFromArray:detail.customAttrGroupList ?: @[]];
-            if (groups.count > 0) {
-                return groups.copy;
-            }
+    if (detail) {
+        [groups addObjectsFromArray:detail.attributesGroupList ?: @[]];
+        [groups addObjectsFromArray:detail.customAttrGroupList ?: @[]];
+        if (groups.count > 0) {
+            return groups.copy;
         }
     }
 

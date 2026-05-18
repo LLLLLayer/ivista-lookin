@@ -45,11 +45,12 @@ LookinCLI 希望支持以下场景：
 5. `lookin tree --bundle-id <bundle-id> [--json] [--depth N]`
 6. `lookin inspect --bundle-id <bundle-id> --oid <oid> [--json]`
 7. `lookin attrs --bundle-id <bundle-id> --oid <oid> [--group <filter>] [--json]`
+8. `lookin screenshot --bundle-id <bundle-id> --oid <oid> --out <path> [--type group|solo] [--json]`
 
 下一步：
 
-1. `lookin screenshot --bundle-id <bundle-id> --oid <oid>`
-2. `lookin export --bundle-id <bundle-id> --out <file.lookin>`
+1. `lookin export --bundle-id <bundle-id> --out <file.lookin>`
+2. 设备选择参数，例如 `--device` 或 `--transport`
 
 ## 与现有 macOS App 的能力映射
 
@@ -288,6 +289,7 @@ lookin tree --bundle-id com.example.demo
 lookin tree --bundle-id com.example.demo --json > hierarchy.json
 lookin inspect --bundle-id com.example.demo --oid 130
 lookin attrs --bundle-id com.example.demo --oid 130 --json
+lookin screenshot --bundle-id com.example.demo --oid 130 --out button.png
 ```
 
 如果没有找到 App，CLI 应提示用户检查：
@@ -451,7 +453,7 @@ lookin screenshot --bundle-id com.example.demo --oid 130 --type group --out butt
 lookin screenshot --bundle-id com.example.demo --oid 130 --type solo --out button.tiff
 ```
 
-`group` 表示包含子视图的截图，`solo` 表示隐藏子视图后的截图。默认使用 `group`。
+`group` 表示包含子视图的截图，`solo` 表示隐藏子视图后的截图。默认使用 `group`。输出格式按 `--out` 后缀判断：`.png` 输出 PNG，其它后缀默认输出 TIFF。
 
 ### selectors
 

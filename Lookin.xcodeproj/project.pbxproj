@@ -14,6 +14,7 @@
 		0F5B6D627B9C4E019A12F301 /* LKCLIAttrsCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D617B9C4E019A12F301 /* LKCLIAttrsCommand.m */; };
 		0F5B6D657B9C4E019A12F301 /* LKCLIDisplayItemFetcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D647B9C4E019A12F301 /* LKCLIDisplayItemFetcher.m */; };
 		0F5B6D687B9C4E019A12F301 /* LKCLIAttributeFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D677B9C4E019A12F301 /* LKCLIAttributeFormatter.m */; };
+		0F5B6D6B7B9C4E019A12F301 /* LKCLIScreenshotCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D6A7B9C4E019A12F301 /* LKCLIScreenshotCommand.m */; };
 		1822E2CB2B9396B50007C0B2 /* LKDashboardTextControlEditingFlag.m in Sources */ = {isa = PBXBuildFile; fileRef = 1822E2CA2B9396B50007C0B2 /* LKDashboardTextControlEditingFlag.m */; };
 		183875EB2B2F339B005FE951 /* LKTableViewHorizontalScrollWidthManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 183875EA2B2F339B005FE951 /* LKTableViewHorizontalScrollWidthManager.m */; };
 		1892DD1C2AF258890016D61B /* LookinDisplayItem+LookinClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 1892DD1B2AF258890016D61B /* LookinDisplayItem+LookinClient.m */; };
@@ -608,6 +609,8 @@
 		0F5B6D647B9C4E019A12F301 /* LKCLIDisplayItemFetcher.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLIDisplayItemFetcher.m; sourceTree = "<group>"; };
 		0F5B6D667B9C4E019A12F301 /* LKCLIAttributeFormatter.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = LKCLIAttributeFormatter.h; sourceTree = "<group>"; };
 		0F5B6D677B9C4E019A12F301 /* LKCLIAttributeFormatter.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLIAttributeFormatter.m; sourceTree = "<group>"; };
+		0F5B6D697B9C4E019A12F301 /* LKCLIScreenshotCommand.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = LKCLIScreenshotCommand.h; sourceTree = "<group>"; };
+		0F5B6D6A7B9C4E019A12F301 /* LKCLIScreenshotCommand.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLIScreenshotCommand.m; sourceTree = "<group>"; };
 		D4052AC7235CBD090033C961 /* LKMeasureTutorialView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LKMeasureTutorialView.h; sourceTree = "<group>"; };
 		D4052AC8235CBD090033C961 /* LKMeasureTutorialView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LKMeasureTutorialView.m; sourceTree = "<group>"; };
 		D4052ACA235CE2300033C961 /* LKMeasureResultView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LKMeasureResultView.h; sourceTree = "<group>"; };
@@ -714,6 +717,8 @@
 				0F5B6D5E7B9C4E019A12F301 /* LKCLIInspectCommand.m */,
 				0F5B6D607B9C4E019A12F301 /* LKCLIAttrsCommand.h */,
 				0F5B6D617B9C4E019A12F301 /* LKCLIAttrsCommand.m */,
+				0F5B6D697B9C4E019A12F301 /* LKCLIScreenshotCommand.h */,
+				0F5B6D6A7B9C4E019A12F301 /* LKCLIScreenshotCommand.m */,
 			);
 			name = Commands;
 			path = Commands;
@@ -1710,6 +1715,7 @@
 				0F5B6D627B9C4E019A12F301 /* LKCLIAttrsCommand.m in Sources */,
 				0F5B6D657B9C4E019A12F301 /* LKCLIDisplayItemFetcher.m in Sources */,
 				0F5B6D687B9C4E019A12F301 /* LKCLIAttributeFormatter.m in Sources */,
+				0F5B6D6B7B9C4E019A12F301 /* LKCLIScreenshotCommand.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

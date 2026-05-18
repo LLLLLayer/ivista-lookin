@@ -11,6 +11,9 @@
 		0D7F1D1F2C061762916EDAE4 /* LKCLITreeCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = CFF597A8F0CA52E15C2FF56E /* LKCLITreeCommand.m */; };
 		0F5B6D5C7B9C4E019A12F301 /* LKCLIProcessLock.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D5B7B9C4E019A12F301 /* LKCLIProcessLock.m */; };
 		0F5B6D5F7B9C4E019A12F301 /* LKCLIInspectCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D5E7B9C4E019A12F301 /* LKCLIInspectCommand.m */; };
+		0F5B6D627B9C4E019A12F301 /* LKCLIAttrsCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D617B9C4E019A12F301 /* LKCLIAttrsCommand.m */; };
+		0F5B6D657B9C4E019A12F301 /* LKCLIDisplayItemFetcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D647B9C4E019A12F301 /* LKCLIDisplayItemFetcher.m */; };
+		0F5B6D687B9C4E019A12F301 /* LKCLIAttributeFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D677B9C4E019A12F301 /* LKCLIAttributeFormatter.m */; };
 		1822E2CB2B9396B50007C0B2 /* LKDashboardTextControlEditingFlag.m in Sources */ = {isa = PBXBuildFile; fileRef = 1822E2CA2B9396B50007C0B2 /* LKDashboardTextControlEditingFlag.m */; };
 		183875EB2B2F339B005FE951 /* LKTableViewHorizontalScrollWidthManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 183875EA2B2F339B005FE951 /* LKTableViewHorizontalScrollWidthManager.m */; };
 		1892DD1C2AF258890016D61B /* LookinDisplayItem+LookinClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 1892DD1B2AF258890016D61B /* LookinDisplayItem+LookinClient.m */; };
@@ -599,6 +602,12 @@
 		0F5B6D5B7B9C4E019A12F301 /* LKCLIProcessLock.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLIProcessLock.m; sourceTree = "<group>"; };
 		0F5B6D5D7B9C4E019A12F301 /* LKCLIInspectCommand.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = LKCLIInspectCommand.h; sourceTree = "<group>"; };
 		0F5B6D5E7B9C4E019A12F301 /* LKCLIInspectCommand.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLIInspectCommand.m; sourceTree = "<group>"; };
+		0F5B6D607B9C4E019A12F301 /* LKCLIAttrsCommand.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = LKCLIAttrsCommand.h; sourceTree = "<group>"; };
+		0F5B6D617B9C4E019A12F301 /* LKCLIAttrsCommand.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLIAttrsCommand.m; sourceTree = "<group>"; };
+		0F5B6D637B9C4E019A12F301 /* LKCLIDisplayItemFetcher.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = LKCLIDisplayItemFetcher.h; sourceTree = "<group>"; };
+		0F5B6D647B9C4E019A12F301 /* LKCLIDisplayItemFetcher.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLIDisplayItemFetcher.m; sourceTree = "<group>"; };
+		0F5B6D667B9C4E019A12F301 /* LKCLIAttributeFormatter.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = LKCLIAttributeFormatter.h; sourceTree = "<group>"; };
+		0F5B6D677B9C4E019A12F301 /* LKCLIAttributeFormatter.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLIAttributeFormatter.m; sourceTree = "<group>"; };
 		D4052AC7235CBD090033C961 /* LKMeasureTutorialView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LKMeasureTutorialView.h; sourceTree = "<group>"; };
 		D4052AC8235CBD090033C961 /* LKMeasureTutorialView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LKMeasureTutorialView.m; sourceTree = "<group>"; };
 		D4052ACA235CE2300033C961 /* LKMeasureResultView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LKMeasureResultView.h; sourceTree = "<group>"; };
@@ -703,6 +712,8 @@
 				CFF597A8F0CA52E15C2FF56E /* LKCLITreeCommand.m */,
 				0F5B6D5D7B9C4E019A12F301 /* LKCLIInspectCommand.h */,
 				0F5B6D5E7B9C4E019A12F301 /* LKCLIInspectCommand.m */,
+				0F5B6D607B9C4E019A12F301 /* LKCLIAttrsCommand.h */,
+				0F5B6D617B9C4E019A12F301 /* LKCLIAttrsCommand.m */,
 			);
 			name = Commands;
 			path = Commands;
@@ -726,6 +737,8 @@
 			children = (
 				91C68999173BF8C803911D32 /* LKCLIStdIO.h */,
 				8EE597935A2C776D150D8DE0 /* LKCLIStdIO.m */,
+				0F5B6D667B9C4E019A12F301 /* LKCLIAttributeFormatter.h */,
+				0F5B6D677B9C4E019A12F301 /* LKCLIAttributeFormatter.m */,
 			);
 			name = Support;
 			path = Support;
@@ -1295,6 +1308,8 @@
 				06635520B96D50B857E35831 /* LKCLISignalRunner.m */,
 				0F5B6D5A7B9C4E019A12F301 /* LKCLIProcessLock.h */,
 				0F5B6D5B7B9C4E019A12F301 /* LKCLIProcessLock.m */,
+				0F5B6D637B9C4E019A12F301 /* LKCLIDisplayItemFetcher.h */,
+				0F5B6D647B9C4E019A12F301 /* LKCLIDisplayItemFetcher.m */,
 			);
 			name = Core;
 			path = Core;
@@ -1692,6 +1707,9 @@
 				0D7F1D1F2C061762916EDAE4 /* LKCLITreeCommand.m in Sources */,
 				0F5B6D5C7B9C4E019A12F301 /* LKCLIProcessLock.m in Sources */,
 				0F5B6D5F7B9C4E019A12F301 /* LKCLIInspectCommand.m in Sources */,
+				0F5B6D627B9C4E019A12F301 /* LKCLIAttrsCommand.m in Sources */,
+				0F5B6D657B9C4E019A12F301 /* LKCLIDisplayItemFetcher.m in Sources */,
+				0F5B6D687B9C4E019A12F301 /* LKCLIAttributeFormatter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

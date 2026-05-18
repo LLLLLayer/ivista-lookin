@@ -1,4 +1,4 @@
-#import "LKCLIInspectCommand.h"
+#import "LKCLIAttrsCommand.h"
 #import "LKCLIAttributeFormatter.h"
 #import "LKCLIConnectedApp.h"
 #import "LKCLIDisplayItemFetcher.h"
@@ -8,10 +8,11 @@
 #import "LookinObject.h"
 #import <AppKit/AppKit.h>
 
-@implementation LKCLIInspectCommand
+@implementation LKCLIAttrsCommand
 
 + (LKCLIExitCode)runWithArguments:(NSArray<NSString *> *)arguments {
     NSString *bundleID = nil;
+    NSString *groupFilter = nil;
     unsigned long oid = 0;
     BOOL json = NO;
 
@@ -38,9 +39,15 @@
                 [LKCLIStdIO writeError:@"error: --oid must be a positive integer"];
                 return LKCLIExitCodeUsage;
             }
+        } else if ([argument isEqualToString:@"--group"]) {
+            if (idx + 1 >= arguments.count) {
+                [LKCLIStdIO writeError:@"error: --group requires a value"];
+                return LKCLIExitCodeUsage;
+            }
+            groupFilter = arguments[++idx];
         } else {
             [LKCLIStdIO writeError:@"error: unknown option '%@'", argument];
-            [LKCLIStdIO writeError:@"hint: run 'lookin inspect --help'"];
+            [LKCLIStdIO writeError:@"hint: run 'lookin attrs --help'"];
             return LKCLIExitCodeUsage;
         }
     }
@@ -63,55 +70,36 @@
     }
 
     if (json) {
-        return [self printJSONWithResult:result];
+        return [self printJSONWithResult:result groupFilter:groupFilter];
     }
-    [self printTextWithResult:result];
+    [self printTextWithResult:result groupFilter:groupFilter];
     return LKCLIExitCodeOK;
 }
 
 + (void)printHelp {
     [LKCLIStdIO writeOut:
      @"Usage:\n"
-      "  lookin inspect --bundle-id <bundle-id> --oid <oid> [--json]\n"
+      "  lookin attrs --bundle-id <bundle-id> --oid <oid> [--group <filter>] [--json]\n"
       "\n"
-      "Fetch object metadata and dashboard attributes for a reachable iOS app."];
+      "Fetch dashboard attributes for a reachable iOS app object."];
 }
 
-+ (void)printTextWithResult:(LKCLIDisplayItemFetchResult *)result {
++ (void)printTextWithResult:(LKCLIDisplayItemFetchResult *)result groupFilter:(NSString *)groupFilter {
     LKCLIConnectedApp *app = result.app;
-    LookinDisplayItem *displayItem = result.displayItem;
     LookinObject *object = result.object;
 
     [LKCLIStdIO writeOut:@"%@ (%@)", app.appInfo.appName ?: @"<unknown>", app.appInfo.appBundleIdentifier ?: @"<unknown>"];
-    [LKCLIStdIO writeOut:@"display item:"];
-    [LKCLIStdIO writeOut:@"  view oid: %@", displayItem.viewObject ? [NSString stringWithFormat:@"%lu", displayItem.viewObject.oid] : @"nil"];
-    [LKCLIStdIO writeOut:@"  layer oid: %@", displayItem.layerObject ? [NSString stringWithFormat:@"%lu", displayItem.layerObject.oid] : @"nil"];
-    [LKCLIStdIO writeOut:@"  controller oid: %@", displayItem.hostViewControllerObject ? [NSString stringWithFormat:@"%lu", displayItem.hostViewControllerObject.oid] : @"nil"];
-    [LKCLIStdIO writeOut:@"  frame: (%.3f, %.3f, %.3f, %.3f)", displayItem.frame.origin.x, displayItem.frame.origin.y, displayItem.frame.size.width, displayItem.frame.size.height];
-    [LKCLIStdIO writeOut:@"  hidden: %@", displayItem.isHidden ? @"YES" : @"NO"];
-    [LKCLIStdIO writeOut:@"  alpha: %.3f", displayItem.alpha];
-
     [LKCLIStdIO writeOut:@"object:"];
     [LKCLIStdIO writeOut:@"  oid: %lu", object.oid];
     [LKCLIStdIO writeOut:@"  class: %@", object.rawClassName ?: @"<unknown>"];
-    if (object.memoryAddress.length) {
-        [LKCLIStdIO writeOut:@"  memory: %@", object.memoryAddress];
+    if (groupFilter.length) {
+        [LKCLIStdIO writeOut:@"  group filter: %@", groupFilter];
     }
-    if (object.classChainList.count) {
-        [LKCLIStdIO writeOut:@"  class chain:"];
-        for (NSString *className in object.classChainList) {
-            [LKCLIStdIO writeOut:@"    - %@", className];
-        }
-    }
-    if (object.specialTrace.length) {
-        [LKCLIStdIO writeOut:@"  special trace: %@", object.specialTrace];
-    }
-
     [LKCLIStdIO writeOut:@"attributes:"];
-    [LKCLIAttributeFormatter printGroups:result.attributeGroups groupFilter:nil baseIndent:@"  "];
+    [LKCLIAttributeFormatter printGroups:result.attributeGroups groupFilter:groupFilter baseIndent:@"  "];
 }
 
-+ (LKCLIExitCode)printJSONWithResult:(LKCLIDisplayItemFetchResult *)result {
++ (LKCLIExitCode)printJSONWithResult:(LKCLIDisplayItemFetchResult *)result groupFilter:(NSString *)groupFilter {
     LKCLIConnectedApp *app = result.app;
     LookinObject *object = result.object;
     NSDictionary *root = @{
@@ -129,7 +117,8 @@
             @"classChain": object.classChainList ?: @[],
             @"specialTrace": object.specialTrace ?: [NSNull null],
         },
-        @"attributes": [LKCLIAttributeFormatter JSONObjectsForGroups:result.attributeGroups groupFilter:nil],
+        @"groupFilter": groupFilter ?: [NSNull null],
+        @"attributes": [LKCLIAttributeFormatter JSONObjectsForGroups:result.attributeGroups groupFilter:groupFilter],
     };
 
     NSError *error = nil;

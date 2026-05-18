@@ -44,11 +44,12 @@ LookinCLI 希望支持以下场景：
 4. `lookin apps [--json]`
 5. `lookin tree --bundle-id <bundle-id> [--json] [--depth N]`
 6. `lookin inspect --bundle-id <bundle-id> --oid <oid> [--json]`
+7. `lookin attrs --bundle-id <bundle-id> --oid <oid> [--group <filter>] [--json]`
 
 下一步：
 
-1. `lookin attrs --bundle-id <bundle-id> --oid <oid> [--json]`
-2. `lookin screenshot --bundle-id <bundle-id> --oid <oid>`
+1. `lookin screenshot --bundle-id <bundle-id> --oid <oid>`
+2. `lookin export --bundle-id <bundle-id> --out <file.lookin>`
 
 ## 与现有 macOS App 的能力映射
 
@@ -286,6 +287,7 @@ lookin apps
 lookin tree --bundle-id com.example.demo
 lookin tree --bundle-id com.example.demo --json > hierarchy.json
 lookin inspect --bundle-id com.example.demo --oid 130
+lookin attrs --bundle-id com.example.demo --oid 130 --json
 ```
 
 如果没有找到 App，CLI 应提示用户检查：
@@ -426,7 +428,7 @@ lookin attrs --bundle-id com.example.demo --oid 130 --group frame
 lookin attrs --bundle-id com.example.demo --oid 130 --json
 ```
 
-第一阶段只保证读取；属性值格式先复用 LookinShared 的模型，再在 CLI 输出层做稳定映射。
+第一阶段只保证读取；属性值格式先复用 LookinShared 的模型，再在 CLI 输出层做稳定映射。`--group` 先按 group identifier 或 title 做大小写不敏感过滤。
 
 ### export
 

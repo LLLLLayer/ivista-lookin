@@ -6,6 +6,7 @@
 #import "LKCLIAppsCommand.h"
 #import "LKCLITreeCommand.h"
 #import "LKCLIInspectCommand.h"
+#import "LKCLIAttrsCommand.h"
 #import "LKCLIProcessLock.h"
 #import "LKCLIStdIO.h"
 
@@ -68,6 +69,15 @@ int main(int argc, const char * argv[]) {
             }
             return (int)[LKCLIProcessLock runDeviceCommandWithBlock:^LKCLIExitCode{
                 return [LKCLIInspectCommand runWithArguments:commandArguments];
+            }];
+        }
+
+        if ([command isEqualToString:@"attrs"]) {
+            if (LKCLIArgumentsContainHelp(commandArguments)) {
+                return (int)[LKCLIAttrsCommand runWithArguments:commandArguments];
+            }
+            return (int)[LKCLIProcessLock runDeviceCommandWithBlock:^LKCLIExitCode{
+                return [LKCLIAttrsCommand runWithArguments:commandArguments];
             }];
         }
 

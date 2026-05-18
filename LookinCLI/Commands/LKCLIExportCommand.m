@@ -1,5 +1,6 @@
 #import "LKCLIExportCommand.h"
 #import "LKCLIAppScanner.h"
+#import "LKCLIAppSelector.h"
 #import "LKCLIConnectedApp.h"
 #import "LKCLISignalRunner.h"
 #import "LKCLIStdIO.h"
@@ -20,7 +21,7 @@
 @implementation LKCLIExportCommand
 
 + (LKCLIExitCode)runWithArguments:(NSArray<NSString *> *)arguments {
-    NSString *bundleID = nil;
+    LKCLIAppSelection *selection = [LKCLIAppSelection new];
     NSString *outPath = nil;
     CGFloat compression = 1;
     BOOL json = NO;
@@ -32,12 +33,12 @@
             return LKCLIExitCodeOK;
         } else if ([argument isEqualToString:@"--json"]) {
             json = YES;
-        } else if ([argument isEqualToString:@"--bundle-id"] || [argument isEqualToString:@"-b"]) {
-            if (idx + 1 >= arguments.count) {
-                [LKCLIStdIO writeError:@"error: %@ requires a value", argument];
+        } else if ([LKCLIAppSelector isSelectionArgument:argument]) {
+            NSString *errorMessage = nil;
+            if (![LKCLIAppSelector consumeSelectionArgument:argument arguments:arguments index:&idx selection:selection errorMessage:&errorMessage]) {
+                [LKCLIStdIO writeError:@"%@", errorMessage ?: @"error: invalid app selector option"];
                 return LKCLIExitCodeUsage;
             }
-            bundleID = arguments[++idx];
         } else if ([argument isEqualToString:@"--out"] || [argument isEqualToString:@"-o"]) {
             if (idx + 1 >= arguments.count) {
                 [LKCLIStdIO writeError:@"error: %@ requires a value", argument];
@@ -61,7 +62,7 @@
         }
     }
 
-    if (bundleID.length == 0) {
+    if (selection.bundleID.length == 0) {
         [LKCLIStdIO writeError:@"error: --bundle-id is required"];
         [LKCLIStdIO writeError:@"hint: run 'lookin apps --json' to find bundle identifiers"];
         return LKCLIExitCodeUsage;
@@ -81,20 +82,13 @@
         return LKCLIExitCodeConnection;
     }
 
-    NSArray<LKCLIConnectedApp *> *matchingApps = [self appsMatchingBundleID:bundleID inApps:appsValue];
-    if (matchingApps.count == 0) {
+    LKCLIExitCode selectionExitCode = LKCLIExitCodeOK;
+    LKCLIConnectedApp *app = [[LKCLIAppSelector new] selectAppFromAppsValue:appsValue selection:selection exitCode:&selectionExitCode];
+    if (!app) {
         [scanner closeAllConnections];
-        [LKCLIStdIO writeError:@"error: no inspectable app found for bundle id '%@'", bundleID];
-        return LKCLIExitCodeNoApp;
-    }
-    if (matchingApps.count > 1) {
-        [scanner closeAllConnections];
-        [LKCLIStdIO writeError:@"error: multiple apps matched bundle id '%@'", bundleID];
-        [LKCLIStdIO writeError:@"hint: device selection will be added in a later command revision"];
-        return LKCLIExitCodeAmbiguousApp;
+        return selectionExitCode;
     }
 
-    LKCLIConnectedApp *app = matchingApps.firstObject;
     id hierarchyValue = nil;
     NSError *hierarchyError = nil;
     BOOL fetchedHierarchy = [LKCLISignalRunner waitForSignal:[scanner fetchHierarchyForApp:app] timeout:12 value:&hierarchyValue error:&hierarchyError];
@@ -149,7 +143,7 @@
 + (void)printHelp {
     [LKCLIStdIO writeOut:
      @"Usage:\n"
-      "  lookin export --bundle-id <bundle-id> --out <file.lookin> [--compression <0.01-1>] [--json]\n"
+      "  lookin export --bundle-id <bundle-id> --out <file.lookin> [--compression <0.01-1>] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
       "\n"
       "Export a .lookin snapshot containing hierarchy, attributes, and screenshots."];
 }
@@ -170,23 +164,6 @@
         *compression = parsedValue;
     }
     return YES;
-}
-
-+ (NSArray<LKCLIConnectedApp *> *)appsMatchingBundleID:(NSString *)bundleID inApps:(id)appsValue {
-    if (![appsValue isKindOfClass:[NSArray class]]) {
-        return @[];
-    }
-
-    NSMutableArray<LKCLIConnectedApp *> *matches = [NSMutableArray array];
-    for (LKCLIConnectedApp *app in (NSArray *)appsValue) {
-        if (![app isKindOfClass:[LKCLIConnectedApp class]] || app.serverVersionError) {
-            continue;
-        }
-        if ([app.appInfo.appBundleIdentifier isEqualToString:bundleID]) {
-            [matches addObject:app];
-        }
-    }
-    return matches.copy;
 }
 
 + (NSArray *)detailPackagesForItems:(NSArray<LookinDisplayItem *> *)items {

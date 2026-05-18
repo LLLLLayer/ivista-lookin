@@ -126,6 +126,7 @@ LookinCLI/
     LKCLIVersionProvider.h/.m
     LKCLIConnectionService.h/.m
     LKCLIAppDiscoveryService.h/.m
+    LKCLIAppSelector.h/.m
     LKCLIHierarchyService.h/.m
     LKCLIDetailFetcher.h/.m
     LKCLIAsync.h/.m
@@ -254,19 +255,21 @@ CLI 第一版可以复用相同流程，但建议加一层命令行服务：
 
 ```objc
 @interface LKCLIAppSelector : NSObject
-- (LKInspectableApp *)selectAppFromApps:(NSArray<LKInspectableApp *> *)apps
-                               options:(LKCLIOptions *)options
-                                 error:(NSError **)error;
+- (LKCLIConnectedApp *)selectAppFromAppsValue:(id)appsValue
+                                    selection:(LKCLIAppSelection *)selection
+                                     exitCode:(LKCLIExitCode *)exitCode;
 @end
 ```
 
 选择规则：
 
-1. `--bundle-id` 优先级最高。
-2. `--name` 次之。
-3. `--index` 用于 disambiguation。
-4. 不传参数且只有一个 app 时自动选择。
-5. 不传参数且多个 app 时输出列表并返回 `LKCLIExitCodeAmbiguousApp`。
+1. `--bundle-id` 是设备命令的必填基础选择器。
+2. `--transport simulator|usb` 用于区分模拟器和真机。
+3. `--port <port>` 用于锁定具体连接端口。
+4. `--device-id <id>` 用于锁定 USB 设备。
+5. 匹配 0 个 App 返回 `LKCLIExitCodeNoApp`。
+6. 匹配多个 App 返回 `LKCLIExitCodeAmbiguousApp`，并提示继续补选择参数。
+7. `lookin apps` 可以使用同一组选项进行过滤，但会保留 server version error 记录，方便诊断。
 
 ## tree 输出方案
 
@@ -413,12 +416,12 @@ JSON 错误可后续支持：
 lookin --help
 lookin --version
 lookin doctor
-lookin apps [--json] [--include-icon]
-lookin inspect --bundle-id ... --oid ... [--json]
-lookin attrs --bundle-id ... --oid ... [--group ...] [--json]
-lookin screenshot --bundle-id ... --oid ... --out ... [--type group|solo] [--json]
-lookin export --bundle-id ... --out ... [--compression 0.01-1] [--json]
-lookin tree [--bundle-id ...] [--name ...] [--index ...] [--depth N] [--filter text] [--oid oid] [--json]
+lookin apps [--json] [--bundle-id ...] [--transport simulator|usb] [--port ...] [--device-id ...]
+lookin inspect --bundle-id ... --oid ... [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
+lookin attrs --bundle-id ... --oid ... [--group ...] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
+lookin screenshot --bundle-id ... --oid ... --out ... [--type group|solo] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
+lookin export --bundle-id ... --out ... [--compression 0.01-1] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
+lookin tree --bundle-id ... [--depth N] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
 ```
 
 如果后续命令复杂度显著上升，再评估是否引入 argument parser 库。
@@ -525,4 +528,4 @@ codesign --force --deep --sign - lookin Frameworks/*.framework
 
 当前 Phase 1 基础版已完成：`lookin tree --bundle-id <bundle-id> [--json] [--depth N]` 可按 bundle id 拉取 UI 层级，并输出稳定文本或 JSON。
 
-当前 Phase 1.5 已完成基础链路：设备命令已加跨进程锁和空结果重试，降低真机 USB 并发扫描不稳定；`lookin inspect --bundle-id <bundle-id> --oid <oid> [--json]` 可按 oid 拉取对象信息和基础属性；`lookin attrs --bundle-id <bundle-id> --oid <oid> [--group <filter>] [--json]` 可单独输出属性详情；`lookin screenshot --bundle-id <bundle-id> --oid <oid> --out <path> [--type group|solo] [--json]` 可导出节点截图；`lookin export --bundle-id <bundle-id> --out <file.lookin> [--compression <0.01-1>] [--json]` 可导出离线快照。后续继续补设备选择参数和操作类命令。
+当前 Phase 1.5 已完成基础链路：设备命令已加跨进程锁和空结果重试，降低真机 USB 并发扫描不稳定；`lookin inspect --bundle-id <bundle-id> --oid <oid> [--json]` 可按 oid 拉取对象信息和基础属性；`lookin attrs --bundle-id <bundle-id> --oid <oid> [--group <filter>] [--json]` 可单独输出属性详情；`lookin screenshot --bundle-id <bundle-id> --oid <oid> --out <path> [--type group|solo] [--json]` 可导出节点截图；`lookin export --bundle-id <bundle-id> --out <file.lookin> [--compression <0.01-1>] [--json]` 可导出离线快照；所有设备命令都支持 `--transport simulator|usb`、`--port <port>` 和 `--device-id <id>` 做 disambiguation。后续继续补操作类命令和发布打包。

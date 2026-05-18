@@ -11,14 +11,14 @@
       "  lookin --help\n"
       "  lookin --version\n"
       "  lookin doctor\n"
-      "  lookin apps [--json]\n"
-      "  lookin tree --bundle-id <bundle-id> [--json] [--depth N]\n"
-      "  lookin inspect --bundle-id <bundle-id> --oid <oid> [--json]\n"
-      "  lookin attrs --bundle-id <bundle-id> --oid <oid> [--group <filter>] [--json]\n"
-      "  lookin screenshot --bundle-id <bundle-id> --oid <oid> --out <path> [--type group|solo] [--json]\n"
-      "  lookin export --bundle-id <bundle-id> --out <file.lookin> [--compression <0.01-1>] [--json]\n"
+      "  lookin apps [--json] [--bundle-id <bundle-id>] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
+      "  lookin tree --bundle-id <bundle-id> [--json] [--depth N] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
+      "  lookin inspect --bundle-id <bundle-id> --oid <oid> [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
+      "  lookin attrs --bundle-id <bundle-id> --oid <oid> [--group <filter>] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
+      "  lookin screenshot --bundle-id <bundle-id> --oid <oid> --out <path> [--type group|solo] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
+      "  lookin export --bundle-id <bundle-id> --out <file.lookin> [--compression <0.01-1>] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
       "\n"
-      "This build includes app discovery, hierarchy tree output, object inspection, attribute queries, screenshot export, and .lookin snapshot export."];
+      "This build includes app discovery, app selection filters, hierarchy tree output, object inspection, attribute queries, screenshot export, and .lookin snapshot export."];
     return LKCLIExitCodeOK;
 }
 

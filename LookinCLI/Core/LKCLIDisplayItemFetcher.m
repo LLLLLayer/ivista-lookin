@@ -1,5 +1,6 @@
 #import "LKCLIDisplayItemFetcher.h"
 #import "LKCLIAppScanner.h"
+#import "LKCLIAppSelector.h"
 #import "LKCLIConnectedApp.h"
 #import "LKCLISignalRunner.h"
 #import "LKCLIStdIO.h"
@@ -50,12 +51,18 @@
 }
 
 - (LKCLIExitCode)fetchBundleID:(NSString *)bundleID oid:(unsigned long)oid result:(LKCLIDisplayItemFetchResult **)result {
-    return [self fetchBundleID:bundleID
-                           oid:oid
-                      taskType:LookinStaticAsyncUpdateTaskTypeNoScreenshot
-                   attrRequest:LookinDetailUpdateTaskAttrRequest_Need
-            needBasisVisualInfo:YES
-                        result:result];
+    LKCLIAppSelection *selection = [LKCLIAppSelection new];
+    selection.bundleID = bundleID;
+    return [self fetchSelection:selection oid:oid result:result];
+}
+
+- (LKCLIExitCode)fetchSelection:(LKCLIAppSelection *)selection oid:(unsigned long)oid result:(LKCLIDisplayItemFetchResult **)result {
+    return [self fetchSelection:selection
+                            oid:oid
+                       taskType:LookinStaticAsyncUpdateTaskTypeNoScreenshot
+                    attrRequest:LookinDetailUpdateTaskAttrRequest_Need
+             needBasisVisualInfo:YES
+                         result:result];
 }
 
 - (LKCLIExitCode)fetchBundleID:(NSString *)bundleID
@@ -64,6 +71,22 @@
                     attrRequest:(LookinDetailUpdateTaskAttrRequest)attrRequest
              needBasisVisualInfo:(BOOL)needBasisVisualInfo
                          result:(LKCLIDisplayItemFetchResult **)result {
+    LKCLIAppSelection *selection = [LKCLIAppSelection new];
+    selection.bundleID = bundleID;
+    return [self fetchSelection:selection
+                            oid:oid
+                       taskType:taskType
+                    attrRequest:attrRequest
+             needBasisVisualInfo:needBasisVisualInfo
+                         result:result];
+}
+
+- (LKCLIExitCode)fetchSelection:(LKCLIAppSelection *)selection
+                             oid:(unsigned long)oid
+                        taskType:(LookinStaticAsyncUpdateTaskType)taskType
+                     attrRequest:(LookinDetailUpdateTaskAttrRequest)attrRequest
+              needBasisVisualInfo:(BOOL)needBasisVisualInfo
+                          result:(LKCLIDisplayItemFetchResult **)result {
     LKCLIAppScanner *scanner = [LKCLIAppScanner new];
     id appsValue = nil;
     NSError *appsError = nil;
@@ -74,20 +97,13 @@
         return LKCLIExitCodeConnection;
     }
 
-    NSArray<LKCLIConnectedApp *> *matchingApps = [self appsMatchingBundleID:bundleID inApps:appsValue];
-    if (matchingApps.count == 0) {
+    LKCLIExitCode selectionExitCode = LKCLIExitCodeOK;
+    LKCLIConnectedApp *app = [[LKCLIAppSelector new] selectAppFromAppsValue:appsValue selection:selection exitCode:&selectionExitCode];
+    if (!app) {
         [scanner closeAllConnections];
-        [LKCLIStdIO writeError:@"error: no inspectable app found for bundle id '%@'", bundleID];
-        return LKCLIExitCodeNoApp;
-    }
-    if (matchingApps.count > 1) {
-        [scanner closeAllConnections];
-        [LKCLIStdIO writeError:@"error: multiple apps matched bundle id '%@'", bundleID];
-        [LKCLIStdIO writeError:@"hint: device selection will be added in a later command revision"];
-        return LKCLIExitCodeAmbiguousApp;
+        return selectionExitCode;
     }
 
-    LKCLIConnectedApp *app = matchingApps.firstObject;
     id hierarchyValue = nil;
     NSError *hierarchyError = nil;
     BOOL fetchedHierarchy = [LKCLISignalRunner waitForSignal:[scanner fetchHierarchyForApp:app] timeout:12 value:&hierarchyValue error:&hierarchyError];
@@ -147,23 +163,6 @@
         *result = fetchResult;
     }
     return LKCLIExitCodeOK;
-}
-
-- (NSArray<LKCLIConnectedApp *> *)appsMatchingBundleID:(NSString *)bundleID inApps:(id)appsValue {
-    if (![appsValue isKindOfClass:[NSArray class]]) {
-        return @[];
-    }
-
-    NSMutableArray<LKCLIConnectedApp *> *matches = [NSMutableArray array];
-    for (LKCLIConnectedApp *app in (NSArray *)appsValue) {
-        if (![app isKindOfClass:[LKCLIConnectedApp class]] || app.serverVersionError) {
-            continue;
-        }
-        if ([app.appInfo.appBundleIdentifier isEqualToString:bundleID]) {
-            [matches addObject:app];
-        }
-    }
-    return matches.copy;
 }
 
 - (LookinDisplayItem *)displayItemMatchingOID:(unsigned long)oid inItems:(NSArray<LookinDisplayItem *> *)items {

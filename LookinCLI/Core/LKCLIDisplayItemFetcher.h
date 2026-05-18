@@ -2,7 +2,7 @@
 #import "LKCLIExitCode.h"
 #import "LookinStaticAsyncUpdateTask.h"
 
-@class LKCLIConnectedApp, LookinAttributesGroup, LookinDisplayItem, LookinDisplayItemDetail, LookinHierarchyInfo, LookinObject;
+@class LKCLIAppSelection, LKCLIConnectedApp, LookinAttributesGroup, LookinDisplayItem, LookinDisplayItemDetail, LookinHierarchyInfo, LookinObject;
 
 @interface LKCLIDisplayItemFetchResult : NSObject
 
@@ -21,11 +21,18 @@
 
 + (BOOL)parseOIDValue:(NSString *)value oid:(unsigned long *)oid;
 - (LKCLIExitCode)fetchBundleID:(NSString *)bundleID oid:(unsigned long)oid result:(LKCLIDisplayItemFetchResult **)result;
+- (LKCLIExitCode)fetchSelection:(LKCLIAppSelection *)selection oid:(unsigned long)oid result:(LKCLIDisplayItemFetchResult **)result;
 - (LKCLIExitCode)fetchBundleID:(NSString *)bundleID
                             oid:(unsigned long)oid
                        taskType:(LookinStaticAsyncUpdateTaskType)taskType
                     attrRequest:(LookinDetailUpdateTaskAttrRequest)attrRequest
              needBasisVisualInfo:(BOOL)needBasisVisualInfo
                          result:(LKCLIDisplayItemFetchResult **)result;
+- (LKCLIExitCode)fetchSelection:(LKCLIAppSelection *)selection
+                             oid:(unsigned long)oid
+                        taskType:(LookinStaticAsyncUpdateTaskType)taskType
+                     attrRequest:(LookinDetailUpdateTaskAttrRequest)attrRequest
+              needBasisVisualInfo:(BOOL)needBasisVisualInfo
+                          result:(LKCLIDisplayItemFetchResult **)result;
 
 @end

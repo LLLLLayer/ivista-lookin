@@ -1,5 +1,6 @@
 #import "LKCLIAppsCommand.h"
 #import "LKCLIAppScanner.h"
+#import "LKCLIAppSelector.h"
 #import "LKCLIConnectedApp.h"
 #import "LKCLISignalRunner.h"
 #import "LKCLIStdIO.h"
@@ -9,12 +10,20 @@
 
 + (LKCLIExitCode)runWithArguments:(NSArray<NSString *> *)arguments {
     BOOL json = NO;
-    for (NSString *argument in arguments) {
+    LKCLIAppSelection *selection = [LKCLIAppSelection new];
+    for (NSUInteger idx = 0; idx < arguments.count; idx++) {
+        NSString *argument = arguments[idx];
         if ([argument isEqualToString:@"--json"]) {
             json = YES;
         } else if ([argument isEqualToString:@"--help"] || [argument isEqualToString:@"-h"]) {
             [self printHelp];
             return LKCLIExitCodeOK;
+        } else if ([LKCLIAppSelector isSelectionArgument:argument]) {
+            NSString *errorMessage = nil;
+            if (![LKCLIAppSelector consumeSelectionArgument:argument arguments:arguments index:&idx selection:selection errorMessage:&errorMessage]) {
+                [LKCLIStdIO writeError:@"%@", errorMessage ?: @"error: invalid app selector option"];
+                return LKCLIExitCodeUsage;
+            }
         } else {
             [LKCLIStdIO writeError:@"error: unknown option '%@'", argument];
             [LKCLIStdIO writeError:@"hint: run 'lookin apps --help'"];
@@ -33,7 +42,7 @@
         return LKCLIExitCodeConnection;
     }
 
-    NSArray<LKCLIConnectedApp *> *apps = [value isKindOfClass:[NSArray class]] ? value : @[];
+    NSArray<LKCLIConnectedApp *> *apps = [LKCLIAppSelector appsFromAppsValue:value selection:selection includeServerErrors:YES];
     if (json) {
         return [self printJSONWithApps:apps];
     }
@@ -44,7 +53,7 @@
 + (void)printHelp {
     [LKCLIStdIO writeOut:
      @"Usage:\n"
-      "  lookin apps [--json]\n"
+      "  lookin apps [--json] [--bundle-id <bundle-id>] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
       "\n"
       "List iOS apps that are currently reachable through LookinServer."];
 }
@@ -59,6 +68,8 @@
         LKCLIConnectedApp *app = apps[idx];
         if (app.serverVersionError) {
             [LKCLIStdIO writeOut:@"%lu. version-error: %@", (unsigned long)(idx + 1), app.serverVersionError.localizedDescription ?: @"LookinServer version mismatch"];
+            NSString *deviceID = app.deviceID ? [NSString stringWithFormat:@", device-id: %@", app.deviceID] : @"";
+            [LKCLIStdIO writeOut:@"   transport: %@:%ld%@", app.transport ?: @"unknown", (long)app.port, deviceID];
             continue;
         }
 
@@ -68,10 +79,11 @@
         NSString *device = info.deviceDescription.length ? info.deviceDescription : @"<unknown device>";
         NSString *os = info.osDescription.length ? info.osDescription : @"?";
         NSString *serverVersion = info.serverReadableVersion.length ? info.serverReadableVersion : [NSString stringWithFormat:@"%d", info.serverVersion];
+        NSString *deviceID = app.deviceID ? [NSString stringWithFormat:@", device-id: %@", app.deviceID] : @"";
 
         [LKCLIStdIO writeOut:@"%lu. %@ (%@)", (unsigned long)(idx + 1), name, bundleID];
         [LKCLIStdIO writeOut:@"   device: %@, iOS %@", device, os];
-        [LKCLIStdIO writeOut:@"   transport: %@:%ld, server: %@", app.transport ?: @"unknown", (long)app.port, serverVersion];
+        [LKCLIStdIO writeOut:@"   transport: %@:%ld%@, server: %@", app.transport ?: @"unknown", (long)app.port, deviceID, serverVersion];
     }
 }
 

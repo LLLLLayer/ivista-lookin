@@ -1,4 +1,5 @@
 #import "LKCLIInspectCommand.h"
+#import "LKCLIAppSelector.h"
 #import "LKCLIAttributeFormatter.h"
 #import "LKCLIConnectedApp.h"
 #import "LKCLIDisplayItemFetcher.h"
@@ -11,7 +12,7 @@
 @implementation LKCLIInspectCommand
 
 + (LKCLIExitCode)runWithArguments:(NSArray<NSString *> *)arguments {
-    NSString *bundleID = nil;
+    LKCLIAppSelection *selection = [LKCLIAppSelection new];
     unsigned long oid = 0;
     BOOL json = NO;
 
@@ -22,12 +23,12 @@
             return LKCLIExitCodeOK;
         } else if ([argument isEqualToString:@"--json"]) {
             json = YES;
-        } else if ([argument isEqualToString:@"--bundle-id"] || [argument isEqualToString:@"-b"]) {
-            if (idx + 1 >= arguments.count) {
-                [LKCLIStdIO writeError:@"error: %@ requires a value", argument];
+        } else if ([LKCLIAppSelector isSelectionArgument:argument]) {
+            NSString *errorMessage = nil;
+            if (![LKCLIAppSelector consumeSelectionArgument:argument arguments:arguments index:&idx selection:selection errorMessage:&errorMessage]) {
+                [LKCLIStdIO writeError:@"%@", errorMessage ?: @"error: invalid app selector option"];
                 return LKCLIExitCodeUsage;
             }
-            bundleID = arguments[++idx];
         } else if ([argument isEqualToString:@"--oid"]) {
             if (idx + 1 >= arguments.count) {
                 [LKCLIStdIO writeError:@"error: --oid requires a value"];
@@ -45,19 +46,19 @@
         }
     }
 
-    if (bundleID.length == 0) {
+    if (selection.bundleID.length == 0) {
         [LKCLIStdIO writeError:@"error: --bundle-id is required"];
         [LKCLIStdIO writeError:@"hint: run 'lookin apps --json' to find bundle identifiers"];
         return LKCLIExitCodeUsage;
     }
     if (oid == 0) {
         [LKCLIStdIO writeError:@"error: --oid is required"];
-        [LKCLIStdIO writeError:@"hint: run 'lookin tree --bundle-id %@' to find object ids", bundleID];
+        [LKCLIStdIO writeError:@"hint: run 'lookin tree --bundle-id %@' to find object ids", selection.bundleID];
         return LKCLIExitCodeUsage;
     }
 
     LKCLIDisplayItemFetchResult *result = nil;
-    LKCLIExitCode exitCode = [[LKCLIDisplayItemFetcher new] fetchBundleID:bundleID oid:oid result:&result];
+    LKCLIExitCode exitCode = [[LKCLIDisplayItemFetcher new] fetchSelection:selection oid:oid result:&result];
     if (exitCode != LKCLIExitCodeOK) {
         return exitCode;
     }
@@ -72,7 +73,7 @@
 + (void)printHelp {
     [LKCLIStdIO writeOut:
      @"Usage:\n"
-      "  lookin inspect --bundle-id <bundle-id> --oid <oid> [--json]\n"
+      "  lookin inspect --bundle-id <bundle-id> --oid <oid> [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
       "\n"
       "Fetch object metadata and dashboard attributes for a reachable iOS app."];
 }

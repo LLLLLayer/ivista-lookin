@@ -41,17 +41,17 @@ LookinCLI 希望支持以下场景：
 1. `lookin --help`
 2. `lookin --version`
 3. `lookin doctor`
-4. `lookin apps [--json]`
-5. `lookin tree --bundle-id <bundle-id> [--json] [--depth N]`
-6. `lookin inspect --bundle-id <bundle-id> --oid <oid> [--json]`
-7. `lookin attrs --bundle-id <bundle-id> --oid <oid> [--group <filter>] [--json]`
-8. `lookin screenshot --bundle-id <bundle-id> --oid <oid> --out <path> [--type group|solo] [--json]`
-9. `lookin export --bundle-id <bundle-id> --out <file.lookin> [--compression <0.01-1>] [--json]`
+4. `lookin apps [--json] [--bundle-id <bundle-id>] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
+5. `lookin tree --bundle-id <bundle-id> [--json] [--depth N] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
+6. `lookin inspect --bundle-id <bundle-id> --oid <oid> [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
+7. `lookin attrs --bundle-id <bundle-id> --oid <oid> [--group <filter>] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
+8. `lookin screenshot --bundle-id <bundle-id> --oid <oid> --out <path> [--type group|solo] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
+9. `lookin export --bundle-id <bundle-id> --out <file.lookin> [--compression <0.01-1>] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
 
 下一步：
 
-1. 设备选择参数，例如 `--device` 或 `--transport`
-2. `lookin selectors/call/set` 操作类命令
+1. `lookin selectors/call/set` 操作类命令
+2. 发布打包脚本和独立安装验证
 
 ## 与现有 macOS App 的能力映射
 
@@ -292,6 +292,8 @@ lookin inspect --bundle-id com.example.demo --oid 130
 lookin attrs --bundle-id com.example.demo --oid 130 --json
 lookin screenshot --bundle-id com.example.demo --oid 130 --out button.png
 lookin export --bundle-id com.example.demo --out demo.lookin
+lookin tree --bundle-id com.example.demo --transport usb
+lookin export --bundle-id com.example.demo --port 47165 --out demo.lookin
 ```
 
 如果没有找到 App，CLI 应提示用户检查：
@@ -353,7 +355,8 @@ USB support: available
 ```bash
 lookin apps
 lookin apps --json
-lookin apps --include-icon
+lookin apps --transport usb
+lookin apps --bundle-id com.example.demo
 ```
 
 文本输出建议包含：
@@ -385,6 +388,7 @@ JSON 输出建议包含：
 ```bash
 lookin inspect --bundle-id com.example.demo --oid 130
 lookin inspect --bundle-id com.example.demo --oid 130 --json
+lookin inspect --bundle-id com.example.demo --oid 130 --transport usb
 ```
 
 文本输出建议包含 App 信息、display item 的 view/layer/controller oid、frame、hidden、alpha、对象 class chain 和属性列表。
@@ -405,6 +409,7 @@ lookin tree --bundle-id com.example.demo --depth 3
 lookin tree --bundle-id com.example.demo --filter UIButton
 lookin tree --bundle-id com.example.demo --oid 123456
 lookin tree --bundle-id com.example.demo --json
+lookin tree --bundle-id com.example.demo --transport simulator --port 47164
 ```
 
 文本输出示例：
@@ -430,6 +435,7 @@ oid, viewOid, layerOid, hostViewControllerOid, title, className, objectType, fra
 lookin attrs --bundle-id com.example.demo --oid 130
 lookin attrs --bundle-id com.example.demo --oid 130 --group frame
 lookin attrs --bundle-id com.example.demo --oid 130 --json
+lookin attrs --bundle-id com.example.demo --oid 130 --device-id 42
 ```
 
 第一阶段只保证读取；属性值格式先复用 LookinShared 的模型，再在 CLI 输出层做稳定映射。`--group` 先按 group identifier 或 title 做大小写不敏感过滤。
@@ -441,6 +447,7 @@ lookin attrs --bundle-id com.example.demo --oid 130 --json
 ```bash
 lookin export --bundle-id com.example.demo --out demo.lookin
 lookin export --bundle-id com.example.demo --out demo.lookin --compression 0.5
+lookin export --bundle-id com.example.demo --transport usb --out demo.lookin
 ```
 
 默认行为应尽量接近 macOS App 的导出：包含 hierarchy、属性详情和截图。CLI 当前会拉取每个 layer 的 group screenshot，对可展开节点额外拉取 solo screenshot，并写出可被 Lookin macOS App 打开的 `.lookin` secure archive。
@@ -453,6 +460,7 @@ lookin export --bundle-id com.example.demo --out demo.lookin --compression 0.5
 lookin screenshot --bundle-id com.example.demo --oid 130 --out button.tiff
 lookin screenshot --bundle-id com.example.demo --oid 130 --type group --out button.tiff
 lookin screenshot --bundle-id com.example.demo --oid 130 --type solo --out button.tiff
+lookin screenshot --bundle-id com.example.demo --oid 130 --transport usb --out button.png
 ```
 
 `group` 表示包含子视图的截图，`solo` 表示隐藏子视图后的截图。默认使用 `group`。输出格式按 `--out` 后缀判断：`.png` 输出 PNG，其它后缀默认输出 TIFF。
@@ -502,16 +510,21 @@ lookin set --bundle-id com.example.demo --oid 130 --attr backgroundColor --value
 
 ```bash
 --bundle-id com.example.demo
---name Demo
---index 0
+--transport simulator|usb
+--port 47164
+--device-id 42
 ```
 
-规则建议：
+当前规则：
 
-1. `--bundle-id` 优先级最高。
-2. `--name` 如果匹配多个 App，需要报错并提示使用 `--index` 或 `--bundle-id`。
-3. 不传选择参数且只有一个 App 时，可以自动选择。
-4. 不传选择参数且有多个 App 时，输出列表并以非 0 退出。
+1. 设备命令仍要求显式传 `--bundle-id`，避免在脚本里误选 App。
+2. `--transport` 只接受 `simulator` 或 `usb`。
+3. `--port` 用于区分同一 transport 下的多个连接端口。
+4. `--device-id` 用于区分 USB 设备。
+5. 如果匹配多个 App，命令返回 `LKCLIExitCodeAmbiguousApp`，并提示继续加选择参数。
+6. `lookin apps` 也支持同一组选项，用于先过滤并确认目标。
+
+后续可以再补 `--name` 和 `--index`，但第一版优先使用更稳定的 bundle id、transport、port 和 device id。
 
 ## 输出约定
 

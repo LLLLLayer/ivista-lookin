@@ -1,0 +1,9 @@
+#ifndef LookinCLI_PrefixHeader_pch
+#define LookinCLI_PrefixHeader_pch
+
+#import <Foundation/Foundation.h>
+#import <ReactiveObjC/ReactiveObjC.h>
+
+#import "LookinDefines.h"
+
+#endif /* LookinCLI_PrefixHeader_pch */

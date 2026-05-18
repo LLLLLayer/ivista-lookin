@@ -13,7 +13,15 @@
 		1892DD1C2AF258890016D61B /* LookinDisplayItem+LookinClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 1892DD1B2AF258890016D61B /* LookinDisplayItem+LookinClient.m */; };
 		1892DD292AF25EDE0016D61B /* LookinMsgTargetAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 1892DD252AF25EDE0016D61B /* LookinMsgTargetAction.m */; };
 		1892DD2A2AF25EDE0016D61B /* LookinMsgAttribute.m in Sources */ = {isa = PBXBuildFile; fileRef = 1892DD282AF25EDE0016D61B /* LookinMsgAttribute.m */; };
+		2B95E02B20BF42EBDCEEAC19 /* LKCLIStdIO.m in Sources */ = {isa = PBXBuildFile; fileRef = 8EE597935A2C776D150D8DE0 /* LKCLIStdIO.m */; };
+		2FEB0FCF4622972E141C2976 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B13DF084DE70E2EBB708DEAF /* main.m */; };
+		3C6A4C6EB09F29E6D15D9D9B /* LKCLIHelpCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 91EE5DD1C3B3174BA6BDD0C8 /* LKCLIHelpCommand.m */; };
+		4894DA4DBCCEB98D45576AED /* LKCLIDoctorCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D80697B1C2D2FB8C6BD1F8F /* LKCLIDoctorCommand.m */; };
+		52E501E9E216A9CF286F2098 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FFEE91B500B558CA4447412 /* Cocoa.framework */; };
+		548EAA4DF4B69B7BBD81B52F /* Pods_LookinCLI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 083D381CDDAA0F54467619D1 /* Pods_LookinCLI.framework */; };
 		601AD5E52A64D6110013F490 /* LKHierarchyDataSource+KeyDown.m in Sources */ = {isa = PBXBuildFile; fileRef = 601AD5E42A64D6110013F490 /* LKHierarchyDataSource+KeyDown.m */; };
+		777D589E137ADD87C6834B1D /* LKCLIVersionProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BEDCFCB76E040C123339010 /* LKCLIVersionProvider.m */; };
+		7BCDE03AD6B6A4B46D26903D /* LKCLIVersionCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = DA46CB9A843553CFF2B66A6B /* LKCLIVersionCommand.m */; };
 		7BFFDF0F2AF12AA10039B828 /* LookinAttributesGroup+LookinClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 7BFFDF0E2AF12AA10039B828 /* LookinAttributesGroup+LookinClient.m */; };
 		7BFFDF122AF12E940039B828 /* LookinAttributesSection+LookinClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 7BFFDF112AF12E940039B828 /* LookinAttributesSection+LookinClient.m */; };
 		7BFFDF152AF134240039B828 /* LKDashboardSectionViewPool.m in Sources */ = {isa = PBXBuildFile; fileRef = 7BFFDF142AF134240039B828 /* LKDashboardSectionViewPool.m */; };
@@ -217,6 +225,7 @@
 
 /* Begin PBXFileReference section */
 		07695A2606130B23B91F553C /* Pods-LookinTestflight.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LookinTestflight.release.xcconfig"; path = "Target Support Files/Pods-LookinTestflight/Pods-LookinTestflight.release.xcconfig"; sourceTree = "<group>"; };
+		083D381CDDAA0F54467619D1 /* Pods_LookinCLI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_LookinCLI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1822E2C92B9396B50007C0B2 /* LKDashboardTextControlEditingFlag.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LKDashboardTextControlEditingFlag.h; sourceTree = "<group>"; };
 		1822E2CA2B9396B50007C0B2 /* LKDashboardTextControlEditingFlag.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LKDashboardTextControlEditingFlag.m; sourceTree = "<group>"; };
 		183875E92B2F339B005FE951 /* LKTableViewHorizontalScrollWidthManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LKTableViewHorizontalScrollWidthManager.h; sourceTree = "<group>"; };
@@ -227,10 +236,16 @@
 		1892DD262AF25EDE0016D61B /* LookinMsgTargetAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LookinMsgTargetAction.h; sourceTree = "<group>"; };
 		1892DD272AF25EDE0016D61B /* LookinMsgAttribute.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LookinMsgAttribute.h; sourceTree = "<group>"; };
 		1892DD282AF25EDE0016D61B /* LookinMsgAttribute.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LookinMsgAttribute.m; sourceTree = "<group>"; };
+		1D80697B1C2D2FB8C6BD1F8F /* LKCLIDoctorCommand.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLIDoctorCommand.m; sourceTree = "<group>"; };
+		35B6F4C45FF6E0C874C6B2B7 /* LKCLIVersionCommand.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = LKCLIVersionCommand.h; sourceTree = "<group>"; };
 		4225D6261428134154CB341E /* Pods-LookinTestflight.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LookinTestflight.debug.xcconfig"; path = "Target Support Files/Pods-LookinTestflight/Pods-LookinTestflight.debug.xcconfig"; sourceTree = "<group>"; };
+		4FFEE91B500B558CA4447412 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
+		5112D41EE6717132CA4E3D57 /* LKCLIVersionProvider.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = LKCLIVersionProvider.h; sourceTree = "<group>"; };
+		5BA569590ED4D87EE956B922 /* Pods-LookinCLI.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LookinCLI.release.xcconfig"; path = "Target Support Files/Pods-LookinCLI/Pods-LookinCLI.release.xcconfig"; sourceTree = "<group>"; };
 		5E8E4C9C392BAAF93643C21E /* Pods-LookinClient.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LookinClient.release.xcconfig"; path = "Target Support Files/Pods-LookinClient/Pods-LookinClient.release.xcconfig"; sourceTree = "<group>"; };
 		601AD5E32A64D6110013F490 /* LKHierarchyDataSource+KeyDown.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "LKHierarchyDataSource+KeyDown.h"; sourceTree = "<group>"; };
 		601AD5E42A64D6110013F490 /* LKHierarchyDataSource+KeyDown.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "LKHierarchyDataSource+KeyDown.m"; sourceTree = "<group>"; };
+		6950076331D1458F8B724655 /* Pods-LookinCLI.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LookinCLI.debug.xcconfig"; path = "Target Support Files/Pods-LookinCLI/Pods-LookinCLI.debug.xcconfig"; sourceTree = "<group>"; };
 		7BFFDF0D2AF12AA10039B828 /* LookinAttributesGroup+LookinClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "LookinAttributesGroup+LookinClient.h"; sourceTree = "<group>"; };
 		7BFFDF0E2AF12AA10039B828 /* LookinAttributesGroup+LookinClient.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "LookinAttributesGroup+LookinClient.m"; sourceTree = "<group>"; };
 		7BFFDF102AF12E940039B828 /* LookinAttributesSection+LookinClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "LookinAttributesSection+LookinClient.h"; sourceTree = "<group>"; };
@@ -238,7 +253,13 @@
 		7BFFDF132AF134240039B828 /* LKDashboardSectionViewPool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LKDashboardSectionViewPool.h; sourceTree = "<group>"; };
 		7BFFDF142AF134240039B828 /* LKDashboardSectionViewPool.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LKDashboardSectionViewPool.m; sourceTree = "<group>"; };
 		81A3B0CB06C22A05EDC913F3 /* Pods_LookinClient.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_LookinClient.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		88809C6B483028DE3BD1D688 /* LookinCLI_PrefixHeader.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = LookinCLI_PrefixHeader.pch; sourceTree = "<group>"; };
 		89555EC46A276B7FD0CB65FA /* Pods_LookinTestflight.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_LookinTestflight.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		8BEDCFCB76E040C123339010 /* LKCLIVersionProvider.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLIVersionProvider.m; sourceTree = "<group>"; };
+		8EE597935A2C776D150D8DE0 /* LKCLIStdIO.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLIStdIO.m; sourceTree = "<group>"; };
+		91C68999173BF8C803911D32 /* LKCLIStdIO.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = LKCLIStdIO.h; sourceTree = "<group>"; };
+		91EE5DD1C3B3174BA6BDD0C8 /* LKCLIHelpCommand.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLIHelpCommand.m; sourceTree = "<group>"; };
+		A0957989A68E21B90029A9A1 /* LKCLIDoctorCommand.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = LKCLIDoctorCommand.h; sourceTree = "<group>"; };
 		A213803B2821886B009BFE60 /* LKPerformanceReporter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LKPerformanceReporter.h; sourceTree = "<group>"; };
 		A213803C2821886B009BFE60 /* LKPerformanceReporter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LKPerformanceReporter.m; sourceTree = "<group>"; };
 		A26EF68627F89F83005A9E4E /* ShortCocoa+String.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ShortCocoa+String.h"; sourceTree = "<group>"; };
@@ -554,6 +575,9 @@
 		AAF418C422BA2C9600111554 /* LKConsoleSelectPopoverItemControl.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LKConsoleSelectPopoverItemControl.m; sourceTree = "<group>"; };
 		AAF418C622BA2D1300111554 /* LKImageTextView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LKImageTextView.h; sourceTree = "<group>"; };
 		AAF418C722BA2D1300111554 /* LKImageTextView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LKImageTextView.m; sourceTree = "<group>"; };
+		B13DF084DE70E2EBB708DEAF /* main.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		BD54602A9B4BAB1803C8EE5E /* lookin */ = {isa = PBXFileReference; includeInIndex = 0; name = lookin; path = lookin; sourceTree = BUILT_PRODUCTS_DIR; };
+		C42A3EB7C5A022694F09C934 /* LKCLIExitCode.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = LKCLIExitCode.h; sourceTree = "<group>"; };
 		D4052AC7235CBD090033C961 /* LKMeasureTutorialView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LKMeasureTutorialView.h; sourceTree = "<group>"; };
 		D4052AC8235CBD090033C961 /* LKMeasureTutorialView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LKMeasureTutorialView.m; sourceTree = "<group>"; };
 		D4052ACA235CE2300033C961 /* LKMeasureResultView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LKMeasureResultView.h; sourceTree = "<group>"; };
@@ -567,6 +591,8 @@
 		D4E1FD64236169130070DFB8 /* LKMeasureResultLineData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LKMeasureResultLineData.h; sourceTree = "<group>"; };
 		D4E1FD65236169130070DFB8 /* LKMeasureResultLineData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LKMeasureResultLineData.m; sourceTree = "<group>"; };
 		D97552B9BF9170E090F8CAA7 /* Pods-LookinClient.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LookinClient.debug.xcconfig"; path = "Target Support Files/Pods-LookinClient/Pods-LookinClient.debug.xcconfig"; sourceTree = "<group>"; };
+		DA46CB9A843553CFF2B66A6B /* LKCLIVersionCommand.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLIVersionCommand.m; sourceTree = "<group>"; };
+		E19BB716437A41416753EB0A /* LKCLIHelpCommand.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = LKCLIHelpCommand.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -577,6 +603,15 @@
 				AA1CAA3E22E471EC006D9285 /* Security.framework in Frameworks */,
 				094E413CB04F29F94551D070 /* Pods_LookinClient.framework in Frameworks */,
 				BC7E32318E0156F2D16B96CA /* Pods_LookinClient.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D29FF170EA6483065AD70683 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				52E501E9E216A9CF286F2098 /* Cocoa.framework in Frameworks */,
+				548EAA4DF4B69B7BBD81B52F /* Pods_LookinCLI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -591,6 +626,8 @@
 				AAB9519122C3BDC900A5F958 /* QuickLookThumbnailing.framework */,
 				81A3B0CB06C22A05EDC913F3 /* Pods_LookinClient.framework */,
 				89555EC46A276B7FD0CB65FA /* Pods_LookinTestflight.framework */,
+				2A4099F7EA8D46D25D84A1B2 /* OS X */,
+				083D381CDDAA0F54467619D1 /* Pods_LookinCLI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -606,6 +643,41 @@
 			path = Message;
 			sourceTree = "<group>";
 		};
+		1BE0941A238ADF1A65648554 /* LookinCLI */ = {
+			isa = PBXGroup;
+			children = (
+				B4A16952CC8A534FC642EA7B /* Core */,
+				4016BD92A77FFB4B5FCD9AAC /* Commands */,
+				8761EF7CF9BE3B02DCC0790A /* Support */,
+				88809C6B483028DE3BD1D688 /* LookinCLI_PrefixHeader.pch */,
+				B13DF084DE70E2EBB708DEAF /* main.m */,
+			);
+			name = LookinCLI;
+			path = LookinCLI;
+			sourceTree = "<group>";
+		};
+		2A4099F7EA8D46D25D84A1B2 /* OS X */ = {
+			isa = PBXGroup;
+			children = (
+				4FFEE91B500B558CA4447412 /* Cocoa.framework */,
+			);
+			name = "OS X";
+			sourceTree = "<group>";
+		};
+		4016BD92A77FFB4B5FCD9AAC /* Commands */ = {
+			isa = PBXGroup;
+			children = (
+				A0957989A68E21B90029A9A1 /* LKCLIDoctorCommand.h */,
+				1D80697B1C2D2FB8C6BD1F8F /* LKCLIDoctorCommand.m */,
+				E19BB716437A41416753EB0A /* LKCLIHelpCommand.h */,
+				91EE5DD1C3B3174BA6BDD0C8 /* LKCLIHelpCommand.m */,
+				35B6F4C45FF6E0C874C6B2B7 /* LKCLIVersionCommand.h */,
+				DA46CB9A843553CFF2B66A6B /* LKCLIVersionCommand.m */,
+			);
+			name = Commands;
+			path = Commands;
+			sourceTree = "<group>";
+		};
 		5D159F647DFD4AA3F8E7F9E7 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -613,8 +685,20 @@
 				5E8E4C9C392BAAF93643C21E /* Pods-LookinClient.release.xcconfig */,
 				4225D6261428134154CB341E /* Pods-LookinTestflight.debug.xcconfig */,
 				07695A2606130B23B91F553C /* Pods-LookinTestflight.release.xcconfig */,
+				5BA569590ED4D87EE956B922 /* Pods-LookinCLI.release.xcconfig */,
+				6950076331D1458F8B724655 /* Pods-LookinCLI.debug.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		8761EF7CF9BE3B02DCC0790A /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				91C68999173BF8C803911D32 /* LKCLIStdIO.h */,
+				8EE597935A2C776D150D8DE0 /* LKCLIStdIO.m */,
+			);
+			name = Support;
+			path = Support;
 			sourceTree = "<group>";
 		};
 		A26EF68527F89F83005A9E4E /* ShortCocoa */ = {
@@ -828,6 +912,7 @@
 				AA48F29C21CC0CA50032EC2C /* Products */,
 				5D159F647DFD4AA3F8E7F9E7 /* Pods */,
 				0A9FB6E904476A1F9D0BB82E /* Frameworks */,
+				1BE0941A238ADF1A65648554 /* LookinCLI */,
 			);
 			sourceTree = "<group>";
 		};
@@ -835,6 +920,7 @@
 			isa = PBXGroup;
 			children = (
 				AA48F29B21CC0CA50032EC2C /* Lookin.app */,
+				BD54602A9B4BAB1803C8EE5E /* lookin */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1163,6 +1249,17 @@
 			path = Preference;
 			sourceTree = "<group>";
 		};
+		B4A16952CC8A534FC642EA7B /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				C42A3EB7C5A022694F09C934 /* LKCLIExitCode.h */,
+				5112D41EE6717132CA4E3D57 /* LKCLIVersionProvider.h */,
+				8BEDCFCB76E040C123339010 /* LKCLIVersionProvider.m */,
+			);
+			name = Core;
+			path = Core;
+			sourceTree = "<group>";
+		};
 		D4224EF02358ED3A00ED9626 /* Measure */ = {
 			isa = PBXGroup;
 			children = (
@@ -1181,6 +1278,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		A053186E84894247B87B9F01 /* LookinCLI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 210725EB46FF077D8A65C94A /* Build configuration list for PBXNativeTarget "LookinCLI" */;
+			buildPhases = (
+				25BA4AB89B1A2B4C9C23C6D1 /* [CP] Check Pods Manifest.lock */,
+				FA4B1B2C7B0A5A72E39706CE /* Sources */,
+				D29FF170EA6483065AD70683 /* Frameworks */,
+				E52A30A034B64D11968B8C40 /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LookinCLI;
+			productName = lookin;
+			productReference = BD54602A9B4BAB1803C8EE5E /* lookin */;
+			productType = "com.apple.product-type.tool";
+		};
 		AA48F29A21CC0CA50032EC2C /* LookinClient */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = AA48F2AC21CC0CA60032EC2C /* Build configuration list for PBXNativeTarget "LookinClient" */;
@@ -1241,6 +1356,7 @@
 			projectRoot = "";
 			targets = (
 				AA48F29A21CC0CA50032EC2C /* LookinClient */,
+				A053186E84894247B87B9F01 /* LookinCLI */,
 			);
 		};
 /* End PBXProject section */
@@ -1284,6 +1400,28 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		25BA4AB89B1A2B4C9C23C6D1 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-LookinCLI-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 		FB8F4F190F8A8870A31070AE /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1299,6 +1437,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-LookinClient/Pods-LookinClient-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E52A30A034B64D11968B8C40 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-LookinCLI/Pods-LookinCLI-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/LookinShared/LookinShared.framework",
+				"${BUILT_PRODUCTS_DIR}/ReactiveObjC/ReactiveObjC.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/LookinShared.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReactiveObjC.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-LookinCLI/Pods-LookinCLI-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -1476,6 +1634,19 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		FA4B1B2C7B0A5A72E39706CE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4894DA4DBCCEB98D45576AED /* LKCLIDoctorCommand.m in Sources */,
+				3C6A4C6EB09F29E6D15D9D9B /* LKCLIHelpCommand.m in Sources */,
+				7BCDE03AD6B6A4B46D26903D /* LKCLIVersionCommand.m in Sources */,
+				777D589E137ADD87C6834B1D /* LKCLIVersionProvider.m in Sources */,
+				2B95E02B20BF42EBDCEEAC19 /* LKCLIStdIO.m in Sources */,
+				2FEB0FCF4622972E141C2976 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
@@ -1500,6 +1671,60 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		0B51E907B6CDF0B59C38B306 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6950076331D1458F8B724655 /* Pods-LookinCLI.debug.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				FRAMEWORKS_FOLDER_PATH = Frameworks;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/LookinCLI/LookinCLI_PrefixHeader.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"COCOAPODS=1",
+					"SHOULD_COMPILE_LOOKIN_SERVER=1",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/LookinCLI/**",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_NAME = lookin;
+				SDKROOT = macosx;
+				SKIP_INSTALL = NO;
+			};
+			name = Debug;
+		};
+		2124B962A6C7C71489B95B73 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5BA569590ED4D87EE956B922 /* Pods-LookinCLI.release.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				FRAMEWORKS_FOLDER_PATH = Frameworks;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/LookinCLI/LookinCLI_PrefixHeader.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"COCOAPODS=1",
+					"SHOULD_COMPILE_LOOKIN_SERVER=1",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/LookinCLI/**",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_NAME = lookin;
+				SDKROOT = macosx;
+				SKIP_INSTALL = NO;
+			};
+			name = Release;
+		};
 		AA48F2AA21CC0CA60032EC2C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1703,6 +1928,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		210725EB46FF077D8A65C94A /* Build configuration list for PBXNativeTarget "LookinCLI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2124B962A6C7C71489B95B73 /* Release */,
+				0B51E907B6CDF0B59C38B306 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		AA48F29621CC0CA50032EC2C /* Build configuration list for PBXProject "Lookin" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

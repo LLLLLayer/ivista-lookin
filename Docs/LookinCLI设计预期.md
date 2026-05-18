@@ -49,7 +49,9 @@ LookinCLI 希望支持以下场景：
 9. `lookin export --bundle-id <bundle-id> --out <file.lookin> [--compression <0.01-1>] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
 10. `lookin selectors --bundle-id <bundle-id> (--class <class-name> | --oid <oid>) [--with-args] [--filter <text>] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
 11. `lookin call --bundle-id <bundle-id> --oid <oid> --selector <selector> [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
-12. `lookin set --bundle-id <bundle-id> --oid <oid> --attr <identifier> --value <value> [--dry-run] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
+12. `lookin eval --bundle-id <bundle-id> --oid <oid> <property-or-method> [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
+13. `lookin console --bundle-id <bundle-id> --oid <oid> [--transport simulator|usb] [--port <port>] [--device-id <id>]`
+14. `lookin set --bundle-id <bundle-id> --oid <oid> --attr <identifier> --value <value> [--dry-run] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
 
 下一步：
 
@@ -68,7 +70,7 @@ LookinCLI 希望支持以下场景：
 | 查看对象和基础属性 | `fetchObjectWithOid`, `fetchAttrGroupListWithOid` | `lookin inspect --oid ...` |
 | 异步补全属性详情 | `LKStaticAsyncUpdateManager` | `lookin attrs --oid ...` |
 | 修改属性 | `submitInbuiltModification`, `submitCustomModification` | `lookin set ...` |
-| 调用方法 | `invokeMethodWithOid` | `lookin call ...` |
+| 控制台查看对象属性/调用无参方法 | `LKConsoleDataSource`, `invokeMethodWithOid` | `lookin eval ...`, `lookin console ...`, `lookin call ...` |
 | 导出 `.lookin` 文件 | `LKExportManager` | `lookin export ...` |
 | 导出单节点截图 | `LKExportManager exportScreenshotWithDisplayItem` | `lookin screenshot ...` |
 | 打开 `.lookin` 离线文件 | `LKReadViewController` | `lookin read ...`，后续阶段 |
@@ -299,6 +301,8 @@ lookin tree --bundle-id com.example.demo --transport usb
 lookin export --bundle-id com.example.demo --port 47165 --out demo.lookin
 lookin selectors --bundle-id com.example.demo --oid 130
 lookin call --bundle-id com.example.demo --oid 130 --selector description
+lookin eval --bundle-id com.example.demo --oid 130 frame --json
+lookin console --bundle-id com.example.demo --oid 130
 lookin set --bundle-id com.example.demo --oid 130 --attr l_f_f --value '0,0,120,44' --dry-run
 ```
 
@@ -501,6 +505,30 @@ lookin call --bundle-id com.example.demo --oid 130 --selector recursiveDescripti
 3. 对可能修改 UI 的方法不额外拦截，但命令文档需要说明风险。
 4. 如果 selector 包含 `:`，命令直接返回 unsupported，避免误以为支持传参。
 
+### eval 和 console
+
+`eval` 是 `call` 的控制台友好别名，用来表达“看这个对象的某个属性/变量”。它只接受直接 getter 或无参数方法名，不支持 `a.b` 链式表达式。
+
+```bash
+lookin eval --bundle-id com.example.demo --oid 130 frame --json
+lookin eval --bundle-id com.example.demo --oid 130 backgroundColor
+lookin eval --bundle-id com.example.demo --oid 130 description
+```
+
+`console` 是交互式轻量控制台。第一版保持一个目标 App 连接，支持输入直接 getter/无参数方法，并提供内置命令：
+
+```bash
+lookin console --bundle-id com.example.demo --oid 130
+```
+
+交互命令：
+
+1. `<name>`：调用当前对象的直接 getter 或无参数方法。
+2. `selectors [filter]`：列出当前对象 class 的无参数 selector。
+3. `use <oid>`：切换当前对象。
+4. `help`：显示帮助。
+5. `quit`：退出。
+
 ### set
 
 修改指定对象属性。
@@ -613,9 +641,11 @@ CLI 应区分 stdout 和 stderr：
 
 1. `lookin selectors`
 2. `lookin call`
-3. `lookin set`
-4. 为写操作继续增加类型转换覆盖和测试。
-5. 提供 Homebrew tap。
+3. `lookin eval`
+4. `lookin console`
+5. `lookin set`
+6. 为写操作继续增加类型转换覆盖和测试。
+7. 提供 Homebrew tap。
 
 ### Phase 4: Core 抽离和官方 PR
 

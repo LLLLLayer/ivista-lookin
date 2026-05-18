@@ -20,6 +20,8 @@
 		0F5B6D767B9C4E019A12F301 /* LKCLISelectorsCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D737B9C4E019A12F301 /* LKCLISelectorsCommand.m */; };
 		0F5B6D777B9C4E019A12F301 /* LKCLICallCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D757B9C4E019A12F301 /* LKCLICallCommand.m */; };
 		0F5B6D7A7B9C4E019A12F301 /* LKCLISetCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D797B9C4E019A12F301 /* LKCLISetCommand.m */; };
+		0F5B6D7F7B9C4E019A12F301 /* LKCLIEvalCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D7C7B9C4E019A12F301 /* LKCLIEvalCommand.m */; };
+		0F5B6D807B9C4E019A12F301 /* LKCLIConsoleCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D7E7B9C4E019A12F301 /* LKCLIConsoleCommand.m */; };
 		1822E2CB2B9396B50007C0B2 /* LKDashboardTextControlEditingFlag.m in Sources */ = {isa = PBXBuildFile; fileRef = 1822E2CA2B9396B50007C0B2 /* LKDashboardTextControlEditingFlag.m */; };
 		183875EB2B2F339B005FE951 /* LKTableViewHorizontalScrollWidthManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 183875EA2B2F339B005FE951 /* LKTableViewHorizontalScrollWidthManager.m */; };
 		1892DD1C2AF258890016D61B /* LookinDisplayItem+LookinClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 1892DD1B2AF258890016D61B /* LookinDisplayItem+LookinClient.m */; };
@@ -254,6 +256,10 @@
 		0F5B6D757B9C4E019A12F301 /* LKCLICallCommand.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLICallCommand.m; sourceTree = "<group>"; };
 		0F5B6D787B9C4E019A12F301 /* LKCLISetCommand.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = LKCLISetCommand.h; sourceTree = "<group>"; };
 		0F5B6D797B9C4E019A12F301 /* LKCLISetCommand.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLISetCommand.m; sourceTree = "<group>"; };
+		0F5B6D7B7B9C4E019A12F301 /* LKCLIEvalCommand.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = LKCLIEvalCommand.h; sourceTree = "<group>"; };
+		0F5B6D7C7B9C4E019A12F301 /* LKCLIEvalCommand.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLIEvalCommand.m; sourceTree = "<group>"; };
+		0F5B6D7D7B9C4E019A12F301 /* LKCLIConsoleCommand.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = LKCLIConsoleCommand.h; sourceTree = "<group>"; };
+		0F5B6D7E7B9C4E019A12F301 /* LKCLIConsoleCommand.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLIConsoleCommand.m; sourceTree = "<group>"; };
 		1822E2C92B9396B50007C0B2 /* LKDashboardTextControlEditingFlag.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LKDashboardTextControlEditingFlag.h; sourceTree = "<group>"; };
 		1822E2CA2B9396B50007C0B2 /* LKDashboardTextControlEditingFlag.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LKDashboardTextControlEditingFlag.m; sourceTree = "<group>"; };
 		183875E92B2F339B005FE951 /* LKTableViewHorizontalScrollWidthManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LKTableViewHorizontalScrollWidthManager.h; sourceTree = "<group>"; };
@@ -740,6 +746,10 @@
 				0F5B6D737B9C4E019A12F301 /* LKCLISelectorsCommand.m */,
 				0F5B6D747B9C4E019A12F301 /* LKCLICallCommand.h */,
 				0F5B6D757B9C4E019A12F301 /* LKCLICallCommand.m */,
+				0F5B6D7B7B9C4E019A12F301 /* LKCLIEvalCommand.h */,
+				0F5B6D7C7B9C4E019A12F301 /* LKCLIEvalCommand.m */,
+				0F5B6D7D7B9C4E019A12F301 /* LKCLIConsoleCommand.h */,
+				0F5B6D7E7B9C4E019A12F301 /* LKCLIConsoleCommand.m */,
 				0F5B6D787B9C4E019A12F301 /* LKCLISetCommand.h */,
 				0F5B6D797B9C4E019A12F301 /* LKCLISetCommand.m */,
 			);
@@ -1745,6 +1755,8 @@
 				0F5B6D6E7B9C4E019A12F301 /* LKCLIExportCommand.m in Sources */,
 				0F5B6D767B9C4E019A12F301 /* LKCLISelectorsCommand.m in Sources */,
 				0F5B6D777B9C4E019A12F301 /* LKCLICallCommand.m in Sources */,
+				0F5B6D7F7B9C4E019A12F301 /* LKCLIEvalCommand.m in Sources */,
+				0F5B6D807B9C4E019A12F301 /* LKCLIConsoleCommand.m in Sources */,
 				0F5B6D7A7B9C4E019A12F301 /* LKCLISetCommand.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

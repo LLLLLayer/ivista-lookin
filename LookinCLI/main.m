@@ -8,6 +8,7 @@
 #import "LKCLIInspectCommand.h"
 #import "LKCLIAttrsCommand.h"
 #import "LKCLIScreenshotCommand.h"
+#import "LKCLIExportCommand.h"
 #import "LKCLIProcessLock.h"
 #import "LKCLIStdIO.h"
 
@@ -88,6 +89,15 @@ int main(int argc, const char * argv[]) {
             }
             return (int)[LKCLIProcessLock runDeviceCommandWithBlock:^LKCLIExitCode{
                 return [LKCLIScreenshotCommand runWithArguments:commandArguments];
+            }];
+        }
+
+        if ([command isEqualToString:@"export"]) {
+            if (LKCLIArgumentsContainHelp(commandArguments)) {
+                return (int)[LKCLIExportCommand runWithArguments:commandArguments];
+            }
+            return (int)[LKCLIProcessLock runDeviceCommandWithBlock:^LKCLIExitCode{
+                return [LKCLIExportCommand runWithArguments:commandArguments];
             }];
         }
 

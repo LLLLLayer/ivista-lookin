@@ -16,11 +16,9 @@
       "  lookin inspect --bundle-id <bundle-id> --oid <oid> [--json]\n"
       "  lookin attrs --bundle-id <bundle-id> --oid <oid> [--group <filter>] [--json]\n"
       "  lookin screenshot --bundle-id <bundle-id> --oid <oid> --out <path> [--type group|solo] [--json]\n"
+      "  lookin export --bundle-id <bundle-id> --out <file.lookin> [--compression <0.01-1>] [--json]\n"
       "\n"
-      "Planned commands:\n"
-      "  lookin export --bundle-id <bundle-id> --out <file.lookin>\n"
-      "\n"
-      "This build includes app discovery, hierarchy tree output, object inspection, attribute queries, and screenshot export."];
+      "This build includes app discovery, hierarchy tree output, object inspection, attribute queries, screenshot export, and .lookin snapshot export."];
     return LKCLIExitCodeOK;
 }
 

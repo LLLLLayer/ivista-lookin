@@ -46,11 +46,12 @@ LookinCLI 希望支持以下场景：
 6. `lookin inspect --bundle-id <bundle-id> --oid <oid> [--json]`
 7. `lookin attrs --bundle-id <bundle-id> --oid <oid> [--group <filter>] [--json]`
 8. `lookin screenshot --bundle-id <bundle-id> --oid <oid> --out <path> [--type group|solo] [--json]`
+9. `lookin export --bundle-id <bundle-id> --out <file.lookin> [--compression <0.01-1>] [--json]`
 
 下一步：
 
-1. `lookin export --bundle-id <bundle-id> --out <file.lookin>`
-2. 设备选择参数，例如 `--device` 或 `--transport`
+1. 设备选择参数，例如 `--device` 或 `--transport`
+2. `lookin selectors/call/set` 操作类命令
 
 ## 与现有 macOS App 的能力映射
 
@@ -290,6 +291,7 @@ lookin tree --bundle-id com.example.demo --json > hierarchy.json
 lookin inspect --bundle-id com.example.demo --oid 130
 lookin attrs --bundle-id com.example.demo --oid 130 --json
 lookin screenshot --bundle-id com.example.demo --oid 130 --out button.png
+lookin export --bundle-id com.example.demo --out demo.lookin
 ```
 
 如果没有找到 App，CLI 应提示用户检查：
@@ -441,7 +443,7 @@ lookin export --bundle-id com.example.demo --out demo.lookin
 lookin export --bundle-id com.example.demo --out demo.lookin --compression 0.5
 ```
 
-默认行为应尽量接近 macOS App 的导出：包含 hierarchy、属性详情和截图。若因性能原因先只导出基础 hierarchy，需要在命令输出中明确说明。
+默认行为应尽量接近 macOS App 的导出：包含 hierarchy、属性详情和截图。CLI 当前会拉取每个 layer 的 group screenshot，对可展开节点额外拉取 solo screenshot，并写出可被 Lookin macOS App 打开的 `.lookin` secure archive。
 
 ### screenshot
 

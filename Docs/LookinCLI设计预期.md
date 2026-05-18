@@ -47,10 +47,12 @@ LookinCLI 希望支持以下场景：
 7. `lookin attrs --bundle-id <bundle-id> --oid <oid> [--group <filter>] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
 8. `lookin screenshot --bundle-id <bundle-id> --oid <oid> --out <path> [--type group|solo] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
 9. `lookin export --bundle-id <bundle-id> --out <file.lookin> [--compression <0.01-1>] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
+10. `lookin selectors --bundle-id <bundle-id> (--class <class-name> | --oid <oid>) [--with-args] [--filter <text>] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
+11. `lookin call --bundle-id <bundle-id> --oid <oid> --selector <selector> [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
 
 下一步：
 
-1. `lookin selectors/call/set` 操作类命令
+1. `lookin set` 属性修改命令
 2. 发布打包脚本和独立安装验证
 
 ## 与现有 macOS App 的能力映射
@@ -294,6 +296,8 @@ lookin screenshot --bundle-id com.example.demo --oid 130 --out button.png
 lookin export --bundle-id com.example.demo --out demo.lookin
 lookin tree --bundle-id com.example.demo --transport usb
 lookin export --bundle-id com.example.demo --port 47165 --out demo.lookin
+lookin selectors --bundle-id com.example.demo --oid 130
+lookin call --bundle-id com.example.demo --oid 130 --selector description
 ```
 
 如果没有找到 App，CLI 应提示用户检查：
@@ -471,11 +475,13 @@ lookin screenshot --bundle-id com.example.demo --oid 130 --transport usb --out b
 
 ```bash
 lookin selectors --bundle-id com.example.demo --class UIView
-lookin selectors --bundle-id com.example.demo --class UIView --no-args
+lookin selectors --bundle-id com.example.demo --oid 130
+lookin selectors --bundle-id com.example.demo --oid 130 --filter layout
+lookin selectors --bundle-id com.example.demo --class UIView --with-args
 lookin selectors --bundle-id com.example.demo --class UIView --json
 ```
 
-第一阶段可先只支持无参数方法，因为现有 GUI 的调用链也主要支持无参数调用。
+默认只返回无参数方法，因为 `call` 第一阶段只支持无参数调用。`--with-args` 可用于查看带参数 selector，但不会让 `call` 支持参数调用。
 
 ### call
 
@@ -491,6 +497,7 @@ lookin call --bundle-id com.example.demo --oid 130 --selector recursiveDescripti
 1. 第一阶段只支持无参数 selector。
 2. 默认需要明确 `--oid`，不做模糊选择。
 3. 对可能修改 UI 的方法不额外拦截，但命令文档需要说明风险。
+4. 如果 selector 包含 `:`，命令直接返回 unsupported，避免误以为支持传参。
 
 ### set
 

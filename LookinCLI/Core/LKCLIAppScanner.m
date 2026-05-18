@@ -147,6 +147,24 @@ static const NSTimeInterval LKCLIAppScannerRetryDiscoveryDelay = 0.45;
     return [self fetchDataWithRequestType:LookinRequestTypeAllAttrGroups data:@(oid) forApp:app];
 }
 
+- (RACSignal *)fetchSelectorNamesWithClass:(NSString *)className hasArg:(BOOL)hasArg forApp:(LKCLIConnectedApp *)app {
+    if (className.length == 0) {
+        return [RACSignal error:LookinErr_Inner];
+    }
+    return [self fetchDataWithRequestType:LookinRequestTypeAllSelectorNames
+                                     data:@{@"className": className, @"hasArg": @(hasArg)}
+                                   forApp:app];
+}
+
+- (RACSignal *)invokeMethodWithOID:(unsigned long)oid selectorName:(NSString *)selectorName forApp:(LKCLIConnectedApp *)app {
+    if (oid == 0 || selectorName.length == 0) {
+        return [RACSignal error:LookinErr_Inner];
+    }
+    return [self fetchDataWithRequestType:LookinRequestTypeInvokeMethod
+                                     data:@{@"oid": @(oid), @"text": selectorName}
+                                   forApp:app];
+}
+
 - (RACSignal *)fetchDataWithRequestType:(uint32_t)requestType data:(NSObject *)data forApp:(LKCLIConnectedApp *)app {
     if (!app.channel) {
         return [RACSignal error:LookinErr_NoConnect];

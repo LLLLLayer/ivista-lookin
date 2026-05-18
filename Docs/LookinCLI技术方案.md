@@ -422,6 +422,8 @@ lookin attrs --bundle-id ... --oid ... [--group ...] [--json] [--transport simul
 lookin screenshot --bundle-id ... --oid ... --out ... [--type group|solo] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
 lookin export --bundle-id ... --out ... [--compression 0.01-1] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
 lookin tree --bundle-id ... [--depth N] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
+lookin selectors --bundle-id ... (--class ... | --oid ...) [--with-args] [--filter ...] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
+lookin call --bundle-id ... --oid ... --selector ... [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
 ```
 
 如果后续命令复杂度显著上升，再评估是否引入 argument parser 库。
@@ -497,8 +499,8 @@ codesign --force --deep --sign - lookin Frameworks/*.framework
 
 ### Step 5: 操作命令
 
-1. `selectors`
-2. `call`
+1. `selectors`：调用 `LookinRequestTypeAllSelectorNames`，支持按 class 直接查询，也支持按 oid 先取 `LookinObject.rawClassName` 再查询。
+2. `call`：调用 `LookinRequestTypeInvokeMethod`，第一版只允许无参数 selector，直接拒绝包含 `:` 的方法名。
 3. `set`
 4. 类型转换和写操作安全提示。
 
@@ -528,4 +530,6 @@ codesign --force --deep --sign - lookin Frameworks/*.framework
 
 当前 Phase 1 基础版已完成：`lookin tree --bundle-id <bundle-id> [--json] [--depth N]` 可按 bundle id 拉取 UI 层级，并输出稳定文本或 JSON。
 
-当前 Phase 1.5 已完成基础链路：设备命令已加跨进程锁和空结果重试，降低真机 USB 并发扫描不稳定；`lookin inspect --bundle-id <bundle-id> --oid <oid> [--json]` 可按 oid 拉取对象信息和基础属性；`lookin attrs --bundle-id <bundle-id> --oid <oid> [--group <filter>] [--json]` 可单独输出属性详情；`lookin screenshot --bundle-id <bundle-id> --oid <oid> --out <path> [--type group|solo] [--json]` 可导出节点截图；`lookin export --bundle-id <bundle-id> --out <file.lookin> [--compression <0.01-1>] [--json]` 可导出离线快照；所有设备命令都支持 `--transport simulator|usb`、`--port <port>` 和 `--device-id <id>` 做 disambiguation。后续继续补操作类命令和发布打包。
+当前 Phase 1.5 已完成基础链路：设备命令已加跨进程锁和空结果重试，降低真机 USB 并发扫描不稳定；`lookin inspect --bundle-id <bundle-id> --oid <oid> [--json]` 可按 oid 拉取对象信息和基础属性；`lookin attrs --bundle-id <bundle-id> --oid <oid> [--group <filter>] [--json]` 可单独输出属性详情；`lookin screenshot --bundle-id <bundle-id> --oid <oid> --out <path> [--type group|solo] [--json]` 可导出节点截图；`lookin export --bundle-id <bundle-id> --out <file.lookin> [--compression <0.01-1>] [--json]` 可导出离线快照；所有设备命令都支持 `--transport simulator|usb`、`--port <port>` 和 `--device-id <id>` 做 disambiguation。
+
+当前 Phase 2 已开始：`lookin selectors --bundle-id <bundle-id> (--class <class-name> | --oid <oid>) [--with-args] [--filter <text>] [--json]` 可列出 selector；`lookin call --bundle-id <bundle-id> --oid <oid> --selector <selector> [--json]` 可调用无参数方法。后续继续补 `set` 和发布打包。

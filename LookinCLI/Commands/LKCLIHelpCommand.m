@@ -19,8 +19,9 @@
       "  lookin export --bundle-id <bundle-id> --out <file.lookin> [--compression <0.01-1>] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
       "  lookin selectors --bundle-id <bundle-id> (--class <class-name> | --oid <oid>) [--with-args] [--filter <text>] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
       "  lookin call --bundle-id <bundle-id> --oid <oid> --selector <selector> [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
+      "  lookin set --bundle-id <bundle-id> --oid <oid> --attr <identifier> --value <value> [--dry-run] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
       "\n"
-      "This build includes app discovery, app selection filters, hierarchy tree output, object inspection, attribute queries, screenshot export, .lookin snapshot export, selector listing, and no-argument method invocation."];
+      "This build includes app discovery, app selection filters, hierarchy tree output, object inspection, attribute queries, screenshot export, .lookin snapshot export, selector listing, no-argument method invocation, and built-in attribute modification."];
     return LKCLIExitCodeOK;
 }
 

@@ -11,6 +11,7 @@
 #import "LKCLIExportCommand.h"
 #import "LKCLISelectorsCommand.h"
 #import "LKCLICallCommand.h"
+#import "LKCLISetCommand.h"
 #import "LKCLIProcessLock.h"
 #import "LKCLIStdIO.h"
 
@@ -118,6 +119,15 @@ int main(int argc, const char * argv[]) {
             }
             return (int)[LKCLIProcessLock runDeviceCommandWithBlock:^LKCLIExitCode{
                 return [LKCLICallCommand runWithArguments:commandArguments];
+            }];
+        }
+
+        if ([command isEqualToString:@"set"]) {
+            if (LKCLIArgumentsContainHelp(commandArguments)) {
+                return (int)[LKCLISetCommand runWithArguments:commandArguments];
+            }
+            return (int)[LKCLIProcessLock runDeviceCommandWithBlock:^LKCLIExitCode{
+                return [LKCLISetCommand runWithArguments:commandArguments];
             }];
         }
 

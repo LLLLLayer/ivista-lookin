@@ -1,4 +1,5 @@
 #import <Foundation/Foundation.h>
+#import "LookinAttrType.h"
 
 @class LookinAttribute, LookinAttributesGroup, LookinAttributesSection;
 
@@ -11,5 +12,6 @@
 + (NSString *)displayNameForSection:(LookinAttributesSection *)section;
 + (NSString *)displayNameForAttribute:(LookinAttribute *)attribute;
 + (NSString *)stringForAttributeValue:(LookinAttribute *)attribute;
++ (NSString *)nameForAttrType:(LookinAttrType)attrType;
 
 @end

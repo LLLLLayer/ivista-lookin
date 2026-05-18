@@ -49,11 +49,12 @@ LookinCLI 希望支持以下场景：
 9. `lookin export --bundle-id <bundle-id> --out <file.lookin> [--compression <0.01-1>] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
 10. `lookin selectors --bundle-id <bundle-id> (--class <class-name> | --oid <oid>) [--with-args] [--filter <text>] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
 11. `lookin call --bundle-id <bundle-id> --oid <oid> --selector <selector> [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
+12. `lookin set --bundle-id <bundle-id> --oid <oid> --attr <identifier> --value <value> [--dry-run] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
 
 下一步：
 
-1. `lookin set` 属性修改命令
-2. 发布打包脚本和独立安装验证
+1. 发布打包脚本和独立安装验证
+2. 操作类命令的更多类型覆盖和测试
 
 ## 与现有 macOS App 的能力映射
 
@@ -298,6 +299,7 @@ lookin tree --bundle-id com.example.demo --transport usb
 lookin export --bundle-id com.example.demo --port 47165 --out demo.lookin
 lookin selectors --bundle-id com.example.demo --oid 130
 lookin call --bundle-id com.example.demo --oid 130 --selector description
+lookin set --bundle-id com.example.demo --oid 130 --attr l_f_f --value '0,0,120,44' --dry-run
 ```
 
 如果没有找到 App，CLI 应提示用户检查：
@@ -504,12 +506,24 @@ lookin call --bundle-id com.example.demo --oid 130 --selector recursiveDescripti
 修改指定对象属性。
 
 ```bash
-lookin set --bundle-id com.example.demo --oid 130 --attr frame.origin.x --value 24
-lookin set --bundle-id com.example.demo --oid 130 --attr hidden --value true
-lookin set --bundle-id com.example.demo --oid 130 --attr backgroundColor --value '#ff0000'
+lookin set --bundle-id com.example.demo --oid 130 --attr l_f_f --value '0,0,120,44'
+lookin set --bundle-id com.example.demo --oid 130 --attr vl_v_h --value true
+lookin set --bundle-id com.example.demo --oid 130 --attr vl_b_b --value '#ff0000'
+lookin set --bundle-id com.example.demo --oid 130 --attr vl_v_o --value 0.5 --dry-run
 ```
 
-这是高风险命令，建议放到第二阶段。实现时需要先建立清晰的类型转换规则，并优先支持少量常用属性。
+第一版只支持内建属性，不支持 custom attr；CLI 会先按 `--oid` 拉取 dashboard 属性，找到 `--attr` 对应的 `LookinAttribute`，用 `LookinDashboardBlueprint setterWithAttrID:` 和 `isUIViewPropertyWithAttrID:` 推导 setter 与目标 view/layer oid，然后提交 `LookinRequestTypeInbuiltAttrModification`。
+
+支持的值格式：
+
+1. bool：`true/false`、`yes/no`、`1/0`
+2. 数字和 enum 数值：`24`、`0.5`
+3. string 和 enum string：原样字符串
+4. point/size：`x,y`
+5. rect/insets：`x,y,width,height` 或 `top,left,bottom,right`
+6. color：`#RRGGBB`、`#RRGGBBAA` 或 `r,g,b[,a]`
+
+这是高风险命令，默认要求用户明确传入 `--oid` 和完整 attr identifier；建议修改前先用 `--dry-run` 查看解析出的 target oid、setter 和新值。
 
 ## 目标 App 选择规则
 
@@ -600,7 +614,7 @@ CLI 应区分 stdout 和 stderr：
 1. `lookin selectors`
 2. `lookin call`
 3. `lookin set`
-4. 为写操作增加清晰的类型转换、错误提示和测试覆盖。
+4. 为写操作继续增加类型转换覆盖和测试。
 5. 提供 Homebrew tap。
 
 ### Phase 4: Core 抽离和官方 PR

@@ -7,6 +7,7 @@
 #import "LookinConnectionAttachment.h"
 #import "LookinConnectionResponseAttachment.h"
 #import "LookinAppInfo.h"
+#import "LookinAttributeModification.h"
 #import <netinet/in.h>
 
 static const NSTimeInterval LKCLIAppScannerInitialDiscoveryDelay = 0.35;
@@ -163,6 +164,13 @@ static const NSTimeInterval LKCLIAppScannerRetryDiscoveryDelay = 0.45;
     return [self fetchDataWithRequestType:LookinRequestTypeInvokeMethod
                                      data:@{@"oid": @(oid), @"text": selectorName}
                                    forApp:app];
+}
+
+- (RACSignal *)submitInbuiltModification:(LookinAttributeModification *)modification forApp:(LKCLIConnectedApp *)app {
+    if (!modification || modification.targetOid == 0 || !modification.setterSelector) {
+        return [RACSignal error:LookinErr_Inner];
+    }
+    return [self fetchDataWithRequestType:LookinRequestTypeInbuiltAttrModification data:modification forApp:app];
 }
 
 - (RACSignal *)fetchDataWithRequestType:(uint32_t)requestType data:(NSObject *)data forApp:(LKCLIConnectedApp *)app {

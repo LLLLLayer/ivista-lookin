@@ -424,6 +424,7 @@ lookin export --bundle-id ... --out ... [--compression 0.01-1] [--json] [--trans
 lookin tree --bundle-id ... [--depth N] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
 lookin selectors --bundle-id ... (--class ... | --oid ...) [--with-args] [--filter ...] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
 lookin call --bundle-id ... --oid ... --selector ... [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
+lookin set --bundle-id ... --oid ... --attr ... --value ... [--dry-run] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
 ```
 
 如果后续命令复杂度显著上升，再评估是否引入 argument parser 库。
@@ -501,8 +502,8 @@ codesign --force --deep --sign - lookin Frameworks/*.framework
 
 1. `selectors`：调用 `LookinRequestTypeAllSelectorNames`，支持按 class 直接查询，也支持按 oid 先取 `LookinObject.rawClassName` 再查询。
 2. `call`：调用 `LookinRequestTypeInvokeMethod`，第一版只允许无参数 selector，直接拒绝包含 `:` 的方法名。
-3. `set`
-4. 类型转换和写操作安全提示。
+3. `set`：调用 `LookinRequestTypeInbuiltAttrModification`，先用 `attrs` 同源链路获取 `LookinAttribute`，再由 `LookinDashboardBlueprint` 推导 setter 和目标 view/layer oid。
+4. 类型转换和写操作安全提示：第一版支持 bool、数字、字符串、point/size/rect/insets、color、enum 数值；自定义属性和复杂对象先返回 unsupported。
 
 ### Step 6: 打包
 
@@ -532,4 +533,4 @@ codesign --force --deep --sign - lookin Frameworks/*.framework
 
 当前 Phase 1.5 已完成基础链路：设备命令已加跨进程锁和空结果重试，降低真机 USB 并发扫描不稳定；`lookin inspect --bundle-id <bundle-id> --oid <oid> [--json]` 可按 oid 拉取对象信息和基础属性；`lookin attrs --bundle-id <bundle-id> --oid <oid> [--group <filter>] [--json]` 可单独输出属性详情；`lookin screenshot --bundle-id <bundle-id> --oid <oid> --out <path> [--type group|solo] [--json]` 可导出节点截图；`lookin export --bundle-id <bundle-id> --out <file.lookin> [--compression <0.01-1>] [--json]` 可导出离线快照；所有设备命令都支持 `--transport simulator|usb`、`--port <port>` 和 `--device-id <id>` 做 disambiguation。
 
-当前 Phase 2 已开始：`lookin selectors --bundle-id <bundle-id> (--class <class-name> | --oid <oid>) [--with-args] [--filter <text>] [--json]` 可列出 selector；`lookin call --bundle-id <bundle-id> --oid <oid> --selector <selector> [--json]` 可调用无参数方法。后续继续补 `set` 和发布打包。
+当前 Phase 2 已开始：`lookin selectors --bundle-id <bundle-id> (--class <class-name> | --oid <oid>) [--with-args] [--filter <text>] [--json]` 可列出 selector；`lookin call --bundle-id <bundle-id> --oid <oid> --selector <selector> [--json]` 可调用无参数方法；`lookin set --bundle-id <bundle-id> --oid <oid> --attr <identifier> --value <value> [--dry-run] [--json]` 可修改内建属性。后续继续补发布打包。

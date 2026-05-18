@@ -414,7 +414,7 @@ lookin --help
 lookin --version
 lookin doctor
 lookin apps [--json] [--include-icon]
-lookin inspect [--bundle-id ...] [--name ...] [--index ...] [--json]
+lookin inspect --bundle-id ... --oid ... [--json]
 lookin tree [--bundle-id ...] [--name ...] [--index ...] [--depth N] [--filter text] [--oid oid] [--json]
 ```
 
@@ -511,7 +511,7 @@ codesign --force --deep --sign - lookin Frameworks/*.framework
 | RAC/Peertalk 依赖 run loop | CLI 等待时卡住 | `LKCLIAsync` 使用 run loop 驱动而非纯 semaphore |
 | 动态库 rpath 指向构建目录 | zip 无法独立运行 | 打包阶段固定 `@executable_path/Frameworks` |
 | 旧 LookinServer 协议不兼容 | 用户无法连接旧 App | 明确错误；后续按需实现兼容层 |
-| 真机 USB 连接行为复杂 | `apps` 在真机上不稳定 | Phase 1 先验证模拟器，Phase 2 补真机测试 |
+| 真机 USB 连接行为复杂 | `apps` 在真机上不稳定 | CLI 设备命令使用跨进程锁串行化；App 发现为空时自动重试一次 |
 | JSON 字段随模型变化漂移 | 脚本兼容性差 | 在 renderer 层定义稳定 DTO，不直接 dump ObjC 模型 |
 
 ## 当前建议
@@ -520,4 +520,6 @@ codesign --force --deep --sign - lookin Frameworks/*.framework
 
 当前 Phase 0.5 已完成：`lookin apps [--json]` 已打通发现可调试 App 的链路。
 
-当前 Phase 1 基础版已完成：`lookin tree --bundle-id <bundle-id> [--json] [--depth N]` 可按 bundle id 拉取 UI 层级，并输出稳定文本或 JSON；后续继续补 `inspect/attrs` 和设备选择参数。
+当前 Phase 1 基础版已完成：`lookin tree --bundle-id <bundle-id> [--json] [--depth N]` 可按 bundle id 拉取 UI 层级，并输出稳定文本或 JSON。
+
+当前 Phase 1.5 已完成基础链路：设备命令已加跨进程锁和空结果重试，降低真机 USB 并发扫描不稳定；`lookin inspect --bundle-id <bundle-id> --oid <oid> [--json]` 可按 oid 拉取对象信息和基础属性。后续继续补 `attrs/screenshot/export` 和设备选择参数。

@@ -43,11 +43,12 @@ LookinCLI 希望支持以下场景：
 3. `lookin doctor`
 4. `lookin apps [--json]`
 5. `lookin tree --bundle-id <bundle-id> [--json] [--depth N]`
+6. `lookin inspect --bundle-id <bundle-id> --oid <oid> [--json]`
 
 下一步：
 
-1. `lookin inspect --bundle-id <bundle-id> [--json]`
-2. `lookin attrs --oid <oid> [--json]`
+1. `lookin attrs --bundle-id <bundle-id> --oid <oid> [--json]`
+2. `lookin screenshot --bundle-id <bundle-id> --oid <oid>`
 
 ## 与现有 macOS App 的能力映射
 
@@ -58,7 +59,8 @@ LookinCLI 希望支持以下场景：
 | 拉取 UI 层级 | `LKInspectableApp fetchHierarchyData` | `lookin tree`, `lookin inspect --json` |
 | 异步补全截图和属性详情 | `LKStaticAsyncUpdateManager` | `lookin attrs`, `lookin screenshot`, `lookin export` |
 | 展开、折叠、搜索层级 | `LKHierarchyDataSource`, `LKHierarchyView` | `lookin tree --depth`, `--filter`, `--oid` |
-| 查看属性 | `LKDashboardViewController` | `lookin attrs --oid ...` |
+| 查看对象和基础属性 | `fetchObjectWithOid`, `fetchAttrGroupListWithOid` | `lookin inspect --oid ...` |
+| 异步补全属性详情 | `LKStaticAsyncUpdateManager` | `lookin attrs --oid ...` |
 | 修改属性 | `submitInbuiltModification`, `submitCustomModification` | `lookin set ...` |
 | 调用方法 | `invokeMethodWithOid` | `lookin call ...` |
 | 导出 `.lookin` 文件 | `LKExportManager` | `lookin export ...` |
@@ -281,9 +283,9 @@ xcodebuild -workspace Lookin.xcworkspace -scheme LookinCLI -configuration Releas
 
 ```bash
 lookin apps
-lookin inspect --bundle-id com.example.demo
 lookin tree --bundle-id com.example.demo
 lookin tree --bundle-id com.example.demo --json > hierarchy.json
+lookin inspect --bundle-id com.example.demo --oid 130
 ```
 
 如果没有找到 App，CLI 应提示用户检查：
@@ -372,15 +374,20 @@ JSON 输出建议包含：
 
 ### inspect
 
-连接某个 App 并输出基础摘要。用于快速确认 CLI 能否正常连上目标 App。
+查询某个层级节点对应的对象信息和基础属性。`--oid` 可以来自 `tree` 输出中的 `oid`、`viewOid`、`layerOid` 或 `hostViewControllerOid`。
 
 ```bash
-lookin inspect --bundle-id com.example.demo
-lookin inspect --name Demo
-lookin inspect --json
+lookin inspect --bundle-id com.example.demo --oid 130
+lookin inspect --bundle-id com.example.demo --oid 130 --json
 ```
 
-摘要建议包含 App 信息、屏幕尺寸、节点数量、LookinServer 版本、是否存在版本或 Swift 配置提示。
+文本输出建议包含 App 信息、display item 的 view/layer/controller oid、frame、hidden、alpha、对象 class chain 和属性列表。
+
+JSON 输出应保持稳定，根字段建议优先包含：
+
+```text
+app, displayItem, object, attributes
+```
 
 ### tree
 
@@ -406,7 +413,7 @@ UIWindow oid=100 frame={{0,0},{390,844}}
 JSON 输出应保持稳定，方便脚本消费。字段建议优先包含：
 
 ```text
-oid, title, className, objectType, frame, bounds, hidden, alpha, children
+oid, viewOid, layerOid, hostViewControllerOid, title, className, objectType, frame, bounds, hidden, alpha, children
 ```
 
 ### attrs

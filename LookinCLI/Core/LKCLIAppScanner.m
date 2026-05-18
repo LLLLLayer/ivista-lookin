@@ -9,6 +9,9 @@
 #import "LookinAppInfo.h"
 #import <netinet/in.h>
 
+static const NSTimeInterval LKCLIAppScannerInitialDiscoveryDelay = 0.35;
+static const NSTimeInterval LKCLIAppScannerRetryDiscoveryDelay = 0.45;
+
 @interface LKCLIConnectionPort : NSObject
 
 @property(nonatomic, assign) NSInteger portNumber;
@@ -28,6 +31,8 @@
 @property(nonatomic, strong) NSMutableArray<LKCLIConnectionPort *> *usbPorts;
 @property(nonatomic, strong) NSMapTable<Lookin_PTChannel *, NSMutableSet<LKCLIConnectionRequest *> *> *activeRequestsByChannel;
 @property(nonatomic, strong) NSMapTable<Lookin_PTChannel *, LKCLIConnectionPort *> *portsByChannel;
+
+- (RACSignal *)fetchDataWithRequestType:(uint32_t)requestType data:(NSObject *)data forApp:(LKCLIConnectedApp *)app;
 
 @end
 
@@ -54,7 +59,16 @@
 }
 
 - (RACSignal *)fetchAppsWithImages:(BOOL)needImages {
-    return [[[[[RACSignal return:nil] delay:0.15] flattenMap:^__kindof RACSignal * _Nullable(id value) {
+    return [[self fetchAppsAttemptWithImages:needImages delay:LKCLIAppScannerInitialDiscoveryDelay] flattenMap:^__kindof RACSignal * _Nullable(id appsValue) {
+        if ([appsValue isKindOfClass:[NSArray class]] && [(NSArray *)appsValue count] == 0) {
+            return [self fetchAppsAttemptWithImages:needImages delay:LKCLIAppScannerRetryDiscoveryDelay];
+        }
+        return [RACSignal return:appsValue];
+    }];
+}
+
+- (RACSignal *)fetchAppsAttemptWithImages:(BOOL)needImages delay:(NSTimeInterval)delay {
+    return [[[[[RACSignal return:nil] delay:delay] flattenMap:^__kindof RACSignal * _Nullable(id value) {
         return [self tryToConnectAllPorts];
     }] flattenMap:^__kindof RACSignal * _Nullable(NSArray<Lookin_PTChannel *> *connectedChannels) {
         if (connectedChannels.count == 0) {
@@ -111,12 +125,34 @@
 }
 
 - (RACSignal *)fetchHierarchyForApp:(LKCLIConnectedApp *)app {
+    NSDictionary *params = @{@"clientVersion": [LKCLIVersionProvider cliVersion]};
+    return [self fetchDataWithRequestType:LookinRequestTypeHierarchy data:params forApp:app];
+}
+
+- (RACSignal *)fetchHierarchyDetailsWithTaskPackages:(NSArray *)packages forApp:(LKCLIConnectedApp *)app {
+    return [self fetchDataWithRequestType:LookinRequestTypeHierarchyDetails data:packages forApp:app];
+}
+
+- (RACSignal *)fetchObjectWithOID:(unsigned long)oid forApp:(LKCLIConnectedApp *)app {
+    if (oid == 0) {
+        return [RACSignal error:LookinErr_Inner];
+    }
+    return [self fetchDataWithRequestType:LookinRequestTypeFetchObject data:@(oid) forApp:app];
+}
+
+- (RACSignal *)fetchAttributeGroupsWithOID:(unsigned long)oid forApp:(LKCLIConnectedApp *)app {
+    if (oid == 0) {
+        return [RACSignal error:LookinErr_Inner];
+    }
+    return [self fetchDataWithRequestType:LookinRequestTypeAllAttrGroups data:@(oid) forApp:app];
+}
+
+- (RACSignal *)fetchDataWithRequestType:(uint32_t)requestType data:(NSObject *)data forApp:(LKCLIConnectedApp *)app {
     if (!app.channel) {
         return [RACSignal error:LookinErr_NoConnect];
     }
 
-    NSDictionary *params = @{@"clientVersion": [LKCLIVersionProvider cliVersion]};
-    return [[self requestWithType:LookinRequestTypeHierarchy data:params channel:app.channel] flattenMap:^__kindof RACSignal * _Nullable(RACTuple *tuple) {
+    return [[self requestWithType:requestType data:data channel:app.channel] flattenMap:^__kindof RACSignal * _Nullable(RACTuple *tuple) {
         LookinConnectionResponseAttachment *attachment = tuple.first;
         if (attachment.error) {
             return [RACSignal error:attachment.error];

@@ -13,11 +13,12 @@
       "  lookin doctor\n"
       "  lookin apps [--json]\n"
       "  lookin tree --bundle-id <bundle-id> [--json] [--depth N]\n"
+      "  lookin inspect --bundle-id <bundle-id> --oid <oid> [--json]\n"
       "\n"
       "Planned commands:\n"
-      "  lookin inspect --bundle-id <bundle-id> [--json]\n"
+      "  lookin attrs --bundle-id <bundle-id> --oid <oid> [--json]\n"
       "\n"
-      "This build includes app discovery and hierarchy tree output. Inspection commands are planned next."];
+      "This build includes app discovery, hierarchy tree output, and object inspection."];
     return LKCLIExitCodeOK;
 }
 

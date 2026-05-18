@@ -173,14 +173,16 @@
     LookinObject *object = item.displayingObject;
     NSString *className = object.rawClassName ?: @"<unknown>";
     NSString *title = item.customDisplayTitle.length ? [NSString stringWithFormat:@" %@", item.customDisplayTitle] : @"";
+    NSString *objectIDs = [self secondaryObjectIDsTextForItem:item primaryObject:object];
     CGRect frame = item.frame;
     NSString *flags = [self flagsForItem:item];
 
-    [LKCLIStdIO writeOut:@"%@- %@%@ oid=%lu frame=(%.1f, %.1f, %.1f, %.1f)%@",
+    [LKCLIStdIO writeOut:@"%@- %@%@ oid=%lu%@ frame=(%.1f, %.1f, %.1f, %.1f)%@",
      indent,
      className,
      title,
      object.oid,
+     objectIDs,
      frame.origin.x,
      frame.origin.y,
      frame.size.width,
@@ -193,6 +195,23 @@
     for (LookinDisplayItem *subitem in item.subitems) {
         [self printTextItem:subitem level:level + 1 depth:depth];
     }
+}
+
++ (NSString *)secondaryObjectIDsTextForItem:(LookinDisplayItem *)item primaryObject:(LookinObject *)primaryObject {
+    NSMutableArray<NSString *> *ids = [NSMutableArray array];
+    if (item.viewObject && item.viewObject != primaryObject) {
+        [ids addObject:[NSString stringWithFormat:@"viewOid=%lu", item.viewObject.oid]];
+    }
+    if (item.layerObject && item.layerObject != primaryObject) {
+        [ids addObject:[NSString stringWithFormat:@"layerOid=%lu", item.layerObject.oid]];
+    }
+    if (item.hostViewControllerObject && item.hostViewControllerObject != primaryObject) {
+        [ids addObject:[NSString stringWithFormat:@"controllerOid=%lu", item.hostViewControllerObject.oid]];
+    }
+    if (ids.count == 0) {
+        return @"";
+    }
+    return [NSString stringWithFormat:@" %@", [ids componentsJoinedByString:@" "]];
 }
 
 + (NSString *)flagsForItem:(LookinDisplayItem *)item {
@@ -245,6 +264,9 @@
 
     NSMutableDictionary *json = [NSMutableDictionary dictionary];
     json[@"oid"] = @(object.oid);
+    json[@"viewOid"] = item.viewObject ? @(item.viewObject.oid) : [NSNull null];
+    json[@"layerOid"] = item.layerObject ? @(item.layerObject.oid) : [NSNull null];
+    json[@"hostViewControllerOid"] = item.hostViewControllerObject ? @(item.hostViewControllerObject.oid) : [NSNull null];
     json[@"className"] = object.rawClassName ?: [NSNull null];
     json[@"customTitle"] = item.customDisplayTitle ?: [NSNull null];
     json[@"hidden"] = @(item.isHidden);

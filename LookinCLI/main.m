@@ -5,6 +5,8 @@
 #import "LKCLIDoctorCommand.h"
 #import "LKCLIAppsCommand.h"
 #import "LKCLITreeCommand.h"
+#import "LKCLIInspectCommand.h"
+#import "LKCLIProcessLock.h"
 #import "LKCLIStdIO.h"
 
 static NSArray<NSString *> *LKCLIArguments(int argc, const char * argv[]) {
@@ -13,6 +15,15 @@ static NSArray<NSString *> *LKCLIArguments(int argc, const char * argv[]) {
         [arguments addObject:[NSString stringWithUTF8String:argv[i]]];
     }
     return arguments.copy;
+}
+
+static BOOL LKCLIArgumentsContainHelp(NSArray<NSString *> *arguments) {
+    for (NSString *argument in arguments) {
+        if ([argument isEqualToString:@"--help"] || [argument isEqualToString:@"-h"]) {
+            return YES;
+        }
+    }
+    return NO;
 }
 
 int main(int argc, const char * argv[]) {
@@ -34,11 +45,30 @@ int main(int argc, const char * argv[]) {
         }
 
         if ([command isEqualToString:@"apps"]) {
-            return (int)[LKCLIAppsCommand runWithArguments:commandArguments];
+            if (LKCLIArgumentsContainHelp(commandArguments)) {
+                return (int)[LKCLIAppsCommand runWithArguments:commandArguments];
+            }
+            return (int)[LKCLIProcessLock runDeviceCommandWithBlock:^LKCLIExitCode{
+                return [LKCLIAppsCommand runWithArguments:commandArguments];
+            }];
         }
 
         if ([command isEqualToString:@"tree"]) {
-            return (int)[LKCLITreeCommand runWithArguments:commandArguments];
+            if (LKCLIArgumentsContainHelp(commandArguments)) {
+                return (int)[LKCLITreeCommand runWithArguments:commandArguments];
+            }
+            return (int)[LKCLIProcessLock runDeviceCommandWithBlock:^LKCLIExitCode{
+                return [LKCLITreeCommand runWithArguments:commandArguments];
+            }];
+        }
+
+        if ([command isEqualToString:@"inspect"]) {
+            if (LKCLIArgumentsContainHelp(commandArguments)) {
+                return (int)[LKCLIInspectCommand runWithArguments:commandArguments];
+            }
+            return (int)[LKCLIProcessLock runDeviceCommandWithBlock:^LKCLIExitCode{
+                return [LKCLIInspectCommand runWithArguments:commandArguments];
+            }];
         }
 
         [LKCLIStdIO writeError:@"error: unknown command '%@'", command];

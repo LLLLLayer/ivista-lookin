@@ -575,10 +575,14 @@ lookin console --bundle-id com.example.demo --oid 130
 lookin set --bundle-id com.example.demo --oid 130 --attr l_f_f --value '0,0,120,44'
 lookin set --bundle-id com.example.demo --oid 130 --attr vl_v_h --value true
 lookin set --bundle-id com.example.demo --oid 130 --attr vl_b_b --value '#ff0000'
+lookin set --bundle-id com.example.demo --oid 130 --attr customTitle --value 'hello'
 lookin set --bundle-id com.example.demo --oid 130 --attr vl_v_o --value 0.5 --dry-run
 ```
 
-第一版只支持内建属性，不支持 custom attr；CLI 会先按 `--oid` 拉取 dashboard 属性，找到 `--attr` 对应的 `LookinAttribute`，用 `LookinDashboardBlueprint setterWithAttrID:` 和 `isUIViewPropertyWithAttrID:` 推导 setter 与目标 view/layer oid，然后提交 `LookinRequestTypeInbuiltAttrModification`。
+`set` 会先按 `--oid` 拉取 dashboard 属性，找到 `--attr` 对应的 `LookinAttribute`。`--attr` 可以匹配内建属性 identifier，也可以匹配 custom attr 的 display title 或 `customSetterID`。
+
+1. 内建属性：用 `LookinDashboardBlueprint setterWithAttrID:` 和 `isUIViewPropertyWithAttrID:` 推导 setter 与目标 view/layer oid，然后提交 `LookinRequestTypeInbuiltAttrModification`。
+2. 自定义属性：要求属性带有 `customSetterID`，然后提交 `LookinRequestTypeCustomAttrModification`。
 
 支持的值格式：
 
@@ -589,7 +593,7 @@ lookin set --bundle-id com.example.demo --oid 130 --attr vl_v_o --value 0.5 --dr
 5. rect/insets：`x,y,width,height` 或 `top,left,bottom,right`
 6. color：`#RRGGBB`、`#RRGGBBAA` 或 `r,g,b[,a]`
 
-这是高风险命令，默认要求用户明确传入 `--oid` 和完整 attr identifier；建议修改前先用 `--dry-run` 查看解析出的 target oid、setter 和新值。
+这是高风险命令，默认要求用户明确传入 `--oid` 和 attr；建议修改前先用 `--dry-run` 查看解析出的 target oid / custom setter id 和新值。没有 setter 的内建属性、没有 `customSetterID` 的 custom attr、以及复杂对象类型会返回 unsupported。
 
 ## 目标 App 选择规则
 

@@ -94,6 +94,8 @@
     return @{
         @"identifier": attribute.identifier ?: [NSNull null],
         @"title": [self displayNameForAttribute:attribute],
+        @"isUserCustom": @(attribute.isUserCustom),
+        @"customSetterID": attribute.customSetterID ?: [NSNull null],
         @"type": [self nameForAttrType:attribute.attrType],
         @"typeCode": @(attribute.attrType),
         @"value": [self JSONObjectForAttributeValue:attribute],

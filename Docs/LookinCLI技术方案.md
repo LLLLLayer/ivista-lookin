@@ -531,8 +531,8 @@ codesign --force --deep --sign - lookin Frameworks/*.framework
 2. `call`：调用 `LookinRequestTypeInvokeMethod`，第一版只允许无参数 selector，直接拒绝包含 `:` 的方法名。
 3. `eval`：`call` 的控制台友好别名，支持 `lookin eval ... frame --json` 这类“看属性/变量”的使用方式。
 4. `console`：复用 `LookinRequestTypeFetchObject`、`LookinRequestTypeAllSelectorNames` 和 `LookinRequestTypeInvokeMethod`，提供轻量交互式控制台。
-5. `set`：调用 `LookinRequestTypeInbuiltAttrModification`，先用 `attrs` 同源链路获取 `LookinAttribute`，再由 `LookinDashboardBlueprint` 推导 setter 和目标 view/layer oid。
-6. 类型转换和写操作安全提示：第一版支持 bool、数字、字符串、point/size/rect/insets、color、enum 数值；自定义属性和复杂对象先返回 unsupported。
+5. `set`：先用 `attrs` 同源链路获取 `LookinAttribute`。内建属性由 `LookinDashboardBlueprint` 推导 setter 和目标 view/layer oid，再调用 `LookinRequestTypeInbuiltAttrModification`；自定义属性要求 `customSetterID` 非空，再调用 `LookinRequestTypeCustomAttrModification`。
+6. 类型转换和写操作安全提示：支持 bool、数字、字符串、point/size/rect/insets、color、enum 数值；没有 setter 的属性和复杂对象先返回 unsupported。
 
 ### Step 6: 打包
 
@@ -563,6 +563,6 @@ codesign --force --deep --sign - lookin Frameworks/*.framework
 
 当前 Phase 1.5 已完成基础链路：设备命令已加跨进程锁和空结果重试，降低真机 USB 并发扫描不稳定；`lookin inspect --bundle-id <bundle-id> --oid <oid> [--json]` 可按 oid 拉取对象信息和基础属性；`lookin attrs --bundle-id <bundle-id> --oid <oid> [--group <filter>] [--json]` 可单独输出属性详情；`lookin screenshot --bundle-id <bundle-id> --oid <oid> --out <path> [--type group|solo] [--json]` 可导出节点截图；`lookin export --bundle-id <bundle-id> --out <file.lookin> [--compression <0.01-1>] [--json]` 可导出离线快照；所有设备命令都支持 `--transport simulator|usb`、`--port <port>` 和 `--device-id <id>` 做 disambiguation。
 
-当前 Phase 2 已开始：`lookin selectors --bundle-id <bundle-id> (--class <class-name> | --oid <oid>) [--with-args] [--filter <text>] [--json]` 可列出 selector；`lookin call --bundle-id <bundle-id> --oid <oid> --selector <selector> [--json]` 可调用无参数方法；`lookin eval --bundle-id <bundle-id> --oid <oid> <property-or-method> [--json]` 和 `lookin console --bundle-id <bundle-id> --oid <oid>` 覆盖 App Console 的核心“看属性/调用无参方法”能力；`lookin set --bundle-id <bundle-id> --oid <oid> --attr <identifier> --value <value> [--dry-run] [--json]` 可修改内建属性。
+当前 Phase 2 已开始：`lookin selectors --bundle-id <bundle-id> (--class <class-name> | --oid <oid>) [--with-args] [--filter <text>] [--json]` 可列出 selector；`lookin call --bundle-id <bundle-id> --oid <oid> --selector <selector> [--json]` 可调用无参数方法；`lookin eval --bundle-id <bundle-id> --oid <oid> <property-or-method> [--json]` 和 `lookin console --bundle-id <bundle-id> --oid <oid>` 覆盖 App Console 的核心“看属性/调用无参方法”能力；`lookin set --bundle-id <bundle-id> --oid <oid> --attr <identifier> --value <value> [--dry-run] [--json]` 可修改内建属性，以及带 `customSetterID` 的自定义属性。
 
 当前 Phase 2.5 已开始：`Scripts/build-lookin-cli.sh` 可构建 Release 版 CLI 并调用 `Scripts/package-lookin-cli.sh` 生成可移动目录和 zip；zip 内包含 `install.sh`，支持安装到 `/usr/local/bin/lookin` 或用户自定义本地目录。后续需要在干净机器上做独立安装验收，并补 Homebrew tap。

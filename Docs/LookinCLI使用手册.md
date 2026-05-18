@@ -210,7 +210,13 @@ lookin set --bundle-id com.example.demo --oid 130 --attr l_f_f --value '0,0,120,
 lookin set --bundle-id com.example.demo --oid 130 --attr l_f_f --value '0,0,120,44'
 ```
 
-第一版支持 bool、数字、字符串、point、size、rect、insets、color 和 enum 数值。自定义属性和复杂对象暂不支持。
+支持 bool、数字、字符串、point、size、rect、insets、color 和 enum 数值。`--attr` 可以传内建属性 identifier，也可以传自定义属性的标题或 `customSetterID`。自定义属性只有在 SDK 暴露了 `customSetterID` 时可写；没有 setter 的属性和复杂对象暂不支持。
+
+查看某个对象有哪些可用字段：
+
+```bash
+lookin attrs --bundle-id com.example.demo --oid 130 --json | jq '.attributes[].sections[].attributes[] | {identifier,title,isUserCustom,customSetterID,type}'
+```
 
 ## JSON 和脚本
 

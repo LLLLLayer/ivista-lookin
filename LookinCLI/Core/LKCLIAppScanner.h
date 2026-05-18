@@ -3,6 +3,7 @@
 @class RACSignal;
 @class LKCLIConnectedApp;
 @class LookinAttributeModification;
+@class LookinCustomAttrModification;
 
 @interface LKCLIAppScanner : NSObject
 
@@ -14,6 +15,7 @@
 - (RACSignal *)fetchSelectorNamesWithClass:(NSString *)className hasArg:(BOOL)hasArg forApp:(LKCLIConnectedApp *)app;
 - (RACSignal *)invokeMethodWithOID:(unsigned long)oid selectorName:(NSString *)selectorName forApp:(LKCLIConnectedApp *)app;
 - (RACSignal *)submitInbuiltModification:(LookinAttributeModification *)modification forApp:(LKCLIConnectedApp *)app;
+- (RACSignal *)submitCustomModification:(LookinCustomAttrModification *)modification forApp:(LKCLIConnectedApp *)app;
 - (void)closeAllConnections;
 
 @end

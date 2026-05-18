@@ -12,6 +12,7 @@
 #import "LookinAttributeModification.h"
 #import "LookinAttributesGroup.h"
 #import "LookinAttributesSection.h"
+#import "LookinCustomAttrModification.h"
 #import "LookinDashboardBlueprint.h"
 #import "LookinDefines.h"
 #import "LookinDisplayItem.h"
@@ -103,15 +104,18 @@
         [LKCLIStdIO writeError:@"hint: run 'lookin attrs --bundle-id %@ --oid %lu --json'", selection.bundleID, oid];
         return LKCLIExitCodeUsage;
     }
+    SEL setter = NULL;
     if (attribute.isUserCustom) {
-        [LKCLIStdIO writeError:@"error: custom attributes are not supported by 'lookin set' yet"];
-        return LKCLIExitCodeUnsupported;
-    }
-
-    SEL setter = [LookinDashboardBlueprint setterWithAttrID:attribute.identifier];
-    if (!setter) {
-        [LKCLIStdIO writeError:@"error: attribute '%@' is read-only or not settable", attribute.identifier ?: attributeIdentifier];
-        return LKCLIExitCodeUnsupported;
+        if (attribute.customSetterID.length == 0) {
+            [LKCLIStdIO writeError:@"error: custom attribute '%@' has no retained setter and is read-only", [LKCLIAttributeFormatter displayNameForAttribute:attribute]];
+            return LKCLIExitCodeUnsupported;
+        }
+    } else {
+        setter = [LookinDashboardBlueprint setterWithAttrID:attribute.identifier];
+        if (!setter) {
+            [LKCLIStdIO writeError:@"error: attribute '%@' is read-only or not settable", attribute.identifier ?: attributeIdentifier];
+            return LKCLIExitCodeUnsupported;
+        }
     }
 
     NSString *parseError = nil;
@@ -121,10 +125,13 @@
         return LKCLIExitCodeUsage;
     }
 
-    unsigned long targetOID = [self targetOIDForAttribute:attribute displayItem:result.displayItem];
-    if (targetOID == 0) {
-        [LKCLIStdIO writeError:@"error: failed to resolve target object for attribute '%@'", attribute.identifier ?: attributeIdentifier];
-        return LKCLIExitCodeObjectNotFound;
+    unsigned long targetOID = 0;
+    if (!attribute.isUserCustom) {
+        targetOID = [self targetOIDForAttribute:attribute displayItem:result.displayItem];
+        if (targetOID == 0) {
+            [LKCLIStdIO writeError:@"error: failed to resolve target object for attribute '%@'", attribute.identifier ?: attributeIdentifier];
+            return LKCLIExitCodeObjectNotFound;
+        }
     }
 
     if (dryRun) {
@@ -143,16 +150,24 @@
         return selectionExitCode;
     }
 
-    LookinAttributeModification *modification = [LookinAttributeModification new];
-    modification.clientReadableVersion = [LKCLIVersionProvider cliVersion];
-    modification.targetOid = targetOID;
-    modification.setterSelector = setter;
-    modification.attrType = attribute.attrType;
-    modification.value = parsedValue;
-
     id modificationValue = nil;
     NSError *modificationError = nil;
-    BOOL submitted = [LKCLISignalRunner waitForSignal:[scanner submitInbuiltModification:modification forApp:app] timeout:12 value:&modificationValue error:&modificationError];
+    BOOL submitted = NO;
+    if (attribute.isUserCustom) {
+        LookinCustomAttrModification *modification = [LookinCustomAttrModification new];
+        modification.customSetterID = attribute.customSetterID;
+        modification.attrType = attribute.attrType;
+        modification.value = parsedValue;
+        submitted = [LKCLISignalRunner waitForSignal:[scanner submitCustomModification:modification forApp:app] timeout:12 value:&modificationValue error:&modificationError];
+    } else {
+        LookinAttributeModification *modification = [LookinAttributeModification new];
+        modification.clientReadableVersion = [LKCLIVersionProvider cliVersion];
+        modification.targetOid = targetOID;
+        modification.setterSelector = setter;
+        modification.attrType = attribute.attrType;
+        modification.value = parsedValue;
+        submitted = [LKCLISignalRunner waitForSignal:[scanner submitInbuiltModification:modification forApp:app] timeout:12 value:&modificationValue error:&modificationError];
+    }
     [scanner closeAllConnections];
 
     if (!submitted) {
@@ -172,20 +187,38 @@
      @"Usage:\n"
       "  lookin set --bundle-id <bundle-id> --oid <oid> --attr <identifier> --value <value> [--dry-run] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
       "\n"
-      "Modify a settable built-in dashboard attribute. Use 'lookin attrs --json' to find attribute identifiers."];
+      "Modify a settable built-in or custom dashboard attribute. Use 'lookin attrs --json' to find attribute identifiers or custom setter ids."];
 }
 
 + (LookinAttribute *)attributeWithIdentifier:(NSString *)identifier inGroups:(NSArray<LookinAttributesGroup *> *)groups {
     for (LookinAttributesGroup *group in groups) {
         for (LookinAttributesSection *section in group.attrSections) {
             for (LookinAttribute *attribute in section.attributes) {
-                if ([attribute.identifier isEqualToString:identifier]) {
+                if ([self attribute:attribute matchesIdentifier:identifier]) {
                     return attribute;
                 }
             }
         }
     }
     return nil;
+}
+
++ (BOOL)attribute:(LookinAttribute *)attribute matchesIdentifier:(NSString *)identifier {
+    if (identifier.length == 0) {
+        return NO;
+    }
+    NSArray<NSString *> *candidates = @[
+        attribute.identifier ?: @"",
+        attribute.displayTitle ?: @"",
+        attribute.customSetterID ?: @"",
+        [LKCLIAttributeFormatter displayNameForAttribute:attribute] ?: @"",
+    ];
+    for (NSString *candidate in candidates) {
+        if ([candidate isEqualToString:identifier]) {
+            return YES;
+        }
+    }
+    return NO;
 }
 
 + (unsigned long)targetOIDForAttribute:(LookinAttribute *)attribute displayItem:(LookinDisplayItem *)displayItem {
@@ -431,9 +464,14 @@
                      dryRun:(BOOL)dryRun {
     [LKCLIStdIO writeOut:@"%@ (%@)", result.app.appInfo.appName ?: @"<unknown>", result.app.appInfo.appBundleIdentifier ?: @"<unknown>"];
     [LKCLIStdIO writeOut:@"object: %lu", result.object.oid];
+    [LKCLIStdIO writeOut:@"attribute kind: %@", attribute.isUserCustom ? @"custom" : @"built-in"];
     [LKCLIStdIO writeOut:@"attribute: %@", attribute.identifier ?: @"<unknown>"];
-    [LKCLIStdIO writeOut:@"target oid: %lu", targetOID];
-    [LKCLIStdIO writeOut:@"setter: %@", NSStringFromSelector(setter)];
+    if (attribute.isUserCustom) {
+        [LKCLIStdIO writeOut:@"custom setter id: %@", attribute.customSetterID ?: @"<unknown>"];
+    } else {
+        [LKCLIStdIO writeOut:@"target oid: %lu", targetOID];
+        [LKCLIStdIO writeOut:@"setter: %@", NSStringFromSelector(setter)];
+    }
     [LKCLIStdIO writeOut:@"old value: %@", [LKCLIAttributeFormatter stringForAttributeValue:attribute]];
     [LKCLIStdIO writeOut:@"new value: %@", [self displayStringForParsedValue:parsedValue fallback:rawValue]];
     [LKCLIStdIO writeOut:@"status: %@", dryRun ? @"dry run" : @"submitted"];
@@ -460,10 +498,14 @@
         @"attribute": @{
             @"identifier": attribute.identifier ?: [NSNull null],
             @"title": [LKCLIAttributeFormatter displayNameForAttribute:attribute],
+            @"kind": attribute.isUserCustom ? @"custom" : @"builtIn",
+            @"customSetterID": attribute.customSetterID ?: [NSNull null],
+            @"type": [LKCLIAttributeFormatter nameForAttrType:attribute.attrType],
+            @"typeCode": @(attribute.attrType),
             @"oldValue": [LKCLIAttributeFormatter stringForAttributeValue:attribute],
         },
-        @"targetOid": @(targetOID),
-        @"setter": NSStringFromSelector(setter),
+        @"targetOid": targetOID == 0 ? [NSNull null] : @(targetOID),
+        @"setter": setter ? NSStringFromSelector(setter) : (id)[NSNull null],
         @"rawValue": rawValue ?: [NSNull null],
         @"parsedValue": [self JSONCompatibleObjectForValue:parsedValue],
         @"dryRun": @(dryRun),

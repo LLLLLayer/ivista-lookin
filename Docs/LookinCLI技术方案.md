@@ -462,10 +462,17 @@ codesign --force --deep --sign - lookin Frameworks/*.framework
 
 ### Step 2: apps
 
-1. 接入 `LKConnectionManager` / `LKAppsManager`。
-2. 实现 `LKCLIAsync`。
-3. 实现 `lookin apps` 文本输出。
-4. 实现 `lookin apps --json`。
+1. 在 CLI 内新增轻量连接扫描器，复用 Peertalk、`LookinConnectionAttachment`、`LookinConnectionResponseAttachment` 和 `LookinAppInfo`。
+2. 暂不把 `LKConnectionManager` / `LKAppsManager` / `LKInspectableApp` 直接加入 CLI target，避免把 `LKNavigationManager`、`LKHelper` 等 AppKit/UI 依赖带进命令行工具。
+3. 实现 `LKCLISignalRunner`，用 run loop 驱动 RAC/Peertalk 异步回调。
+4. 实现 `lookin apps` 文本输出。
+5. 实现 `lookin apps --json`。
+
+### Step 2.5: core extraction
+
+1. 当 `apps` 和 `tree` 都跑通后，再评估把稳定的连接请求层从 CLI 内部抽成 `LookinCore`。
+2. `LookinCore` 应该只依赖 Foundation、ReactiveObjC、LookinShared。
+3. `LookinClient` 和 `LookinCLI` 最终都使用 `LookinCore`，减少长期重复代码。
 
 ### Step 3: inspect/tree
 
@@ -509,11 +516,6 @@ codesign --force --deep --sign - lookin Frameworks/*.framework
 
 ## 当前建议
 
-下一步进入 Phase 0：
+当前 Phase 0 已完成：`LookinCLI` target、`--help`、`--version`、`doctor`、独立 framework 嵌入和原 `LookinClient` build 验证均已通过。
 
-1. 新增 `LookinCLI` target。
-2. 只实现 `--help`、`--version`、`doctor`。
-3. 确认可以独立 build。
-4. 确认 `LookinClient` 仍可 build。
-
-Phase 0 通过后，再实现 `lookin apps`。
+当前 Phase 0.5 已完成：`lookin apps [--json]` 已打通发现可调试 App 的链路；下一步进入 `tree/inspect`。

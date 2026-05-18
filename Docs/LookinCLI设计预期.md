@@ -34,6 +34,21 @@ LookinCLI 希望支持以下场景：
 
 这些能力可以长期留在 LookinClient 中。LookinCLI 只替代其中适合命令行表达的核心能力。
 
+## 当前实现状态
+
+已实现：
+
+1. `lookin --help`
+2. `lookin --version`
+3. `lookin doctor`
+4. `lookin apps [--json]`
+
+下一步：
+
+1. `lookin tree --bundle-id <bundle-id> [--json]`
+2. `lookin inspect --bundle-id <bundle-id> [--json]`
+3. `lookin attrs --oid <oid> [--json]`
+
 ## 与现有 macOS App 的能力映射
 
 | macOS App 能力 | 主要代码 | CLI 映射 |

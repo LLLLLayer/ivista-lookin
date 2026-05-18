@@ -3,6 +3,7 @@
 #import "LKCLIHelpCommand.h"
 #import "LKCLIVersionCommand.h"
 #import "LKCLIDoctorCommand.h"
+#import "LKCLIAppsCommand.h"
 #import "LKCLIStdIO.h"
 
 static NSArray<NSString *> *LKCLIArguments(int argc, const char * argv[]) {
@@ -17,6 +18,7 @@ int main(int argc, const char * argv[]) {
     @autoreleasepool {
         NSArray<NSString *> *arguments = LKCLIArguments(argc, argv);
         NSString *command = arguments.firstObject;
+        NSArray<NSString *> *commandArguments = arguments.count > 1 ? [arguments subarrayWithRange:NSMakeRange(1, arguments.count - 1)] : @[];
 
         if (!command || [command isEqualToString:@"--help"] || [command isEqualToString:@"-h"] || [command isEqualToString:@"help"]) {
             return (int)[LKCLIHelpCommand run];
@@ -28,6 +30,10 @@ int main(int argc, const char * argv[]) {
 
         if ([command isEqualToString:@"doctor"]) {
             return (int)[LKCLIDoctorCommand run];
+        }
+
+        if ([command isEqualToString:@"apps"]) {
+            return (int)[LKCLIAppsCommand runWithArguments:commandArguments];
         }
 
         [LKCLIStdIO writeError:@"error: unknown command '%@'", command];

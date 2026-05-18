@@ -518,4 +518,6 @@ codesign --force --deep --sign - lookin Frameworks/*.framework
 
 当前 Phase 0 已完成：`LookinCLI` target、`--help`、`--version`、`doctor`、独立 framework 嵌入和原 `LookinClient` build 验证均已通过。
 
-当前 Phase 0.5 已完成：`lookin apps [--json]` 已打通发现可调试 App 的链路；下一步进入 `tree/inspect`。
+当前 Phase 0.5 已完成：`lookin apps [--json]` 已打通发现可调试 App 的链路。
+
+当前 Phase 1 基础版已完成：`lookin tree --bundle-id <bundle-id> [--json] [--depth N]` 可按 bundle id 拉取 UI 层级，并输出稳定文本或 JSON；后续继续补 `inspect/attrs` 和设备选择参数。

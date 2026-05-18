@@ -1,6 +1,7 @@
 #import "LKCLIAppScanner.h"
 #import "LKCLIConnectedApp.h"
 #import "LKCLIConnectionRequest.h"
+#import "LKCLIVersionProvider.h"
 #import "Lookin_PTChannel.h"
 #import "LookinDefines.h"
 #import "LookinConnectionAttachment.h"
@@ -106,6 +107,21 @@
             [apps addObject:app];
         }
         return apps.copy;
+    }];
+}
+
+- (RACSignal *)fetchHierarchyForApp:(LKCLIConnectedApp *)app {
+    if (!app.channel) {
+        return [RACSignal error:LookinErr_NoConnect];
+    }
+
+    NSDictionary *params = @{@"clientVersion": [LKCLIVersionProvider cliVersion]};
+    return [[self requestWithType:LookinRequestTypeHierarchy data:params channel:app.channel] flattenMap:^__kindof RACSignal * _Nullable(RACTuple *tuple) {
+        LookinConnectionResponseAttachment *attachment = tuple.first;
+        if (attachment.error) {
+            return [RACSignal error:attachment.error];
+        }
+        return [RACSignal return:attachment.data];
     }];
 }
 

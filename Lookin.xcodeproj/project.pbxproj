@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		094E413CB04F29F94551D070 /* Pods_LookinClient.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 81A3B0CB06C22A05EDC913F3 /* Pods_LookinClient.framework */; };
+		0D7F1D1F2C061762916EDAE4 /* LKCLITreeCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = CFF597A8F0CA52E15C2FF56E /* LKCLITreeCommand.m */; };
 		1822E2CB2B9396B50007C0B2 /* LKDashboardTextControlEditingFlag.m in Sources */ = {isa = PBXBuildFile; fileRef = 1822E2CA2B9396B50007C0B2 /* LKDashboardTextControlEditingFlag.m */; };
 		183875EB2B2F339B005FE951 /* LKTableViewHorizontalScrollWidthManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 183875EA2B2F339B005FE951 /* LKTableViewHorizontalScrollWidthManager.m */; };
 		1892DD1C2AF258890016D61B /* LookinDisplayItem+LookinClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 1892DD1B2AF258890016D61B /* LookinDisplayItem+LookinClient.m */; };
@@ -591,12 +592,14 @@
 		BD54602A9B4BAB1803C8EE5E /* lookin */ = {isa = PBXFileReference; includeInIndex = 0; name = lookin; path = lookin; sourceTree = BUILT_PRODUCTS_DIR; };
 		C082449E1182E7B05E60D70B /* LKCLIAppScanner.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLIAppScanner.m; sourceTree = "<group>"; };
 		C42A3EB7C5A022694F09C934 /* LKCLIExitCode.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = LKCLIExitCode.h; sourceTree = "<group>"; };
+		CFF597A8F0CA52E15C2FF56E /* LKCLITreeCommand.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLITreeCommand.m; sourceTree = "<group>"; };
 		D4052AC7235CBD090033C961 /* LKMeasureTutorialView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LKMeasureTutorialView.h; sourceTree = "<group>"; };
 		D4052AC8235CBD090033C961 /* LKMeasureTutorialView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LKMeasureTutorialView.m; sourceTree = "<group>"; };
 		D4052ACA235CE2300033C961 /* LKMeasureResultView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LKMeasureResultView.h; sourceTree = "<group>"; };
 		D4052ACB235CE2300033C961 /* LKMeasureResultView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LKMeasureResultView.m; sourceTree = "<group>"; };
 		D41874D2234B68AE004D68A2 /* LKDashboardAttributeOpenImageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LKDashboardAttributeOpenImageView.h; sourceTree = "<group>"; };
 		D41874D3234B68AE004D68A2 /* LKDashboardAttributeOpenImageView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LKDashboardAttributeOpenImageView.m; sourceTree = "<group>"; };
+		D4189A27F78CC0FA91A08C44 /* LKCLITreeCommand.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = LKCLITreeCommand.h; sourceTree = "<group>"; };
 		D4224EED2358ED3400ED9626 /* LKMeasureController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LKMeasureController.h; sourceTree = "<group>"; };
 		D4224EEE2358ED3400ED9626 /* LKMeasureController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LKMeasureController.m; sourceTree = "<group>"; };
 		D4D1B2D12353975A002A5071 /* LKWindowToolbarScaleView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LKWindowToolbarScaleView.h; sourceTree = "<group>"; };
@@ -690,6 +693,8 @@
 				DA46CB9A843553CFF2B66A6B /* LKCLIVersionCommand.m */,
 				3199C1393161E7CC98BA1D35 /* LKCLIAppsCommand.h */,
 				9056CBBA00615A837175B6F3 /* LKCLIAppsCommand.m */,
+				D4189A27F78CC0FA91A08C44 /* LKCLITreeCommand.h */,
+				CFF597A8F0CA52E15C2FF56E /* LKCLITreeCommand.m */,
 			);
 			name = Commands;
 			path = Commands;
@@ -1674,6 +1679,7 @@
 				FBF32BEF71A7ABB7F973A4DF /* LKCLIConnectedApp.m in Sources */,
 				ADD4B3021AD8922FE5FF409C /* LKCLIConnectionRequest.m in Sources */,
 				AEE73F025243C126D3F46D44 /* LKCLISignalRunner.m in Sources */,
+				0D7F1D1F2C061762916EDAE4 /* LKCLITreeCommand.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

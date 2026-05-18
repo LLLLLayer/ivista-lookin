@@ -4,6 +4,7 @@
 #import "LKCLIVersionCommand.h"
 #import "LKCLIDoctorCommand.h"
 #import "LKCLIAppsCommand.h"
+#import "LKCLITreeCommand.h"
 #import "LKCLIStdIO.h"
 
 static NSArray<NSString *> *LKCLIArguments(int argc, const char * argv[]) {
@@ -34,6 +35,10 @@ int main(int argc, const char * argv[]) {
 
         if ([command isEqualToString:@"apps"]) {
             return (int)[LKCLIAppsCommand runWithArguments:commandArguments];
+        }
+
+        if ([command isEqualToString:@"tree"]) {
+            return (int)[LKCLITreeCommand runWithArguments:commandArguments];
         }
 
         [LKCLIStdIO writeError:@"error: unknown command '%@'", command];

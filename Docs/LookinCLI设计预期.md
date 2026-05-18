@@ -42,12 +42,12 @@ LookinCLI 希望支持以下场景：
 2. `lookin --version`
 3. `lookin doctor`
 4. `lookin apps [--json]`
+5. `lookin tree --bundle-id <bundle-id> [--json] [--depth N]`
 
 下一步：
 
-1. `lookin tree --bundle-id <bundle-id> [--json]`
-2. `lookin inspect --bundle-id <bundle-id> [--json]`
-3. `lookin attrs --oid <oid> [--json]`
+1. `lookin inspect --bundle-id <bundle-id> [--json]`
+2. `lookin attrs --oid <oid> [--json]`
 
 ## 与现有 macOS App 的能力映射
 

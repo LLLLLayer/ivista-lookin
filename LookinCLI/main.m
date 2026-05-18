@@ -70,6 +70,15 @@ int main(int argc, const char * argv[]) {
             }];
         }
 
+        if ([command isEqualToString:@"find"]) {
+            if (LKCLIArgumentsContainHelp(commandArguments)) {
+                return (int)[LKCLITreeCommand runFindWithArguments:commandArguments];
+            }
+            return (int)[LKCLIProcessLock runDeviceCommandWithBlock:^LKCLIExitCode{
+                return [LKCLITreeCommand runFindWithArguments:commandArguments];
+            }];
+        }
+
         if ([command isEqualToString:@"inspect"]) {
             if (LKCLIArgumentsContainHelp(commandArguments)) {
                 return (int)[LKCLIInspectCommand runWithArguments:commandArguments];

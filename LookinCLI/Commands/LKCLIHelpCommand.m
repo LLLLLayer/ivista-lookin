@@ -12,7 +12,8 @@
       "  lookin --version\n"
       "  lookin doctor\n"
       "  lookin apps [--json] [--bundle-id <bundle-id>] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
-      "  lookin tree --bundle-id <bundle-id> [--json] [--depth N] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
+      "  lookin tree --bundle-id <bundle-id> [--json] [--depth N] [--filter <text>] [--oid <oid>] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
+      "  lookin find --bundle-id <bundle-id> <query> [--json] [--limit N] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
       "  lookin inspect --bundle-id <bundle-id> --oid <oid> [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
       "  lookin attrs --bundle-id <bundle-id> --oid <oid> [--group <filter>] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
       "  lookin screenshot --bundle-id <bundle-id> --oid <oid> --out <path> [--type group|solo] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
@@ -23,7 +24,7 @@
       "  lookin console --bundle-id <bundle-id> --oid <oid> [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
       "  lookin set --bundle-id <bundle-id> --oid <oid> --attr <identifier> --value <value> [--dry-run] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
       "\n"
-      "This build includes app discovery, app selection filters, hierarchy tree output, object inspection, attribute queries, screenshot export, .lookin snapshot export, selector listing, no-argument method invocation, console-style evaluation, and built-in attribute modification."];
+      "This build includes app discovery, app selection filters, hierarchy tree output, hierarchy search, object inspection, attribute queries, screenshot export, .lookin snapshot export, selector listing, no-argument method invocation, console-style evaluation, and built-in attribute modification."];
     return LKCLIExitCodeOK;
 }
 

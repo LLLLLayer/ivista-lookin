@@ -42,7 +42,8 @@ LookinCLI 希望支持以下场景：
 2. `lookin --version`
 3. `lookin doctor`
 4. `lookin apps [--json] [--bundle-id <bundle-id>] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
-5. `lookin tree --bundle-id <bundle-id> [--json] [--depth N] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
+5. `lookin tree --bundle-id <bundle-id> [--json] [--depth N] [--filter <text>] [--oid <oid>] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
+6. `lookin find --bundle-id <bundle-id> <query> [--json] [--limit N] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
 6. `lookin inspect --bundle-id <bundle-id> --oid <oid> [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
 7. `lookin attrs --bundle-id <bundle-id> --oid <oid> [--group <filter>] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
 8. `lookin screenshot --bundle-id <bundle-id> --oid <oid> --out <path> [--type group|solo] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
@@ -52,6 +53,7 @@ LookinCLI 希望支持以下场景：
 12. `lookin eval --bundle-id <bundle-id> --oid <oid> <property-or-method> [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
 13. `lookin console --bundle-id <bundle-id> --oid <oid> [--transport simulator|usb] [--port <port>] [--device-id <id>]`
 14. `lookin set --bundle-id <bundle-id> --oid <oid> --attr <identifier> --value <value> [--dry-run] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
+15. `lookin find --bundle-id <bundle-id> <query> [--limit N] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
 
 下一步：
 
@@ -312,6 +314,9 @@ PRODUCT_DIR="$PWD/DerivedData/LookinCLIRelease/Build/Products/Release" ./Scripts
 lookin apps
 lookin tree --bundle-id com.example.demo
 lookin tree --bundle-id com.example.demo --json > hierarchy.json
+lookin find --bundle-id com.example.demo UIButton --limit 20
+lookin tree --bundle-id com.example.demo --filter UIButton
+lookin tree --bundle-id com.example.demo --oid 130 --depth 2
 lookin inspect --bundle-id com.example.demo --oid 130
 lookin attrs --bundle-id com.example.demo --oid 130 --json
 lookin screenshot --bundle-id com.example.demo --oid 130 --out button.png
@@ -440,6 +445,20 @@ lookin tree --bundle-id com.example.demo --oid 123456
 lookin tree --bundle-id com.example.demo --json
 lookin tree --bundle-id com.example.demo --transport simulator --port 47164
 ```
+
+`--filter` 会保留命中节点及其祖先，适合在树结构里看上下文；`--oid` 会把输出聚焦到指定 view/layer/controller oid 对应的子树。若只想快速获得命中列表和完整路径，优先使用 `find`。
+
+### find
+
+扁平搜索 UI 层级节点。
+
+```bash
+lookin find --bundle-id com.example.demo UIButton
+lookin find --bundle-id com.example.demo Submit --limit 10
+lookin find --bundle-id com.example.demo --oid 130 --json
+```
+
+`find` 会匹配 class name、custom display title、memory address 和 object id。文本输出包含 oid、class、frame 和 path；JSON 输出包含 `count` 和 `matches`，每个 match 复用 tree 的节点字段并附带 `path`、`pathString`、`depth`。
 
 文本输出示例：
 
@@ -644,9 +663,10 @@ CLI 应区分 stdout 和 stderr：
 1. `lookin apps`
 2. `lookin inspect`
 3. `lookin tree`
-4. 稳定 JSON 输出。
-5. 覆盖模拟器连接路径。
-6. 验证 CLI 不依赖已安装的 Lookin.app。
+4. `lookin find`
+5. 稳定 JSON 输出。
+6. 覆盖模拟器连接路径。
+7. 验证 CLI 不依赖已安装的 Lookin.app。
 
 ### Phase 2: 详情和导出
 

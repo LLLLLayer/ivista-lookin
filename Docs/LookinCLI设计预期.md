@@ -241,19 +241,32 @@ Frameworks/
   ReactiveObjC.framework
 LICENSE
 README.md
+install.sh
 ```
 
-如果动态库路径使用 `@executable_path/Frameworks`，zip 解压后应可直接运行。若采用 `libexec` 结构，需要在打包阶段通过 `install_name_tool` 固定 rpath。
+当前实现采用 `@executable_path/Frameworks`。zip 解压后应可直接运行，不需要把文件放入 `/Applications`，也不需要安装 Lookin.app。若未来采用 Homebrew `libexec` 结构，需要在 formula 或打包阶段继续固定 rpath。
 
 ### 手动安装
 
 Release zip 解压后也应支持手动安装：
 
 ```bash
-sudo mkdir -p /usr/local/ivista-lookin-cli
-sudo cp -R lookin Frameworks /usr/local/ivista-lookin-cli/
-sudo ln -sf /usr/local/ivista-lookin-cli/lookin /usr/local/bin/lookin
+./install.sh
 lookin --version
+```
+
+默认安装布局：
+
+```text
+/usr/local/bin/lookin -> /usr/local/ivista-lookin-cli/lookin
+/usr/local/ivista-lookin-cli/lookin
+/usr/local/ivista-lookin-cli/Frameworks/*.framework
+```
+
+不使用 sudo 的本地安装：
+
+```bash
+INSTALL_PREFIX="$HOME/.local/ivista-lookin-cli" BIN_DIR="$HOME/.local/bin" SUDO= ./install.sh
 ```
 
 手动安装不应要求复制 Lookin.app，也不应要求把文件放入 `/Applications`。
@@ -270,11 +283,17 @@ pod install
 xcodebuild -workspace Lookin.xcworkspace -scheme LookinCLI -configuration Release build
 ```
 
-后续如果提供构建脚本，目标是：
+当前提供构建脚本：
 
 ```bash
 ./Scripts/build-lookin-cli.sh
-./build/release/lookin --version
+./build/LookinCLI/lookin-cli-macos-universal/lookin --version
+```
+
+只打包已有 build product：
+
+```bash
+PRODUCT_DIR="$PWD/DerivedData/LookinCLIRelease/Build/Products/Release" ./Scripts/package-lookin-cli.sh
 ```
 
 ### 使用前提
@@ -635,7 +654,7 @@ CLI 应区分 stdout 和 stderr：
 2. `lookin export`
 3. `lookin screenshot`
 4. 处理异步 detail 拉取进度和错误。
-5. 产出可移动的 Release zip。
+5. 产出可移动的 Release zip。（已由 `Scripts/build-lookin-cli.sh` 和 `Scripts/package-lookin-cli.sh` 覆盖）
 
 ### Phase 3: 操作类命令
 

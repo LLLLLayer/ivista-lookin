@@ -442,9 +442,32 @@ Frameworks/
   ReactiveObjC.framework
 LICENSE
 README.md
+install.sh
 ```
 
-构建后处理：
+构建和打包入口：
+
+```bash
+./Scripts/build-lookin-cli.sh
+```
+
+该脚本会执行 `LookinCLI` Release build，并继续调用 `Scripts/package-lookin-cli.sh` 产出：
+
+```text
+build/LookinCLI/lookin-cli-macos-<arch-or-universal>/
+build/LookinCLI/lookin-cli-macos-<arch-or-universal>.zip
+```
+
+`package-lookin-cli.sh` 支持以下环境变量：
+
+```bash
+PRODUCT_DIR=...      # 指定 Xcode build product dir
+OUTPUT_DIR=...       # 指定 package 输出目录
+PACKAGE_NAME=...     # 指定 package 目录和 zip 名称
+SKIP_CODESIGN=1      # 跳过 ad-hoc codesign
+```
+
+打包后处理：
 
 ```bash
 otool -L lookin
@@ -513,8 +536,9 @@ codesign --force --deep --sign - lookin Frameworks/*.framework
 
 1. 新增 `Scripts/build-lookin-cli.sh`。
 2. 新增 `Scripts/package-lookin-cli.sh`。
-3. 生成 zip。
-4. 验证独立安装。
+3. 新增 `Scripts/install-lookin-cli.sh`，并复制为 zip 内的 `install.sh`。
+4. 生成 zip。
+5. 验证独立安装。
 
 ## 风险清单
 
@@ -537,4 +561,6 @@ codesign --force --deep --sign - lookin Frameworks/*.framework
 
 当前 Phase 1.5 已完成基础链路：设备命令已加跨进程锁和空结果重试，降低真机 USB 并发扫描不稳定；`lookin inspect --bundle-id <bundle-id> --oid <oid> [--json]` 可按 oid 拉取对象信息和基础属性；`lookin attrs --bundle-id <bundle-id> --oid <oid> [--group <filter>] [--json]` 可单独输出属性详情；`lookin screenshot --bundle-id <bundle-id> --oid <oid> --out <path> [--type group|solo] [--json]` 可导出节点截图；`lookin export --bundle-id <bundle-id> --out <file.lookin> [--compression <0.01-1>] [--json]` 可导出离线快照；所有设备命令都支持 `--transport simulator|usb`、`--port <port>` 和 `--device-id <id>` 做 disambiguation。
 
-当前 Phase 2 已开始：`lookin selectors --bundle-id <bundle-id> (--class <class-name> | --oid <oid>) [--with-args] [--filter <text>] [--json]` 可列出 selector；`lookin call --bundle-id <bundle-id> --oid <oid> --selector <selector> [--json]` 可调用无参数方法；`lookin eval --bundle-id <bundle-id> --oid <oid> <property-or-method> [--json]` 和 `lookin console --bundle-id <bundle-id> --oid <oid>` 覆盖 App Console 的核心“看属性/调用无参方法”能力；`lookin set --bundle-id <bundle-id> --oid <oid> --attr <identifier> --value <value> [--dry-run] [--json]` 可修改内建属性。后续继续补发布打包。
+当前 Phase 2 已开始：`lookin selectors --bundle-id <bundle-id> (--class <class-name> | --oid <oid>) [--with-args] [--filter <text>] [--json]` 可列出 selector；`lookin call --bundle-id <bundle-id> --oid <oid> --selector <selector> [--json]` 可调用无参数方法；`lookin eval --bundle-id <bundle-id> --oid <oid> <property-or-method> [--json]` 和 `lookin console --bundle-id <bundle-id> --oid <oid>` 覆盖 App Console 的核心“看属性/调用无参方法”能力；`lookin set --bundle-id <bundle-id> --oid <oid> --attr <identifier> --value <value> [--dry-run] [--json]` 可修改内建属性。
+
+当前 Phase 2.5 已开始：`Scripts/build-lookin-cli.sh` 可构建 Release 版 CLI 并调用 `Scripts/package-lookin-cli.sh` 生成可移动目录和 zip；zip 内包含 `install.sh`，支持安装到 `/usr/local/bin/lookin` 或用户自定义本地目录。后续需要在干净机器上做独立安装验收，并补 Homebrew tap。

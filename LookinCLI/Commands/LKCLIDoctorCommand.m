@@ -1,4 +1,5 @@
 #import "LKCLIDoctorCommand.h"
+#import "LKCLILookinAppGuard.h"
 #import "LKCLIVersionProvider.h"
 #import "LKCLIStdIO.h"
 #import "LookinDefines.h"
@@ -12,6 +13,7 @@
     [LKCLIStdIO writeOut:@"Architecture: %@", [LKCLIVersionProvider architectureName]];
     [LKCLIStdIO writeOut:@"Simulator ports: %d-%d", LookinSimulatorIPv4PortNumberStart, LookinSimulatorIPv4PortNumberEnd];
     [LKCLIStdIO writeOut:@"USB ports: %d-%d", LookinUSBDeviceIPv4PortNumberStart, LookinUSBDeviceIPv4PortNumberEnd];
+    [LKCLIStdIO writeOut:@"Lookin.app: %@", [LKCLILookinAppGuard runningAppSummary]];
     [LKCLIStdIO writeOut:@"LookinShared: ok"];
     [LKCLIStdIO writeOut:@"ReactiveObjC: ok"];
     return LKCLIExitCodeOK;

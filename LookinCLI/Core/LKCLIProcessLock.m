@@ -1,4 +1,5 @@
 #import "LKCLIProcessLock.h"
+#import "LKCLILookinAppGuard.h"
 #import "LKCLIStdIO.h"
 #import <fcntl.h>
 #import <sys/file.h>
@@ -7,6 +8,8 @@
 @implementation LKCLIProcessLock
 
 + (LKCLIExitCode)runDeviceCommandWithBlock:(LKCLIExitCode (^)(void))block {
+    [LKCLILookinAppGuard warnIfLookinAppRunning];
+
     NSString *lockPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"ivista-lookin-device.lock"];
     int fd = open(lockPath.fileSystemRepresentation, O_CREAT | O_RDWR, 0600);
     if (fd < 0) {

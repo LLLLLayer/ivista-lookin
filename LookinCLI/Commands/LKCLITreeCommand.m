@@ -1,8 +1,9 @@
 #import "LKCLITreeCommand.h"
-#import "LKCLIAppScanner.h"
+#import "LKCLIArgumentParser.h"
 #import "LKCLIAppSelector.h"
 #import "LKCLIConnectedApp.h"
-#import "LKCLISignalRunner.h"
+#import "LKCLIJSONWriter.h"
+#import "LKCLIOnlineCommandRunner.h"
 #import "LKCLIStdIO.h"
 #import "LookinAppInfo.h"
 #import "LookinHierarchyInfo.h"
@@ -20,7 +21,7 @@
 
     for (NSUInteger idx = 0; idx < arguments.count; idx++) {
         NSString *argument = arguments[idx];
-        if ([argument isEqualToString:@"--help"] || [argument isEqualToString:@"-h"]) {
+        if ([LKCLIArgumentParser isHelpArgument:argument]) {
             [self printHelp];
             return LKCLIExitCodeOK;
         } else if ([argument isEqualToString:@"--json"]) {
@@ -32,11 +33,12 @@
                 return LKCLIExitCodeUsage;
             }
         } else if ([argument isEqualToString:@"--depth"]) {
-            if (idx + 1 >= arguments.count) {
-                [LKCLIStdIO writeError:@"error: --depth requires a value"];
+            NSString *depthValue = nil;
+            NSString *errorMessage = nil;
+            if (![LKCLIArgumentParser consumeValueForOption:argument arguments:arguments index:&idx value:&depthValue errorMessage:&errorMessage]) {
+                [LKCLIStdIO writeError:@"%@", errorMessage];
                 return LKCLIExitCodeUsage;
             }
-            NSString *depthValue = arguments[++idx];
             NSInteger parsedDepth = 0;
             if (![self parseDepthValue:depthValue depth:&parsedDepth]) {
                 [LKCLIStdIO writeError:@"error: --depth must be a non-negative integer"];
@@ -44,17 +46,18 @@
             }
             depth = parsedDepth;
         } else if ([argument isEqualToString:@"--filter"]) {
-            if (idx + 1 >= arguments.count) {
-                [LKCLIStdIO writeError:@"error: --filter requires a value"];
+            NSString *errorMessage = nil;
+            if (![LKCLIArgumentParser consumeValueForOption:argument arguments:arguments index:&idx value:&filter errorMessage:&errorMessage]) {
+                [LKCLIStdIO writeError:@"%@", errorMessage];
                 return LKCLIExitCodeUsage;
             }
-            filter = arguments[++idx];
         } else if ([argument isEqualToString:@"--oid"]) {
-            if (idx + 1 >= arguments.count) {
-                [LKCLIStdIO writeError:@"error: --oid requires a value"];
+            NSString *oidValue = nil;
+            NSString *errorMessage = nil;
+            if (![LKCLIArgumentParser consumeValueForOption:argument arguments:arguments index:&idx value:&oidValue errorMessage:&errorMessage]) {
+                [LKCLIStdIO writeError:@"%@", errorMessage];
                 return LKCLIExitCodeUsage;
             }
-            NSString *oidValue = arguments[++idx];
             if (![self parseOIDValue:oidValue oid:&focusOID]) {
                 [LKCLIStdIO writeError:@"error: --oid must be a positive integer"];
                 return LKCLIExitCodeUsage;
@@ -72,56 +75,26 @@
         return LKCLIExitCodeUsage;
     }
 
-    LKCLIAppScanner *scanner = [LKCLIAppScanner new];
-    id appsValue = nil;
-    NSError *appsError = nil;
-    BOOL fetchedApps = [LKCLISignalRunner waitForSignal:[scanner fetchAppsWithImages:NO] timeout:8 value:&appsValue error:&appsError];
-    if (!fetchedApps) {
-        [scanner closeAllConnections];
-        [LKCLIStdIO writeError:@"error: %@", appsError.localizedDescription ?: @"failed to fetch apps"];
-        return LKCLIExitCodeConnection;
-    }
-
-    LKCLIExitCode selectionExitCode = LKCLIExitCodeOK;
-    LKCLIConnectedApp *app = [[LKCLIAppSelector new] selectAppFromAppsValue:appsValue selection:selection exitCode:&selectionExitCode];
-    if (!app) {
-        [scanner closeAllConnections];
-        return selectionExitCode;
-    }
-
-    id hierarchyValue = nil;
-    NSError *hierarchyError = nil;
-    BOOL fetchedHierarchy = [LKCLISignalRunner waitForSignal:[scanner fetchHierarchyForApp:app] timeout:12 value:&hierarchyValue error:&hierarchyError];
-    [scanner closeAllConnections];
-
-    if (!fetchedHierarchy) {
-        [LKCLIStdIO writeError:@"error: %@", hierarchyError.localizedDescription ?: @"failed to fetch hierarchy"];
-        return LKCLIExitCodeConnection;
-    }
-    if (![hierarchyValue isKindOfClass:[LookinHierarchyInfo class]]) {
-        [LKCLIStdIO writeError:@"error: invalid hierarchy response"];
-        return LKCLIExitCodeGeneralError;
-    }
-
-    LookinHierarchyInfo *hierarchyInfo = hierarchyValue;
-    NSArray<LookinDisplayItem *> *displayItems = hierarchyInfo.displayItems ?: @[];
-    if (focusOID != 0) {
-        LookinDisplayItem *focusedItem = [self firstItemInItems:displayItems matchingOID:focusOID];
-        if (!focusedItem) {
-            [LKCLIStdIO writeError:@"error: no display item found for oid %lu", focusOID];
-            return LKCLIExitCodeGeneralError;
+    return [LKCLIOnlineCommandRunner withHierarchyForSelection:selection appsTimeout:8 hierarchyTimeout:12 body:^LKCLIExitCode(LKCLIAppScanner *scanner, LKCLIConnectedApp *app, LookinHierarchyInfo *hierarchyInfo) {
+        NSArray<LookinDisplayItem *> *displayItems = hierarchyInfo.displayItems ?: @[];
+        if (focusOID != 0) {
+            LookinDisplayItem *focusedItem = [self firstItemInItems:displayItems matchingOID:focusOID];
+            if (!focusedItem) {
+                [LKCLIStdIO writeError:@"error: no display item found for oid %lu", focusOID];
+                return LKCLIExitCodeGeneralError;
+            }
+            displayItems = @[focusedItem];
         }
-        displayItems = @[focusedItem];
-    }
-    if (filter.length > 0) {
-        displayItems = [self filteredItemsFromItems:displayItems filter:filter];
-    }
+        if (filter.length > 0) {
+            displayItems = [self filteredItemsFromItems:displayItems filter:filter];
+        }
 
-    if (json) {
-        return [self printJSONWithItems:displayItems app:app depth:depth filter:filter focusOID:focusOID];
-    }
-    [self printTextWithItems:displayItems app:app depth:depth filter:filter focusOID:focusOID];
-    return LKCLIExitCodeOK;
+        if (json) {
+            return [self printJSONWithItems:displayItems app:app depth:depth filter:filter focusOID:focusOID];
+        }
+        [self printTextWithItems:displayItems app:app depth:depth filter:filter focusOID:focusOID];
+        return LKCLIExitCodeOK;
+    }];
 }
 
 + (LKCLIExitCode)runFindWithArguments:(NSArray<NSString *> *)arguments {
@@ -133,7 +106,7 @@
 
     for (NSUInteger idx = 0; idx < arguments.count; idx++) {
         NSString *argument = arguments[idx];
-        if ([argument isEqualToString:@"--help"] || [argument isEqualToString:@"-h"]) {
+        if ([LKCLIArgumentParser isHelpArgument:argument]) {
             [self printFindHelp];
             return LKCLIExitCodeOK;
         } else if ([argument isEqualToString:@"--json"]) {
@@ -145,17 +118,17 @@
                 return LKCLIExitCodeUsage;
             }
         } else if ([argument isEqualToString:@"--filter"] || [argument isEqualToString:@"--query"]) {
-            if (idx + 1 >= arguments.count) {
-                [LKCLIStdIO writeError:@"error: %@ requires a value", argument];
+            NSString *errorMessage = nil;
+            if (![LKCLIArgumentParser consumeValueForOption:argument arguments:arguments index:&idx value:&query errorMessage:&errorMessage]) {
+                [LKCLIStdIO writeError:@"%@", errorMessage];
                 return LKCLIExitCodeUsage;
             }
-            query = arguments[++idx];
         } else if ([argument isEqualToString:@"--oid"]) {
-            if (idx + 1 >= arguments.count) {
-                [LKCLIStdIO writeError:@"error: --oid requires a value"];
+            NSString *errorMessage = nil;
+            if (![LKCLIArgumentParser consumeValueForOption:argument arguments:arguments index:&idx value:&query errorMessage:&errorMessage]) {
+                [LKCLIStdIO writeError:@"%@", errorMessage];
                 return LKCLIExitCodeUsage;
             }
-            query = arguments[++idx];
             unsigned long unusedOID = 0;
             if (![self parseOIDValue:query oid:&unusedOID]) {
                 [LKCLIStdIO writeError:@"error: --oid must be a positive integer"];
@@ -163,12 +136,14 @@
             }
             exactOID = unusedOID;
         } else if ([argument isEqualToString:@"--limit"]) {
-            if (idx + 1 >= arguments.count) {
-                [LKCLIStdIO writeError:@"error: --limit requires a value"];
+            NSString *limitValue = nil;
+            NSString *errorMessage = nil;
+            if (![LKCLIArgumentParser consumeValueForOption:argument arguments:arguments index:&idx value:&limitValue errorMessage:&errorMessage]) {
+                [LKCLIStdIO writeError:@"%@", errorMessage];
                 return LKCLIExitCodeUsage;
             }
             NSUInteger parsedLimit = 0;
-            if (![self parseLimitValue:arguments[++idx] limit:&parsedLimit]) {
+            if (![self parseLimitValue:limitValue limit:&parsedLimit]) {
                 [LKCLIStdIO writeError:@"error: --limit must be a positive integer"];
                 return LKCLIExitCodeUsage;
             }
@@ -197,43 +172,14 @@
         return LKCLIExitCodeUsage;
     }
 
-    LKCLIAppScanner *scanner = [LKCLIAppScanner new];
-    id appsValue = nil;
-    NSError *appsError = nil;
-    BOOL fetchedApps = [LKCLISignalRunner waitForSignal:[scanner fetchAppsWithImages:NO] timeout:8 value:&appsValue error:&appsError];
-    if (!fetchedApps) {
-        [scanner closeAllConnections];
-        [LKCLIStdIO writeError:@"error: %@", appsError.localizedDescription ?: @"failed to fetch apps"];
-        return LKCLIExitCodeConnection;
-    }
-
-    LKCLIExitCode selectionExitCode = LKCLIExitCodeOK;
-    LKCLIConnectedApp *app = [[LKCLIAppSelector new] selectAppFromAppsValue:appsValue selection:selection exitCode:&selectionExitCode];
-    if (!app) {
-        [scanner closeAllConnections];
-        return selectionExitCode;
-    }
-
-    id hierarchyValue = nil;
-    NSError *hierarchyError = nil;
-    BOOL fetchedHierarchy = [LKCLISignalRunner waitForSignal:[scanner fetchHierarchyForApp:app] timeout:12 value:&hierarchyValue error:&hierarchyError];
-    [scanner closeAllConnections];
-
-    if (!fetchedHierarchy) {
-        [LKCLIStdIO writeError:@"error: %@", hierarchyError.localizedDescription ?: @"failed to fetch hierarchy"];
-        return LKCLIExitCodeConnection;
-    }
-    if (![hierarchyValue isKindOfClass:[LookinHierarchyInfo class]]) {
-        [LKCLIStdIO writeError:@"error: invalid hierarchy response"];
-        return LKCLIExitCodeGeneralError;
-    }
-
-    NSArray<NSDictionary *> *matches = [self matchesInItems:((LookinHierarchyInfo *)hierarchyValue).displayItems query:query exactOID:exactOID limit:limit];
-    if (json) {
-        return [self printFindJSONWithMatches:matches app:app query:query limit:limit];
-    }
-    [self printFindTextWithMatches:matches app:app query:query limit:limit];
-    return LKCLIExitCodeOK;
+    return [LKCLIOnlineCommandRunner withHierarchyForSelection:selection appsTimeout:8 hierarchyTimeout:12 body:^LKCLIExitCode(LKCLIAppScanner *scanner, LKCLIConnectedApp *app, LookinHierarchyInfo *hierarchyInfo) {
+        NSArray<NSDictionary *> *matches = [self matchesInItems:hierarchyInfo.displayItems query:query exactOID:exactOID limit:limit];
+        if (json) {
+            return [self printFindJSONWithMatches:matches app:app query:query limit:limit];
+        }
+        [self printFindTextWithMatches:matches app:app query:query limit:limit];
+        return LKCLIExitCodeOK;
+    }];
 }
 
 + (void)printHelp {
@@ -258,50 +204,11 @@
 }
 
 + (BOOL)parseDepthValue:(NSString *)value depth:(NSInteger *)depth {
-    if (value.length == 0) {
-        return NO;
-    }
-
-    NSCharacterSet *digits = [NSCharacterSet characterSetWithCharactersInString:@"0123456789"];
-    NSCharacterSet *nonDigits = [digits invertedSet];
-    if ([value rangeOfCharacterFromSet:nonDigits].location != NSNotFound) {
-        return NO;
-    }
-
-    NSString *normalizedValue = value;
-    while (normalizedValue.length > 1 && [normalizedValue hasPrefix:@"0"]) {
-        normalizedValue = [normalizedValue substringFromIndex:1];
-    }
-
-    NSString *maxValue = [NSString stringWithFormat:@"%ld", (long)NSIntegerMax];
-    if (normalizedValue.length > maxValue.length ||
-        (normalizedValue.length == maxValue.length && [normalizedValue compare:maxValue] == NSOrderedDescending)) {
-        return NO;
-    }
-    if (depth) {
-        *depth = value.integerValue;
-    }
-    return YES;
+    return [LKCLIArgumentParser parseIntegerValue:value min:0 max:NSIntegerMax result:depth];
 }
 
 + (BOOL)parseOIDValue:(NSString *)value oid:(unsigned long *)oid {
-    if (value.length == 0) {
-        return NO;
-    }
-
-    NSCharacterSet *digits = [NSCharacterSet characterSetWithCharactersInString:@"0123456789"];
-    if ([value rangeOfCharacterFromSet:digits.invertedSet].location != NSNotFound) {
-        return NO;
-    }
-
-    unsigned long parsedValue = strtoul(value.UTF8String, NULL, 10);
-    if (parsedValue == 0) {
-        return NO;
-    }
-    if (oid) {
-        *oid = parsedValue;
-    }
-    return YES;
+    return [LKCLIArgumentParser parsePositiveOIDValue:value oid:oid];
 }
 
 + (BOOL)parseLimitValue:(NSString *)value limit:(NSUInteger *)limit {
@@ -423,15 +330,7 @@
         @"items": items,
     };
 
-    NSError *error = nil;
-    NSData *data = [NSJSONSerialization dataWithJSONObject:root options:NSJSONWritingPrettyPrinted | NSJSONWritingSortedKeys error:&error];
-    if (!data) {
-        [LKCLIStdIO writeError:@"error: %@", error.localizedDescription ?: @"failed to encode JSON"];
-        return LKCLIExitCodeGeneralError;
-    }
-    NSString *jsonString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    [LKCLIStdIO writeOut:@"%@", jsonString];
-    return LKCLIExitCodeOK;
+    return [LKCLIJSONWriter printJSONObject:root];
 }
 
 + (NSDictionary *)JSONObjectForItem:(LookinDisplayItem *)item level:(NSInteger)level depth:(NSInteger)depth {
@@ -636,15 +535,7 @@
         @"matches": matches,
     };
 
-    NSError *error = nil;
-    NSData *data = [NSJSONSerialization dataWithJSONObject:root options:NSJSONWritingPrettyPrinted | NSJSONWritingSortedKeys error:&error];
-    if (!data) {
-        [LKCLIStdIO writeError:@"error: %@", error.localizedDescription ?: @"failed to encode JSON"];
-        return LKCLIExitCodeGeneralError;
-    }
-    NSString *jsonString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    [LKCLIStdIO writeOut:@"%@", jsonString];
-    return LKCLIExitCodeOK;
+    return [LKCLIJSONWriter printJSONObject:root];
 }
 
 @end

@@ -1,7 +1,9 @@
 #import "LKCLIDisplayItemFetcher.h"
+#import "LKCLIArgumentParser.h"
 #import "LKCLIAppScanner.h"
 #import "LKCLIAppSelector.h"
 #import "LKCLIConnectedApp.h"
+#import "LKCLIOnlineCommandRunner.h"
 #import "LKCLISignalRunner.h"
 #import "LKCLIStdIO.h"
 #import "LKCLIVersionProvider.h"
@@ -12,8 +14,6 @@
 #import "LookinHierarchyInfo.h"
 #import "LookinObject.h"
 #import "LookinStaticAsyncUpdateTask.h"
-#import <limits.h>
-#import <stdlib.h>
 
 @implementation LKCLIDisplayItemFetchResult
 @end
@@ -21,33 +21,7 @@
 @implementation LKCLIDisplayItemFetcher
 
 + (BOOL)parseOIDValue:(NSString *)value oid:(unsigned long *)oid {
-    if (value.length == 0) {
-        return NO;
-    }
-
-    NSCharacterSet *digits = [NSCharacterSet characterSetWithCharactersInString:@"0123456789"];
-    NSCharacterSet *nonDigits = [digits invertedSet];
-    if ([value rangeOfCharacterFromSet:nonDigits].location != NSNotFound) {
-        return NO;
-    }
-
-    NSString *normalizedValue = value;
-    while (normalizedValue.length > 1 && [normalizedValue hasPrefix:@"0"]) {
-        normalizedValue = [normalizedValue substringFromIndex:1];
-    }
-    if ([normalizedValue isEqualToString:@"0"]) {
-        return NO;
-    }
-
-    NSString *maxValue = [NSString stringWithFormat:@"%lu", ULONG_MAX];
-    if (normalizedValue.length > maxValue.length ||
-        (normalizedValue.length == maxValue.length && [normalizedValue compare:maxValue] == NSOrderedDescending)) {
-        return NO;
-    }
-    if (oid) {
-        *oid = strtoul(value.UTF8String, NULL, 10);
-    }
-    return YES;
+    return [LKCLIArgumentParser parsePositiveOIDValue:value oid:oid];
 }
 
 - (LKCLIExitCode)fetchBundleID:(NSString *)bundleID oid:(unsigned long)oid result:(LKCLIDisplayItemFetchResult **)result {
@@ -87,82 +61,51 @@
                      attrRequest:(LookinDetailUpdateTaskAttrRequest)attrRequest
               needBasisVisualInfo:(BOOL)needBasisVisualInfo
                           result:(LKCLIDisplayItemFetchResult **)result {
-    LKCLIAppScanner *scanner = [LKCLIAppScanner new];
-    id appsValue = nil;
-    NSError *appsError = nil;
-    BOOL fetchedApps = [LKCLISignalRunner waitForSignal:[scanner fetchAppsWithImages:NO] timeout:10 value:&appsValue error:&appsError];
-    if (!fetchedApps) {
-        [scanner closeAllConnections];
-        [LKCLIStdIO writeError:@"error: %@", appsError.localizedDescription ?: @"failed to fetch apps"];
-        return LKCLIExitCodeConnection;
-    }
+    __block LKCLIDisplayItemFetchResult *capturedResult = nil;
+    LKCLIExitCode exitCode = [LKCLIOnlineCommandRunner withHierarchyForSelection:selection appsTimeout:10 hierarchyTimeout:12 body:^LKCLIExitCode(LKCLIAppScanner *scanner, LKCLIConnectedApp *app, LookinHierarchyInfo *hierarchyInfo) {
+        LookinDisplayItem *displayItem = [self displayItemMatchingOID:oid inItems:hierarchyInfo.displayItems];
+        if (!displayItem) {
+            [LKCLIStdIO writeError:@"error: no display item found for oid %lu", oid];
+            return LKCLIExitCodeObjectNotFound;
+        }
 
-    LKCLIExitCode selectionExitCode = LKCLIExitCodeOK;
-    LKCLIConnectedApp *app = [[LKCLIAppSelector new] selectAppFromAppsValue:appsValue selection:selection exitCode:&selectionExitCode];
-    if (!app) {
-        [scanner closeAllConnections];
-        return selectionExitCode;
-    }
+        LookinObject *object = [self preferredObjectForDisplayItem:displayItem requestedOID:oid];
+        unsigned long detailOID = displayItem.layerObject.oid ?: object.oid;
+        if (detailOID == 0) {
+            [LKCLIStdIO writeError:@"error: display item has no inspectable object for oid %lu", oid];
+            return LKCLIExitCodeObjectNotFound;
+        }
 
-    id hierarchyValue = nil;
-    NSError *hierarchyError = nil;
-    BOOL fetchedHierarchy = [LKCLISignalRunner waitForSignal:[scanner fetchHierarchyForApp:app] timeout:12 value:&hierarchyValue error:&hierarchyError];
-    if (!fetchedHierarchy) {
-        [scanner closeAllConnections];
-        [LKCLIStdIO writeError:@"error: %@", hierarchyError.localizedDescription ?: @"failed to fetch hierarchy"];
-        return LKCLIExitCodeConnection;
-    }
-    if (![hierarchyValue isKindOfClass:[LookinHierarchyInfo class]]) {
-        [scanner closeAllConnections];
-        [LKCLIStdIO writeError:@"error: invalid hierarchy response"];
-        return LKCLIExitCodeGeneralError;
-    }
+        NSArray *packages = [self detailPackagesForDisplayItem:displayItem
+                                                      detailOID:detailOID
+                                                       taskType:taskType
+                                                    attrRequest:attrRequest
+                                             needBasisVisualInfo:needBasisVisualInfo];
+        id detailsValue = nil;
+        NSError *detailsError = nil;
+        BOOL fetchedDetails = [LKCLISignalRunner waitForSignal:[scanner fetchHierarchyDetailsWithTaskPackages:packages forApp:app] timeout:12 value:&detailsValue error:&detailsError];
+        if (!fetchedDetails) {
+            [LKCLIStdIO writeError:@"error: %@", detailsError.localizedDescription ?: @"failed to fetch display item details"];
+            return LKCLIExitCodeConnection;
+        }
 
-    LookinHierarchyInfo *hierarchyInfo = hierarchyValue;
-    LookinDisplayItem *displayItem = [self displayItemMatchingOID:oid inItems:hierarchyInfo.displayItems];
-    if (!displayItem) {
-        [scanner closeAllConnections];
-        [LKCLIStdIO writeError:@"error: no display item found for oid %lu", oid];
-        return LKCLIExitCodeObjectNotFound;
-    }
-
-    LookinObject *object = [self preferredObjectForDisplayItem:displayItem requestedOID:oid];
-    unsigned long detailOID = displayItem.layerObject.oid ?: object.oid;
-    if (detailOID == 0) {
-        [scanner closeAllConnections];
-        [LKCLIStdIO writeError:@"error: display item has no inspectable object for oid %lu", oid];
-        return LKCLIExitCodeObjectNotFound;
-    }
-
-    NSArray *packages = [self detailPackagesForDisplayItem:displayItem
-                                                  detailOID:detailOID
-                                                   taskType:taskType
-                                                attrRequest:attrRequest
-                                         needBasisVisualInfo:needBasisVisualInfo];
-    id detailsValue = nil;
-    NSError *detailsError = nil;
-    BOOL fetchedDetails = [LKCLISignalRunner waitForSignal:[scanner fetchHierarchyDetailsWithTaskPackages:packages forApp:app] timeout:12 value:&detailsValue error:&detailsError];
-    [scanner closeAllConnections];
-
-    if (!fetchedDetails) {
-        [LKCLIStdIO writeError:@"error: %@", detailsError.localizedDescription ?: @"failed to fetch display item details"];
-        return LKCLIExitCodeConnection;
-    }
-
-    LookinDisplayItemDetail *detail = [self detailFromDetailsValue:detailsValue detailOID:detailOID];
-    LKCLIDisplayItemFetchResult *fetchResult = [LKCLIDisplayItemFetchResult new];
-    fetchResult.app = app;
-    fetchResult.hierarchyInfo = hierarchyInfo;
-    fetchResult.displayItem = displayItem;
-    fetchResult.object = object;
-    fetchResult.detail = detail;
-    fetchResult.attributeGroups = [self attributeGroupsFromDetail:detail fallbackItem:displayItem];
-    fetchResult.requestedOID = oid;
-    fetchResult.detailOID = detailOID;
+        LookinDisplayItemDetail *detail = [self detailFromDetailsValue:detailsValue detailOID:detailOID];
+        LKCLIDisplayItemFetchResult *fetchResult = [LKCLIDisplayItemFetchResult new];
+        fetchResult.app = app;
+        fetchResult.hierarchyInfo = hierarchyInfo;
+        fetchResult.displayItem = displayItem;
+        fetchResult.object = object;
+        fetchResult.detail = detail;
+        fetchResult.attributeGroups = [self attributeGroupsFromDetail:detail fallbackItem:displayItem];
+        fetchResult.requestedOID = oid;
+        fetchResult.detailOID = detailOID;
+        capturedResult = fetchResult;
+        return LKCLIExitCodeOK;
+    }];
     if (result) {
-        *result = fetchResult;
+        *result = capturedResult;
     }
-    return LKCLIExitCodeOK;
+    return exitCode;
 }
 
 - (LookinDisplayItem *)displayItemMatchingOID:(unsigned long)oid inItems:(NSArray<LookinDisplayItem *> *)items {

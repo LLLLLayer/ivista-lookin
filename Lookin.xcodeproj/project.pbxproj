@@ -11,6 +11,9 @@
 		0D7F1D1F2C061762916EDAE4 /* LKCLITreeCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = CFF597A8F0CA52E15C2FF56E /* LKCLITreeCommand.m */; };
 		0F5B6D5C7B9C4E019A12F301 /* LKCLIProcessLock.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D5B7B9C4E019A12F301 /* LKCLIProcessLock.m */; };
 		0F5B6D867B9C4E019A12F301 /* LKCLILookinAppGuard.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D857B9C4E019A12F301 /* LKCLILookinAppGuard.m */; };
+		0F5B6D897B9C4E019A12F301 /* LKCLIArgumentParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D887B9C4E019A12F301 /* LKCLIArgumentParser.m */; };
+		0F5B6D8C7B9C4E019A12F301 /* LKCLIJSONWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D8B7B9C4E019A12F301 /* LKCLIJSONWriter.m */; };
+		0F5B6D8F7B9C4E019A12F301 /* LKCLIOnlineCommandRunner.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D8E7B9C4E019A12F301 /* LKCLIOnlineCommandRunner.m */; };
 		0F5B6D5F7B9C4E019A12F301 /* LKCLIInspectCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D5E7B9C4E019A12F301 /* LKCLIInspectCommand.m */; };
 		0F5B6D627B9C4E019A12F301 /* LKCLIAttrsCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D617B9C4E019A12F301 /* LKCLIAttrsCommand.m */; };
 		0F5B6D657B9C4E019A12F301 /* LKCLIDisplayItemFetcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D647B9C4E019A12F301 /* LKCLIDisplayItemFetcher.m */; };
@@ -624,6 +627,12 @@
 		0F5B6D5B7B9C4E019A12F301 /* LKCLIProcessLock.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLIProcessLock.m; sourceTree = "<group>"; };
 		0F5B6D847B9C4E019A12F301 /* LKCLILookinAppGuard.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = LKCLILookinAppGuard.h; sourceTree = "<group>"; };
 		0F5B6D857B9C4E019A12F301 /* LKCLILookinAppGuard.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLILookinAppGuard.m; sourceTree = "<group>"; };
+		0F5B6D877B9C4E019A12F301 /* LKCLIArgumentParser.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = LKCLIArgumentParser.h; sourceTree = "<group>"; };
+		0F5B6D887B9C4E019A12F301 /* LKCLIArgumentParser.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLIArgumentParser.m; sourceTree = "<group>"; };
+		0F5B6D8A7B9C4E019A12F301 /* LKCLIJSONWriter.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = LKCLIJSONWriter.h; sourceTree = "<group>"; };
+		0F5B6D8B7B9C4E019A12F301 /* LKCLIJSONWriter.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLIJSONWriter.m; sourceTree = "<group>"; };
+		0F5B6D8D7B9C4E019A12F301 /* LKCLIOnlineCommandRunner.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = LKCLIOnlineCommandRunner.h; sourceTree = "<group>"; };
+		0F5B6D8E7B9C4E019A12F301 /* LKCLIOnlineCommandRunner.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLIOnlineCommandRunner.m; sourceTree = "<group>"; };
 		0F5B6D5D7B9C4E019A12F301 /* LKCLIInspectCommand.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = LKCLIInspectCommand.h; sourceTree = "<group>"; };
 		0F5B6D5E7B9C4E019A12F301 /* LKCLIInspectCommand.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLIInspectCommand.m; sourceTree = "<group>"; };
 		0F5B6D607B9C4E019A12F301 /* LKCLIAttrsCommand.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = LKCLIAttrsCommand.h; sourceTree = "<group>"; };
@@ -1356,6 +1365,12 @@
 				0F5B6D5B7B9C4E019A12F301 /* LKCLIProcessLock.m */,
 				0F5B6D847B9C4E019A12F301 /* LKCLILookinAppGuard.h */,
 				0F5B6D857B9C4E019A12F301 /* LKCLILookinAppGuard.m */,
+				0F5B6D877B9C4E019A12F301 /* LKCLIArgumentParser.h */,
+				0F5B6D887B9C4E019A12F301 /* LKCLIArgumentParser.m */,
+				0F5B6D8A7B9C4E019A12F301 /* LKCLIJSONWriter.h */,
+				0F5B6D8B7B9C4E019A12F301 /* LKCLIJSONWriter.m */,
+				0F5B6D8D7B9C4E019A12F301 /* LKCLIOnlineCommandRunner.h */,
+				0F5B6D8E7B9C4E019A12F301 /* LKCLIOnlineCommandRunner.m */,
 				0F5B6D6F7B9C4E019A12F301 /* LKCLIAppSelector.h */,
 				0F5B6D707B9C4E019A12F301 /* LKCLIAppSelector.m */,
 				0F5B6D637B9C4E019A12F301 /* LKCLIDisplayItemFetcher.h */,
@@ -1757,6 +1772,9 @@
 				0D7F1D1F2C061762916EDAE4 /* LKCLITreeCommand.m in Sources */,
 				0F5B6D5C7B9C4E019A12F301 /* LKCLIProcessLock.m in Sources */,
 				0F5B6D867B9C4E019A12F301 /* LKCLILookinAppGuard.m in Sources */,
+				0F5B6D897B9C4E019A12F301 /* LKCLIArgumentParser.m in Sources */,
+				0F5B6D8C7B9C4E019A12F301 /* LKCLIJSONWriter.m in Sources */,
+				0F5B6D8F7B9C4E019A12F301 /* LKCLIOnlineCommandRunner.m in Sources */,
 				0F5B6D717B9C4E019A12F301 /* LKCLIAppSelector.m in Sources */,
 				0F5B6D5F7B9C4E019A12F301 /* LKCLIInspectCommand.m in Sources */,
 				0F5B6D627B9C4E019A12F301 /* LKCLIAttrsCommand.m in Sources */,

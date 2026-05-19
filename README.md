@@ -5,6 +5,14 @@ You can inspect and modify views in iOS app via Lookin, just like UI Inspector i
 
 Official Website：https://lookin.work/
 
+# ivista-lookin CLI
+
+This fork includes `ivista-lookin`, a standalone command-line interface for inspecting iOS apps that integrate LookinServer.
+
+Install and usage docs are maintained in the Homebrew tap:
+
+https://github.com/LLLLLayer/homebrew-ivista-lookin
+
 # Integration Guide
 To use Lookin macOS app, you need to integrate LookinServer (iOS Framework of Lookin) into your iOS project.
 
@@ -38,6 +46,14 @@ https://qxh1ndiez2w.feishu.cn/docx/YIFjdE4gIolp3hxn1tGckiBxnWf
 Lookin 可以查看与修改 iOS App 里的 UI 对象，类似于 Xcode 自带的 UI Inspector 工具，或另一款叫做 Reveal 的软件。
 
 官网：https://lookin.work/
+
+# ivista-lookin CLI
+
+这个 fork 包含独立命令行工具 `ivista-lookin`，用于检查已经集成 LookinServer 的 iOS App。
+
+安装和使用文档维护在 Homebrew tap：
+
+https://github.com/LLLLLayer/homebrew-ivista-lookin
 
 # 安装 LookinServer Framework
 如果这是你的 iOS 项目第一次使用 Lookin，则需要先把 LookinServer 这款 iOS Framework 集成到你的 iOS 项目中。

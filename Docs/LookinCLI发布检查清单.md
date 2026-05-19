@@ -244,7 +244,13 @@ shasum -a 256 build/LookinCLI/ivista-lookin-macos-universal.zip
 
 ## 13. Homebrew Formula
 
-本仓库维护 `Formula/ivista-lookin.rb`，可复制到 `homebrew-ivista-lookin` tap 仓库的 `Formula/ivista-lookin.rb`。
+Homebrew tap 仓库 `homebrew-ivista-lookin` 是正式发布源；本仓库的 `Formula/ivista-lookin.rb` 只作为发布模板和校验副本。
+
+本地维护时，tap 仓库可放在当前仓库下的 ignored 子目录：
+
+```bash
+git clone https://github.com/LLLLLayer/homebrew-ivista-lookin.git homebrew-ivista-lookin
+```
 
 更新 formula 的 URL、version 和 sha256：
 
@@ -259,6 +265,7 @@ shasum -a 256 build/LookinCLI/ivista-lookin-macos-universal.zip
 
 ```bash
 ruby -c Formula/ivista-lookin.rb
+ruby -c homebrew-ivista-lookin/Formula/ivista-lookin.rb
 ```
 
 发布到 tap 后，用户安装命令：

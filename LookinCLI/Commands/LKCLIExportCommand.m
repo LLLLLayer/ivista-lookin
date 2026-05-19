@@ -1,7 +1,10 @@
 #import "LKCLIExportCommand.h"
+#import "LKCLIArgumentParser.h"
 #import "LKCLIAppScanner.h"
 #import "LKCLIAppSelector.h"
 #import "LKCLIConnectedApp.h"
+#import "LKCLIJSONWriter.h"
+#import "LKCLIOnlineCommandRunner.h"
 #import "LKCLISignalRunner.h"
 #import "LKCLIStdIO.h"
 #import "LKCLIVersionProvider.h"
@@ -28,7 +31,7 @@
 
     for (NSUInteger idx = 0; idx < arguments.count; idx++) {
         NSString *argument = arguments[idx];
-        if ([argument isEqualToString:@"--help"] || [argument isEqualToString:@"-h"]) {
+        if ([LKCLIArgumentParser isHelpArgument:argument]) {
             [self printHelp];
             return LKCLIExitCodeOK;
         } else if ([argument isEqualToString:@"--json"]) {
@@ -40,17 +43,18 @@
                 return LKCLIExitCodeUsage;
             }
         } else if ([argument isEqualToString:@"--out"] || [argument isEqualToString:@"-o"]) {
-            if (idx + 1 >= arguments.count) {
-                [LKCLIStdIO writeError:@"error: %@ requires a value", argument];
+            NSString *errorMessage = nil;
+            if (![LKCLIArgumentParser consumeValueForOption:argument arguments:arguments index:&idx value:&outPath errorMessage:&errorMessage]) {
+                [LKCLIStdIO writeError:@"%@", errorMessage];
                 return LKCLIExitCodeUsage;
             }
-            outPath = arguments[++idx];
         } else if ([argument isEqualToString:@"--compression"]) {
-            if (idx + 1 >= arguments.count) {
-                [LKCLIStdIO writeError:@"error: --compression requires a value"];
+            NSString *compressionValue = nil;
+            NSString *errorMessage = nil;
+            if (![LKCLIArgumentParser consumeValueForOption:argument arguments:arguments index:&idx value:&compressionValue errorMessage:&errorMessage]) {
+                [LKCLIStdIO writeError:@"%@", errorMessage];
                 return LKCLIExitCodeUsage;
             }
-            NSString *compressionValue = arguments[++idx];
             if (![self parseCompressionValue:compressionValue compression:&compression]) {
                 [LKCLIStdIO writeError:@"error: --compression must be a number between 0.01 and 1"];
                 return LKCLIExitCodeUsage;
@@ -72,72 +76,41 @@
         return LKCLIExitCodeUsage;
     }
 
-    LKCLIAppScanner *scanner = [LKCLIAppScanner new];
-    id appsValue = nil;
-    NSError *appsError = nil;
-    BOOL fetchedApps = [LKCLISignalRunner waitForSignal:[scanner fetchAppsWithImages:NO] timeout:10 value:&appsValue error:&appsError];
-    if (!fetchedApps) {
-        [scanner closeAllConnections];
-        [LKCLIStdIO writeError:@"error: %@", appsError.localizedDescription ?: @"failed to fetch apps"];
-        return LKCLIExitCodeConnection;
-    }
+    return [LKCLIOnlineCommandRunner withHierarchyForSelection:selection appsTimeout:10 hierarchyTimeout:12 body:^LKCLIExitCode(LKCLIAppScanner *scanner, LKCLIConnectedApp *app, LookinHierarchyInfo *hierarchyInfo) {
+        NSArray<LookinDisplayItem *> *flatItems = [LookinDisplayItem flatItemsFromHierarchicalItems:hierarchyInfo.displayItems];
+        NSArray *packages = [self detailPackagesForItems:flatItems];
+        id detailsValue = nil;
+        NSError *detailsError = nil;
+        BOOL fetchedDetails = [LKCLISignalRunner waitForSignal:[scanner fetchHierarchyDetailsWithTaskPackages:packages forApp:app] timeout:60 value:&detailsValue error:&detailsError];
 
-    LKCLIExitCode selectionExitCode = LKCLIExitCodeOK;
-    LKCLIConnectedApp *app = [[LKCLIAppSelector new] selectAppFromAppsValue:appsValue selection:selection exitCode:&selectionExitCode];
-    if (!app) {
-        [scanner closeAllConnections];
-        return selectionExitCode;
-    }
+        if (!fetchedDetails) {
+            [LKCLIStdIO writeError:@"error: %@", detailsError.localizedDescription ?: @"failed to fetch hierarchy details"];
+            return LKCLIExitCodeConnection;
+        }
 
-    id hierarchyValue = nil;
-    NSError *hierarchyError = nil;
-    BOOL fetchedHierarchy = [LKCLISignalRunner waitForSignal:[scanner fetchHierarchyForApp:app] timeout:12 value:&hierarchyValue error:&hierarchyError];
-    if (!fetchedHierarchy) {
-        [scanner closeAllConnections];
-        [LKCLIStdIO writeError:@"error: %@", hierarchyError.localizedDescription ?: @"failed to fetch hierarchy"];
-        return LKCLIExitCodeConnection;
-    }
-    if (![hierarchyValue isKindOfClass:[LookinHierarchyInfo class]]) {
-        [scanner closeAllConnections];
-        [LKCLIStdIO writeError:@"error: invalid hierarchy response"];
-        return LKCLIExitCodeGeneralError;
-    }
+        NSUInteger appliedDetails = [self applyDetailsValue:detailsValue toItems:flatItems];
+        NSError *archiveError = nil;
+        NSData *exportData = [self exportDataFromHierarchyInfo:hierarchyInfo compression:compression error:&archiveError];
+        if (!exportData) {
+            [LKCLIStdIO writeError:@"error: %@", archiveError.localizedDescription ?: @"failed to encode lookin file"];
+            return LKCLIExitCodeGeneralError;
+        }
 
-    LookinHierarchyInfo *hierarchyInfo = hierarchyValue;
-    NSArray<LookinDisplayItem *> *flatItems = [LookinDisplayItem flatItemsFromHierarchicalItems:hierarchyInfo.displayItems];
-    NSArray *packages = [self detailPackagesForItems:flatItems];
-    id detailsValue = nil;
-    NSError *detailsError = nil;
-    BOOL fetchedDetails = [LKCLISignalRunner waitForSignal:[scanner fetchHierarchyDetailsWithTaskPackages:packages forApp:app] timeout:60 value:&detailsValue error:&detailsError];
-    [scanner closeAllConnections];
+        NSString *finalPath = [self absolutePathForPath:outPath];
+        NSError *writeError = nil;
+        BOOL wrote = [exportData writeToFile:finalPath options:NSDataWritingAtomic error:&writeError];
+        if (!wrote) {
+            [LKCLIStdIO writeError:@"error: %@", writeError.localizedDescription ?: @"failed to write lookin file"];
+            return LKCLIExitCodeGeneralError;
+        }
 
-    if (!fetchedDetails) {
-        [LKCLIStdIO writeError:@"error: %@", detailsError.localizedDescription ?: @"failed to fetch hierarchy details"];
-        return LKCLIExitCodeConnection;
-    }
+        if (json) {
+            return [self printJSONWithApp:app path:finalPath bytes:exportData.length itemCount:flatItems.count detailCount:appliedDetails compression:compression];
+        }
 
-    NSUInteger appliedDetails = [self applyDetailsValue:detailsValue toItems:flatItems];
-    NSError *archiveError = nil;
-    NSData *exportData = [self exportDataFromHierarchyInfo:hierarchyInfo compression:compression error:&archiveError];
-    if (!exportData) {
-        [LKCLIStdIO writeError:@"error: %@", archiveError.localizedDescription ?: @"failed to encode lookin file"];
-        return LKCLIExitCodeGeneralError;
-    }
-
-    NSString *finalPath = [self absolutePathForPath:outPath];
-    NSError *writeError = nil;
-    BOOL wrote = [exportData writeToFile:finalPath options:NSDataWritingAtomic error:&writeError];
-    if (!wrote) {
-        [LKCLIStdIO writeError:@"error: %@", writeError.localizedDescription ?: @"failed to write lookin file"];
-        return LKCLIExitCodeGeneralError;
-    }
-
-    if (json) {
-        return [self printJSONWithApp:app path:finalPath bytes:exportData.length itemCount:flatItems.count detailCount:appliedDetails compression:compression];
-    }
-
-    [LKCLIStdIO writeOut:@"exported %@ items to %@ (%lu bytes)", @(flatItems.count), finalPath, (unsigned long)exportData.length];
-    return LKCLIExitCodeOK;
+        [LKCLIStdIO writeOut:@"exported %@ items to %@ (%lu bytes)", @(flatItems.count), finalPath, (unsigned long)exportData.length];
+        return LKCLIExitCodeOK;
+    }];
 }
 
 + (void)printHelp {
@@ -365,15 +338,7 @@
         @"compression": @(compression),
     };
 
-    NSError *error = nil;
-    NSData *data = [NSJSONSerialization dataWithJSONObject:root options:NSJSONWritingPrettyPrinted | NSJSONWritingSortedKeys error:&error];
-    if (!data) {
-        [LKCLIStdIO writeError:@"error: %@", error.localizedDescription ?: @"failed to encode JSON"];
-        return LKCLIExitCodeGeneralError;
-    }
-    NSString *jsonString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    [LKCLIStdIO writeOut:@"%@", jsonString];
-    return LKCLIExitCodeOK;
+    return [LKCLIJSONWriter printJSONObject:root];
 }
 
 @end

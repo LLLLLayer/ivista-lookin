@@ -5,6 +5,7 @@
 #import "LKCLIConnectedApp.h"
 #import "LKCLIDisplayItemFetcher.h"
 #import "LKCLIJSONWriter.h"
+#import "LKCLIOnlineCommandRunner.h"
 #import "LKCLISignalRunner.h"
 #import "LKCLIStdIO.h"
 #import "LookinAppInfo.h"
@@ -76,71 +77,43 @@
         return LKCLIExitCodeUsage;
     }
 
-    LKCLIAppScanner *scanner = [LKCLIAppScanner new];
-    LKCLIExitCode selectionExitCode = LKCLIExitCodeOK;
-    LKCLIConnectedApp *app = [self selectAppWithScanner:scanner selection:selection exitCode:&selectionExitCode];
-    if (!app) {
-        [scanner closeAllConnections];
-        return selectionExitCode;
-    }
-
-    if (className.length == 0) {
-        id objectValue = nil;
-        NSError *objectError = nil;
-        BOOL fetchedObject = [LKCLISignalRunner waitForSignal:[scanner fetchObjectWithOID:oid forApp:app] timeout:10 value:&objectValue error:&objectError];
-        if (!fetchedObject) {
-            [scanner closeAllConnections];
-            [LKCLIStdIO writeError:@"error: %@", objectError.localizedDescription ?: @"failed to fetch object"];
-            return objectError.code == LookinErrCode_ObjectNotFound ? LKCLIExitCodeObjectNotFound : LKCLIExitCodeConnection;
+    __block NSString *resolvedClassName = className;
+    return [LKCLIOnlineCommandRunner withSelectedAppForSelection:selection appsTimeout:10 body:^LKCLIExitCode(LKCLIAppScanner *scanner, LKCLIConnectedApp *app) {
+        if (resolvedClassName.length == 0) {
+            id objectValue = nil;
+            NSError *objectError = nil;
+            BOOL fetchedObject = [LKCLISignalRunner waitForSignal:[scanner fetchObjectWithOID:oid forApp:app] timeout:10 value:&objectValue error:&objectError];
+            if (!fetchedObject) {
+                [LKCLIStdIO writeError:@"error: %@", objectError.localizedDescription ?: @"failed to fetch object"];
+                return objectError.code == LookinErrCode_ObjectNotFound ? LKCLIExitCodeObjectNotFound : LKCLIExitCodeConnection;
+            }
+            if (![objectValue isKindOfClass:[LookinObject class]]) {
+                [LKCLIStdIO writeError:@"error: invalid object response"];
+                return LKCLIExitCodeGeneralError;
+            }
+            resolvedClassName = ((LookinObject *)objectValue).rawClassName;
         }
-        if (![objectValue isKindOfClass:[LookinObject class]]) {
-            [scanner closeAllConnections];
-            [LKCLIStdIO writeError:@"error: invalid object response"];
+
+        id selectorsValue = nil;
+        NSError *selectorsError = nil;
+        BOOL fetchedSelectors = [LKCLISignalRunner waitForSignal:[scanner fetchSelectorNamesWithClass:resolvedClassName hasArg:hasArg forApp:app] timeout:12 value:&selectorsValue error:&selectorsError];
+        if (!fetchedSelectors) {
+            [LKCLIStdIO writeError:@"error: %@", selectorsError.localizedDescription ?: @"failed to fetch selectors"];
+            return LKCLIExitCodeConnection;
+        }
+        if (![selectorsValue isKindOfClass:[NSArray class]]) {
+            [LKCLIStdIO writeError:@"error: invalid selectors response"];
             return LKCLIExitCodeGeneralError;
         }
-        className = ((LookinObject *)objectValue).rawClassName;
-    }
 
-    id selectorsValue = nil;
-    NSError *selectorsError = nil;
-    BOOL fetchedSelectors = [LKCLISignalRunner waitForSignal:[scanner fetchSelectorNamesWithClass:className hasArg:hasArg forApp:app] timeout:12 value:&selectorsValue error:&selectorsError];
-    [scanner closeAllConnections];
-
-    if (!fetchedSelectors) {
-        [LKCLIStdIO writeError:@"error: %@", selectorsError.localizedDescription ?: @"failed to fetch selectors"];
-        return LKCLIExitCodeConnection;
-    }
-    if (![selectorsValue isKindOfClass:[NSArray class]]) {
-        [LKCLIStdIO writeError:@"error: invalid selectors response"];
-        return LKCLIExitCodeGeneralError;
-    }
-
-    NSArray<NSString *> *selectors = [self sortedStringArrayFromValue:selectorsValue];
-    selectors = [self selectors:selectors matchingFilter:filter];
-    if (json) {
-        return [self printJSONWithApp:app className:className oid:oid hasArg:hasArg filter:filter selectors:selectors];
-    }
-    [self printTextWithApp:app className:className oid:oid hasArg:hasArg filter:filter selectors:selectors];
-    return LKCLIExitCodeOK;
-}
-
-+ (LKCLIConnectedApp *)selectAppWithScanner:(LKCLIAppScanner *)scanner selection:(LKCLIAppSelection *)selection exitCode:(LKCLIExitCode *)exitCode {
-    id appsValue = nil;
-    NSError *appsError = nil;
-    BOOL fetchedApps = [LKCLISignalRunner waitForSignal:[scanner fetchAppsWithImages:NO] timeout:10 value:&appsValue error:&appsError];
-    if (!fetchedApps) {
-        [LKCLIStdIO writeError:@"error: %@", appsError.localizedDescription ?: @"failed to fetch apps"];
-        if (exitCode) {
-            *exitCode = LKCLIExitCodeConnection;
+        NSArray<NSString *> *selectors = [self sortedStringArrayFromValue:selectorsValue];
+        selectors = [self selectors:selectors matchingFilter:filter];
+        if (json) {
+            return [self printJSONWithApp:app className:resolvedClassName oid:oid hasArg:hasArg filter:filter selectors:selectors];
         }
-        return nil;
-    }
-    LKCLIExitCode selectionExitCode = LKCLIExitCodeOK;
-    LKCLIConnectedApp *app = [[LKCLIAppSelector new] selectAppFromAppsValue:appsValue selection:selection exitCode:&selectionExitCode];
-    if (exitCode) {
-        *exitCode = selectionExitCode;
-    }
-    return app;
+        [self printTextWithApp:app className:resolvedClassName oid:oid hasArg:hasArg filter:filter selectors:selectors];
+        return LKCLIExitCodeOK;
+    }];
 }
 
 + (NSArray<NSString *> *)sortedStringArrayFromValue:(id)value {

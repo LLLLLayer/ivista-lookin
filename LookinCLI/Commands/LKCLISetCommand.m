@@ -6,6 +6,7 @@
 #import "LKCLIConnectedApp.h"
 #import "LKCLIDisplayItemFetcher.h"
 #import "LKCLIJSONWriter.h"
+#import "LKCLIOnlineCommandRunner.h"
 #import "LKCLISignalRunner.h"
 #import "LKCLIStdIO.h"
 #import "LKCLIVersionProvider.h"
@@ -145,44 +146,37 @@
         return LKCLIExitCodeOK;
     }
 
-    LKCLIAppScanner *scanner = [LKCLIAppScanner new];
-    LKCLIExitCode selectionExitCode = LKCLIExitCodeOK;
-    LKCLIConnectedApp *app = [self selectAppWithScanner:scanner selection:selection exitCode:&selectionExitCode];
-    if (!app) {
-        [scanner closeAllConnections];
-        return selectionExitCode;
-    }
+    return [LKCLIOnlineCommandRunner withSelectedAppForSelection:selection appsTimeout:10 body:^LKCLIExitCode(LKCLIAppScanner *scanner, LKCLIConnectedApp *app) {
+        id modificationValue = nil;
+        NSError *modificationError = nil;
+        BOOL submitted = NO;
+        if (attribute.isUserCustom) {
+            LookinCustomAttrModification *modification = [LookinCustomAttrModification new];
+            modification.customSetterID = attribute.customSetterID;
+            modification.attrType = attribute.attrType;
+            modification.value = parsedValue;
+            submitted = [LKCLISignalRunner waitForSignal:[scanner submitCustomModification:modification forApp:app] timeout:12 value:&modificationValue error:&modificationError];
+        } else {
+            LookinAttributeModification *modification = [LookinAttributeModification new];
+            modification.clientReadableVersion = [LKCLIVersionProvider cliVersion];
+            modification.targetOid = targetOID;
+            modification.setterSelector = setter;
+            modification.attrType = attribute.attrType;
+            modification.value = parsedValue;
+            submitted = [LKCLISignalRunner waitForSignal:[scanner submitInbuiltModification:modification forApp:app] timeout:12 value:&modificationValue error:&modificationError];
+        }
 
-    id modificationValue = nil;
-    NSError *modificationError = nil;
-    BOOL submitted = NO;
-    if (attribute.isUserCustom) {
-        LookinCustomAttrModification *modification = [LookinCustomAttrModification new];
-        modification.customSetterID = attribute.customSetterID;
-        modification.attrType = attribute.attrType;
-        modification.value = parsedValue;
-        submitted = [LKCLISignalRunner waitForSignal:[scanner submitCustomModification:modification forApp:app] timeout:12 value:&modificationValue error:&modificationError];
-    } else {
-        LookinAttributeModification *modification = [LookinAttributeModification new];
-        modification.clientReadableVersion = [LKCLIVersionProvider cliVersion];
-        modification.targetOid = targetOID;
-        modification.setterSelector = setter;
-        modification.attrType = attribute.attrType;
-        modification.value = parsedValue;
-        submitted = [LKCLISignalRunner waitForSignal:[scanner submitInbuiltModification:modification forApp:app] timeout:12 value:&modificationValue error:&modificationError];
-    }
-    [scanner closeAllConnections];
+        if (!submitted) {
+            [LKCLIStdIO writeError:@"error: %@", modificationError.localizedDescription ?: @"failed to submit attribute modification"];
+            return modificationError.code == LookinErrCode_ObjectNotFound ? LKCLIExitCodeObjectNotFound : LKCLIExitCodeConnection;
+        }
 
-    if (!submitted) {
-        [LKCLIStdIO writeError:@"error: %@", modificationError.localizedDescription ?: @"failed to submit attribute modification"];
-        return modificationError.code == LookinErrCode_ObjectNotFound ? LKCLIExitCodeObjectNotFound : LKCLIExitCodeConnection;
-    }
-
-    if (json) {
-        return [self printJSONWithResult:result attribute:attribute targetOID:targetOID setter:setter rawValue:rawValue parsedValue:parsedValue dryRun:NO];
-    }
-    [self printTextWithResult:result attribute:attribute targetOID:targetOID setter:setter rawValue:rawValue parsedValue:parsedValue dryRun:NO];
-    return LKCLIExitCodeOK;
+        if (json) {
+            return [self printJSONWithResult:result attribute:attribute targetOID:targetOID setter:setter rawValue:rawValue parsedValue:parsedValue dryRun:NO];
+        }
+        [self printTextWithResult:result attribute:attribute targetOID:targetOID setter:setter rawValue:rawValue parsedValue:parsedValue dryRun:NO];
+        return LKCLIExitCodeOK;
+    }];
 }
 
 + (void)printHelp {
@@ -229,25 +223,6 @@
         return displayItem.viewObject.oid;
     }
     return displayItem.layerObject.oid;
-}
-
-+ (LKCLIConnectedApp *)selectAppWithScanner:(LKCLIAppScanner *)scanner selection:(LKCLIAppSelection *)selection exitCode:(LKCLIExitCode *)exitCode {
-    id appsValue = nil;
-    NSError *appsError = nil;
-    BOOL fetchedApps = [LKCLISignalRunner waitForSignal:[scanner fetchAppsWithImages:NO] timeout:10 value:&appsValue error:&appsError];
-    if (!fetchedApps) {
-        [LKCLIStdIO writeError:@"error: %@", appsError.localizedDescription ?: @"failed to fetch apps"];
-        if (exitCode) {
-            *exitCode = LKCLIExitCodeConnection;
-        }
-        return nil;
-    }
-    LKCLIExitCode selectionExitCode = LKCLIExitCodeOK;
-    LKCLIConnectedApp *app = [[LKCLIAppSelector new] selectAppFromAppsValue:appsValue selection:selection exitCode:&selectionExitCode];
-    if (exitCode) {
-        *exitCode = selectionExitCode;
-    }
-    return app;
 }
 
 + (id)parsedValueFromString:(NSString *)rawValue attribute:(LookinAttribute *)attribute errorMessage:(NSString **)errorMessage {

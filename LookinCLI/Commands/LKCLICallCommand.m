@@ -5,6 +5,7 @@
 #import "LKCLIConnectedApp.h"
 #import "LKCLIDisplayItemFetcher.h"
 #import "LKCLIJSONWriter.h"
+#import "LKCLIOnlineCommandRunner.h"
 #import "LKCLISignalRunner.h"
 #import "LKCLIStdIO.h"
 #import "LookinAppInfo.h"
@@ -76,43 +77,26 @@
         return LKCLIExitCodeUnsupported;
     }
 
-    LKCLIAppScanner *scanner = [LKCLIAppScanner new];
-    id appsValue = nil;
-    NSError *appsError = nil;
-    BOOL fetchedApps = [LKCLISignalRunner waitForSignal:[scanner fetchAppsWithImages:NO] timeout:10 value:&appsValue error:&appsError];
-    if (!fetchedApps) {
-        [scanner closeAllConnections];
-        [LKCLIStdIO writeError:@"error: %@", appsError.localizedDescription ?: @"failed to fetch apps"];
-        return LKCLIExitCodeConnection;
-    }
+    return [LKCLIOnlineCommandRunner withSelectedAppForSelection:selection appsTimeout:10 body:^LKCLIExitCode(LKCLIAppScanner *scanner, LKCLIConnectedApp *app) {
+        id invocationValue = nil;
+        NSError *invocationError = nil;
+        BOOL invoked = [LKCLISignalRunner waitForSignal:[scanner invokeMethodWithOID:oid selectorName:selectorName forApp:app] timeout:12 value:&invocationValue error:&invocationError];
+        if (!invoked) {
+            [LKCLIStdIO writeError:@"error: %@", invocationError.localizedDescription ?: @"failed to invoke method"];
+            return invocationError.code == LookinErrCode_ObjectNotFound ? LKCLIExitCodeObjectNotFound : LKCLIExitCodeConnection;
+        }
+        if (![invocationValue isKindOfClass:[NSDictionary class]]) {
+            [LKCLIStdIO writeError:@"error: invalid invocation response"];
+            return LKCLIExitCodeGeneralError;
+        }
 
-    LKCLIExitCode selectionExitCode = LKCLIExitCodeOK;
-    LKCLIConnectedApp *app = [[LKCLIAppSelector new] selectAppFromAppsValue:appsValue selection:selection exitCode:&selectionExitCode];
-    if (!app) {
-        [scanner closeAllConnections];
-        return selectionExitCode;
-    }
-
-    id invocationValue = nil;
-    NSError *invocationError = nil;
-    BOOL invoked = [LKCLISignalRunner waitForSignal:[scanner invokeMethodWithOID:oid selectorName:selectorName forApp:app] timeout:12 value:&invocationValue error:&invocationError];
-    [scanner closeAllConnections];
-
-    if (!invoked) {
-        [LKCLIStdIO writeError:@"error: %@", invocationError.localizedDescription ?: @"failed to invoke method"];
-        return invocationError.code == LookinErrCode_ObjectNotFound ? LKCLIExitCodeObjectNotFound : LKCLIExitCodeConnection;
-    }
-    if (![invocationValue isKindOfClass:[NSDictionary class]]) {
-        [LKCLIStdIO writeError:@"error: invalid invocation response"];
-        return LKCLIExitCodeGeneralError;
-    }
-
-    NSDictionary *result = (NSDictionary *)invocationValue;
-    if (json) {
-        return [self printJSONWithApp:app oid:oid selectorName:selectorName result:result];
-    }
-    [self printTextWithApp:app oid:oid selectorName:selectorName result:result];
-    return LKCLIExitCodeOK;
+        NSDictionary *result = (NSDictionary *)invocationValue;
+        if (json) {
+            return [self printJSONWithApp:app oid:oid selectorName:selectorName result:result];
+        }
+        [self printTextWithApp:app oid:oid selectorName:selectorName result:result];
+        return LKCLIExitCodeOK;
+    }];
 }
 
 + (void)printHelp {

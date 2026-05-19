@@ -4,6 +4,7 @@
 #import "LKCLIArgumentParser.h"
 #import "LKCLIConnectedApp.h"
 #import "LKCLIDisplayItemFetcher.h"
+#import "LKCLIOnlineCommandRunner.h"
 #import "LKCLISignalRunner.h"
 #import "LKCLIStdIO.h"
 #import "LookinAppInfo.h"
@@ -57,87 +58,79 @@
         return LKCLIExitCodeUsage;
     }
 
-    LKCLIAppScanner *scanner = [LKCLIAppScanner new];
-    LKCLIExitCode selectionExitCode = LKCLIExitCodeOK;
-    LKCLIConnectedApp *app = [self selectAppWithScanner:scanner selection:selection exitCode:&selectionExitCode];
-    if (!app) {
-        [scanner closeAllConnections];
-        return selectionExitCode;
-    }
-
-    LookinObject *currentObject = nil;
-    LKCLIExitCode objectExitCode = [self fetchObject:&currentObject oid:oid scanner:scanner app:app];
-    if (objectExitCode != LKCLIExitCodeOK) {
-        [scanner closeAllConnections];
-        return objectExitCode;
-    }
-
-    [LKCLIStdIO writeOut:@"Connected to %@ (%@)", app.appInfo.appName ?: @"<unknown>", app.appInfo.appBundleIdentifier ?: @"<unknown>"];
-    [self printCurrentObject:currentObject];
-    [LKCLIStdIO writeOut:@"Type a property getter or no-argument method. Commands: help, selectors [filter], use <oid>, quit."];
-
-    char *line = NULL;
-    size_t linecap = 0;
-    while (true) {
-        printf("ivista-lookin:%lu> ", currentObject.oid);
-        fflush(stdout);
-
-        ssize_t length = getline(&line, &linecap, stdin);
-        if (length < 0) {
-            break;
+    return [LKCLIOnlineCommandRunner withSelectedAppForSelection:selection appsTimeout:10 body:^LKCLIExitCode(LKCLIAppScanner *scanner, LKCLIConnectedApp *app) {
+        LookinObject *currentObject = nil;
+        LKCLIExitCode objectExitCode = [self fetchObject:&currentObject oid:oid scanner:scanner app:app];
+        if (objectExitCode != LKCLIExitCodeOK) {
+            return objectExitCode;
         }
 
-        NSString *input = [[NSString stringWithUTF8String:line] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-        if (input.length == 0) {
-            continue;
-        }
-        if ([input isEqualToString:@"quit"] || [input isEqualToString:@"exit"]) {
-            break;
-        }
-        if ([input isEqualToString:@"help"]) {
-            [self printConsoleHelp];
-            continue;
-        }
-        if ([input hasPrefix:@"use "]) {
-            NSString *oidText = [[input substringFromIndex:4] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-            unsigned long nextOID = 0;
-            if (![LKCLIDisplayItemFetcher parseOIDValue:oidText oid:&nextOID]) {
-                [LKCLIStdIO writeError:@"error: use requires a positive integer oid"];
+        [LKCLIStdIO writeOut:@"Connected to %@ (%@)", app.appInfo.appName ?: @"<unknown>", app.appInfo.appBundleIdentifier ?: @"<unknown>"];
+        [self printCurrentObject:currentObject];
+        [LKCLIStdIO writeOut:@"Type a property getter or no-argument method. Commands: help, selectors [filter], use <oid>, quit."];
+
+        char *line = NULL;
+        size_t linecap = 0;
+        while (true) {
+            printf("ivista-lookin:%lu> ", currentObject.oid);
+            fflush(stdout);
+
+            ssize_t length = getline(&line, &linecap, stdin);
+            if (length < 0) {
+                break;
+            }
+
+            NSString *input = [[NSString stringWithUTF8String:line] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+            if (input.length == 0) {
                 continue;
             }
-            LookinObject *nextObject = nil;
-            LKCLIExitCode exitCode = [self fetchObject:&nextObject oid:nextOID scanner:scanner app:app];
-            if (exitCode == LKCLIExitCodeOK) {
-                currentObject = nextObject;
-                [self printCurrentObject:currentObject];
+            if ([input isEqualToString:@"quit"] || [input isEqualToString:@"exit"]) {
+                break;
             }
-            continue;
-        }
-        if ([input isEqualToString:@"selectors"] || [input hasPrefix:@"selectors "]) {
-            NSString *filter = nil;
-            if ([input hasPrefix:@"selectors "]) {
-                filter = [[input substringFromIndex:@"selectors ".length] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+            if ([input isEqualToString:@"help"]) {
+                [self printConsoleHelp];
+                continue;
             }
-            [self printSelectorsForObject:currentObject filter:filter scanner:scanner app:app];
-            continue;
-        }
-        if ([input containsString:@":"]) {
-            [LKCLIStdIO writeError:@"error: Lookin console only supports no-argument methods"];
-            continue;
-        }
-        if ([input containsString:@"."]) {
-            [LKCLIStdIO writeError:@"error: dot expressions are not supported yet; input a direct property or method name"];
-            continue;
+            if ([input hasPrefix:@"use "]) {
+                NSString *oidText = [[input substringFromIndex:4] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+                unsigned long nextOID = 0;
+                if (![LKCLIDisplayItemFetcher parseOIDValue:oidText oid:&nextOID]) {
+                    [LKCLIStdIO writeError:@"error: use requires a positive integer oid"];
+                    continue;
+                }
+                LookinObject *nextObject = nil;
+                LKCLIExitCode exitCode = [self fetchObject:&nextObject oid:nextOID scanner:scanner app:app];
+                if (exitCode == LKCLIExitCodeOK) {
+                    currentObject = nextObject;
+                    [self printCurrentObject:currentObject];
+                }
+                continue;
+            }
+            if ([input isEqualToString:@"selectors"] || [input hasPrefix:@"selectors "]) {
+                NSString *filter = nil;
+                if ([input hasPrefix:@"selectors "]) {
+                    filter = [[input substringFromIndex:@"selectors ".length] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+                }
+                [self printSelectorsForObject:currentObject filter:filter scanner:scanner app:app];
+                continue;
+            }
+            if ([input containsString:@":"]) {
+                [LKCLIStdIO writeError:@"error: Lookin console only supports no-argument methods"];
+                continue;
+            }
+            if ([input containsString:@"."]) {
+                [LKCLIStdIO writeError:@"error: dot expressions are not supported yet; input a direct property or method name"];
+                continue;
+            }
+
+            [self invokeSelector:input oid:currentObject.oid scanner:scanner app:app];
         }
 
-        [self invokeSelector:input oid:currentObject.oid scanner:scanner app:app];
-    }
-
-    if (line) {
-        free(line);
-    }
-    [scanner closeAllConnections];
-    return LKCLIExitCodeOK;
+        if (line) {
+            free(line);
+        }
+        return LKCLIExitCodeOK;
+    }];
 }
 
 + (void)printHelp {
@@ -156,26 +149,6 @@
       "  use <oid>          Switch the console target object\n"
       "  help               Show this help\n"
       "  quit               Exit the console"];
-}
-
-+ (LKCLIConnectedApp *)selectAppWithScanner:(LKCLIAppScanner *)scanner selection:(LKCLIAppSelection *)selection exitCode:(LKCLIExitCode *)exitCode {
-    id appsValue = nil;
-    NSError *appsError = nil;
-    BOOL fetchedApps = [LKCLISignalRunner waitForSignal:[scanner fetchAppsWithImages:NO] timeout:10 value:&appsValue error:&appsError];
-    if (!fetchedApps) {
-        [LKCLIStdIO writeError:@"error: %@", appsError.localizedDescription ?: @"failed to fetch apps"];
-        if (exitCode) {
-            *exitCode = LKCLIExitCodeConnection;
-        }
-        return nil;
-    }
-
-    LKCLIExitCode selectionExitCode = LKCLIExitCodeOK;
-    LKCLIConnectedApp *app = [[LKCLIAppSelector new] selectAppFromAppsValue:appsValue selection:selection exitCode:&selectionExitCode];
-    if (exitCode) {
-        *exitCode = selectionExitCode;
-    }
-    return app;
 }
 
 + (LKCLIExitCode)fetchObject:(LookinObject **)object oid:(unsigned long)oid scanner:(LKCLIAppScanner *)scanner app:(LKCLIConnectedApp *)app {

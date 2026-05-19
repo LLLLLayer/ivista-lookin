@@ -38,6 +38,13 @@ INSTALL_PREFIX="$HOME/.local/ivista-lookin-cli" BIN_DIR="$HOME/.local/bin" SUDO=
 
 LookinCLI 不要求安装 Lookin.app，但目标 iOS App 仍需要集成兼容的 LookinServer，并且处于可连接状态。
 
+Homebrew tap 发布后，推荐安装方式是：
+
+```bash
+brew install LLLLLayer/lookin/ivista-lookin
+lookin --version
+```
+
 ## 快速自检
 
 ```bash

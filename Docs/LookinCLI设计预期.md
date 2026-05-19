@@ -130,7 +130,7 @@ LookinCLI 应支持独立安装和独立升级，不要求用户安装或升级 
 ```text
 Phase 1: 从 Xcode workspace 构建 LookinCLI target，产出 lookin 可执行文件。
 Phase 2: 提供 zip 或 pkg，包含 lookin 和必要动态 frameworks。
-Phase 3: 提供 Homebrew tap，支持 brew install ivista-lookin-cli。
+Phase 3: 提供 Homebrew tap，支持 brew install ivista-lookin。
 Phase 4: 若官方接受，进入官方 release 或 brew formula。
 ```
 
@@ -196,7 +196,7 @@ libexec/Frameworks/*.framework
 这是最终推荐体验：
 
 ```bash
-brew install LLLLLayer/tap/lookin-cli
+brew install LLLLLayer/lookin/ivista-lookin
 lookin --version
 lookin apps
 ```
@@ -210,9 +210,9 @@ brew install lookin-cli
 Homebrew 安装后的文件布局建议：
 
 ```text
-$(brew --prefix)/bin/lookin -> ../Cellar/lookin-cli/<version>/bin/lookin
-$(brew --prefix)/Cellar/lookin-cli/<version>/bin/lookin
-$(brew --prefix)/Cellar/lookin-cli/<version>/libexec/Frameworks/*.framework
+$(brew --prefix)/bin/lookin -> ../Cellar/ivista-lookin/<version>/libexec/lookin
+$(brew --prefix)/Cellar/ivista-lookin/<version>/libexec/lookin
+$(brew --prefix)/Cellar/ivista-lookin/<version>/libexec/Frameworks/*.framework
 ```
 
 ### GitHub Release 安装

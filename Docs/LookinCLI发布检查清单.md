@@ -242,7 +242,44 @@ build/LookinCLI/lookin-cli-macos-universal/lookin apps --json | jq .
 shasum -a 256 build/LookinCLI/lookin-cli-macos-universal.zip
 ```
 
-## 13. 当前 MVP 边界
+## 13. Homebrew Formula
+
+本仓库维护 `Formula/ivista-lookin.rb`，可复制到 `homebrew-lookin` tap 仓库的 `Formula/ivista-lookin.rb`。
+
+更新 formula 的 URL、version 和 sha256：
+
+```bash
+./Scripts/update-homebrew-formula.sh \
+  v0.1.0 \
+  https://github.com/LLLLLayer/ivista-lookin/releases/download/v0.1.0/lookin-cli-macos-universal.zip \
+  build/LookinCLI/lookin-cli-macos-universal.zip
+```
+
+语法检查：
+
+```bash
+ruby -c Formula/ivista-lookin.rb
+```
+
+发布到 tap 后，用户安装命令：
+
+```bash
+brew install LLLLLayer/lookin/ivista-lookin
+lookin --version
+```
+
+本地调试 formula 时，可先创建临时 tap，再把 formula 放入 tap 中执行安装和测试。Homebrew 5.1 起不再接受从任意 path 直接安装 formula：
+
+```bash
+brew tap-new LLLLLayer/lookin
+cp Formula/ivista-lookin.rb "$(brew --repository LLLLLayer/lookin)/Formula/ivista-lookin.rb"
+brew install LLLLLayer/lookin/ivista-lookin
+brew test LLLLLayer/lookin/ivista-lookin
+brew uninstall ivista-lookin
+brew untap LLLLLayer/lookin
+```
+
+## 14. 当前 MVP 边界
 
 1. CLI 不要求安装 Lookin.app。
 2. 目标 iOS App 仍必须集成兼容 LookinServer。

@@ -3,7 +3,7 @@ class IvistaLookin < Formula
   homepage "https://github.com/LLLLLayer/ivista-lookin"
   url "https://github.com/LLLLLayer/ivista-lookin/releases/download/v0.1.0/lookin-cli-macos-universal.zip"
   version "0.1.0"
-  sha256 "26c1bfd64b66c093de97c2a9d3782b0bc8ac5b9601392b7e64ad1e613d0f0a89"
+  sha256 "785cdf33bb1b244cd7ec4f7277c92d7ace35c626bcc24f2a942ce73d608b9050"
   license "GPL-3.0-only"
 
   depends_on :macos

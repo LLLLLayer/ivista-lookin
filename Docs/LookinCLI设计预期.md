@@ -2,6 +2,8 @@
 
 本文档描述 ivista fork 中 LookinCLI 的目标、边界、命令设计和开发阶段。它不是最终用户手册，而是后续实现和拆分 PR 的依据。
 
+最终用户安装和命令使用文档维护在 Homebrew tap README：`https://github.com/LLLLLayer/homebrew-ivista-lookin`。
+
 工程实现细节见 `LookinCLI技术方案.md`。
 
 ## 背景
@@ -59,7 +61,7 @@ LookinCLI 希望支持以下场景：
 
 1. 操作类命令的更多类型覆盖和测试。
 2. Release zip 在干净机器上的独立安装验收。
-3. Homebrew tap / formula。
+3. 持续维护 Homebrew tap README，作为用户安装和使用文档入口。
 
 ## 与现有 macOS App 的能力映射
 

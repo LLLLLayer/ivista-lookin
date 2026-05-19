@@ -1,10 +1,8 @@
 #import <Foundation/Foundation.h>
 #import "LKCLIExitCode.h"
 
-@interface LKCLIInspectCommand : NSObject
+@interface LKCLIReadCommand : NSObject
 
 + (LKCLIExitCode)runWithArguments:(NSArray<NSString *> *)arguments;
-+ (void)printTextWithResult:(id)result;
-+ (LKCLIExitCode)printJSONWithResult:(id)result;
 
 @end

@@ -17,6 +17,7 @@
 		0F5B6D6B7B9C4E019A12F301 /* LKCLIScreenshotCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D6A7B9C4E019A12F301 /* LKCLIScreenshotCommand.m */; };
 		0F5B6D6E7B9C4E019A12F301 /* LKCLIExportCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D6D7B9C4E019A12F301 /* LKCLIExportCommand.m */; };
 		0F5B6D717B9C4E019A12F301 /* LKCLIAppSelector.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D707B9C4E019A12F301 /* LKCLIAppSelector.m */; };
+		0F5B6D837B9C4E019A12F301 /* LKCLIReadCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D827B9C4E019A12F301 /* LKCLIReadCommand.m */; };
 		0F5B6D767B9C4E019A12F301 /* LKCLISelectorsCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D737B9C4E019A12F301 /* LKCLISelectorsCommand.m */; };
 		0F5B6D777B9C4E019A12F301 /* LKCLICallCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D757B9C4E019A12F301 /* LKCLICallCommand.m */; };
 		0F5B6D7A7B9C4E019A12F301 /* LKCLISetCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B6D797B9C4E019A12F301 /* LKCLISetCommand.m */; };
@@ -632,6 +633,8 @@
 		0F5B6D6A7B9C4E019A12F301 /* LKCLIScreenshotCommand.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLIScreenshotCommand.m; sourceTree = "<group>"; };
 		0F5B6D6C7B9C4E019A12F301 /* LKCLIExportCommand.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = LKCLIExportCommand.h; sourceTree = "<group>"; };
 		0F5B6D6D7B9C4E019A12F301 /* LKCLIExportCommand.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLIExportCommand.m; sourceTree = "<group>"; };
+		0F5B6D817B9C4E019A12F301 /* LKCLIReadCommand.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = LKCLIReadCommand.h; sourceTree = "<group>"; };
+		0F5B6D827B9C4E019A12F301 /* LKCLIReadCommand.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLIReadCommand.m; sourceTree = "<group>"; };
 		D4052AC7235CBD090033C961 /* LKMeasureTutorialView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LKMeasureTutorialView.h; sourceTree = "<group>"; };
 		D4052AC8235CBD090033C961 /* LKMeasureTutorialView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LKMeasureTutorialView.m; sourceTree = "<group>"; };
 		D4052ACA235CE2300033C961 /* LKMeasureResultView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LKMeasureResultView.h; sourceTree = "<group>"; };
@@ -742,6 +745,8 @@
 				0F5B6D6A7B9C4E019A12F301 /* LKCLIScreenshotCommand.m */,
 				0F5B6D6C7B9C4E019A12F301 /* LKCLIExportCommand.h */,
 				0F5B6D6D7B9C4E019A12F301 /* LKCLIExportCommand.m */,
+				0F5B6D817B9C4E019A12F301 /* LKCLIReadCommand.h */,
+				0F5B6D827B9C4E019A12F301 /* LKCLIReadCommand.m */,
 				0F5B6D727B9C4E019A12F301 /* LKCLISelectorsCommand.h */,
 				0F5B6D737B9C4E019A12F301 /* LKCLISelectorsCommand.m */,
 				0F5B6D747B9C4E019A12F301 /* LKCLICallCommand.h */,
@@ -1753,6 +1758,7 @@
 				0F5B6D687B9C4E019A12F301 /* LKCLIAttributeFormatter.m in Sources */,
 				0F5B6D6B7B9C4E019A12F301 /* LKCLIScreenshotCommand.m in Sources */,
 				0F5B6D6E7B9C4E019A12F301 /* LKCLIExportCommand.m in Sources */,
+				0F5B6D837B9C4E019A12F301 /* LKCLIReadCommand.m in Sources */,
 				0F5B6D767B9C4E019A12F301 /* LKCLISelectorsCommand.m in Sources */,
 				0F5B6D777B9C4E019A12F301 /* LKCLICallCommand.m in Sources */,
 				0F5B6D7F7B9C4E019A12F301 /* LKCLIEvalCommand.m in Sources */,
@@ -1805,7 +1811,7 @@
 					"$(SRCROOT)/LookinCLI/**",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 0.1.1;
+				MARKETING_VERSION = 0.1.2;
 				PRODUCT_NAME = "ivista-lookin";
 				SDKROOT = macosx;
 				SKIP_INSTALL = NO;
@@ -1832,7 +1838,7 @@
 					"$(SRCROOT)/LookinCLI/**",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 0.1.1;
+				MARKETING_VERSION = 0.1.2;
 				PRODUCT_NAME = "ivista-lookin";
 				SDKROOT = macosx;
 				SKIP_INSTALL = NO;

@@ -1,8 +1,8 @@
 class IvistaLookin < Formula
   desc "Command-line interface for inspecting iOS apps with Lookin"
   homepage "https://github.com/LLLLLayer/ivista-lookin"
-  url "https://github.com/LLLLLayer/ivista-lookin/releases/download/v0.1.1/ivista-lookin-macos-universal.zip"
-  sha256 "4f695697d23bb421beb02dbac90e73e6c7e541d33a9d740f0f57a5b9ca9b5032"
+  url "https://github.com/LLLLLayer/ivista-lookin/releases/download/v0.1.2/ivista-lookin-macos-universal.zip"
+  sha256 "3efa223a16357cae2e3b2ba6429340a9013a25e361e900ccce88e876caeb6f9b"
   license "GPL-3.0-only"
 
   depends_on :macos

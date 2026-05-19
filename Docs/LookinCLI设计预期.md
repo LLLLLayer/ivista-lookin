@@ -48,11 +48,12 @@ LookinCLI 希望支持以下场景：
 8. `ivista-lookin attrs --bundle-id <bundle-id> --oid <oid> [--group <filter>] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
 9. `ivista-lookin screenshot --bundle-id <bundle-id> --oid <oid> --out <path> [--type group|solo] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
 10. `ivista-lookin export --bundle-id <bundle-id> --out <file.lookin> [--compression <0.01-1>] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
-11. `ivista-lookin selectors --bundle-id <bundle-id> (--class <class-name> | --oid <oid>) [--with-args] [--filter <text>] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
-12. `ivista-lookin call --bundle-id <bundle-id> --oid <oid> --selector <selector> [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
-13. `ivista-lookin eval --bundle-id <bundle-id> --oid <oid> <property-or-method> [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
-14. `ivista-lookin console --bundle-id <bundle-id> --oid <oid> [--transport simulator|usb] [--port <port>] [--device-id <id>]`
-15. `ivista-lookin set --bundle-id <bundle-id> --oid <oid> --attr <identifier> --value <value> [--dry-run] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
+11. `ivista-lookin read <file.lookin> [summary|tree|find|inspect|attrs] [options]`
+12. `ivista-lookin selectors --bundle-id <bundle-id> (--class <class-name> | --oid <oid>) [--with-args] [--filter <text>] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
+13. `ivista-lookin call --bundle-id <bundle-id> --oid <oid> --selector <selector> [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
+14. `ivista-lookin eval --bundle-id <bundle-id> --oid <oid> <property-or-method> [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
+15. `ivista-lookin console --bundle-id <bundle-id> --oid <oid> [--transport simulator|usb] [--port <port>] [--device-id <id>]`
+16. `ivista-lookin set --bundle-id <bundle-id> --oid <oid> --attr <identifier> --value <value> [--dry-run] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]`
 
 下一步：
 
@@ -75,7 +76,7 @@ LookinCLI 希望支持以下场景：
 | 控制台查看对象属性/调用无参方法 | `LKConsoleDataSource`, `invokeMethodWithOid` | `ivista-lookin eval ...`, `ivista-lookin console ...`, `ivista-lookin call ...` |
 | 导出 `.lookin` 文件 | `LKExportManager` | `ivista-lookin export ...` |
 | 导出单节点截图 | `LKExportManager exportScreenshotWithDisplayItem` | `ivista-lookin screenshot ...` |
-| 打开 `.lookin` 离线文件 | `LKReadViewController` | `ivista-lookin read ...`，后续阶段 |
+| 打开 `.lookin` 离线文件 | `LKReadViewController` | `ivista-lookin read ...` |
 
 ## 建议架构
 
@@ -500,6 +501,20 @@ ivista-lookin export --bundle-id com.example.demo --transport usb --out demo.loo
 
 默认行为应尽量接近 macOS App 的导出：包含 hierarchy、属性详情和截图。CLI 当前会拉取每个 layer 的 group screenshot，对可展开节点额外拉取 solo screenshot，并写出可被 Lookin macOS App 打开的 `.lookin` secure archive。
 
+### read
+
+离线读取 `.lookin` 快照文件，不连接 App 或设备。
+
+```bash
+ivista-lookin read demo.lookin summary
+ivista-lookin read demo.lookin tree --depth 2
+ivista-lookin read demo.lookin find UIButton --limit 10 --json
+ivista-lookin read demo.lookin inspect --oid 130
+ivista-lookin read demo.lookin attrs --oid 130 --group frame
+```
+
+第一版复用在线命令的文本和 JSON 输出，支持 `summary`、`tree`、`find`、`inspect` 和 `attrs`。截图导出暂不放进 `read`，后续如需要再设计 `ivista-lookin read demo.lookin screenshot --oid ... --out ...`。
+
 ### screenshot
 
 导出指定节点截图。
@@ -677,6 +692,7 @@ CLI 应区分 stdout 和 stderr：
 1. `ivista-lookin attrs`
 2. `ivista-lookin export`
 3. `ivista-lookin screenshot`
+4. `ivista-lookin read`
 4. 处理异步 detail 拉取进度和错误。
 5. 产出可移动的 Release zip。（已由 `Scripts/build-lookin-cli.sh` 和 `Scripts/package-lookin-cli.sh` 覆盖）
 

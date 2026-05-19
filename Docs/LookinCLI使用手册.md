@@ -176,6 +176,16 @@ ivista-lookin export --bundle-id com.example.demo --out demo.lookin
 ivista-lookin export --bundle-id com.example.demo --compression 0.6 --out demo.lookin
 ```
 
+离线读取 `.lookin` 快照：
+
+```bash
+ivista-lookin read demo.lookin summary
+ivista-lookin read demo.lookin tree --depth 2
+ivista-lookin read demo.lookin find UIButton --limit 10
+ivista-lookin read demo.lookin inspect --oid 130 --json
+ivista-lookin read demo.lookin attrs --oid 130 --group frame
+```
+
 截图和导出依赖目标 App 能返回截图数据。若目标节点太大、App 禁用了截图或连接中断，命令会返回明确错误。
 
 ## 调用方法和控制台

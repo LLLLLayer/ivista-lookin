@@ -421,6 +421,7 @@ ivista-lookin inspect --bundle-id ... --oid ... [--json] [--transport simulator|
 ivista-lookin attrs --bundle-id ... --oid ... [--group ...] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
 ivista-lookin screenshot --bundle-id ... --oid ... --out ... [--type group|solo] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
 ivista-lookin export --bundle-id ... --out ... [--compression 0.01-1] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
+ivista-lookin read <file.lookin> [summary|tree|find|inspect|attrs] [options]
 ivista-lookin tree --bundle-id ... [--depth N] [--filter ...] [--oid ...] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
 ivista-lookin find --bundle-id ... <query> [--limit N] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
 ivista-lookin find --bundle-id ... --oid ... [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
@@ -561,7 +562,7 @@ codesign --force --deep --sign - ivista-lookin Frameworks/*.framework
 
 当前 Phase 1 基础版已完成：`ivista-lookin tree --bundle-id <bundle-id> [--json] [--depth N] [--filter <text>] [--oid <oid>]` 可按 bundle id 拉取 UI 层级，并输出稳定文本或 JSON；`ivista-lookin find --bundle-id <bundle-id> <query> [--limit N] [--json]` 可按 class、custom title、memory address 或 oid 扁平搜索层级节点。
 
-当前 Phase 1.5 已完成基础链路：设备命令已加跨进程锁和空结果重试，降低真机 USB 并发扫描不稳定；`ivista-lookin inspect --bundle-id <bundle-id> --oid <oid> [--json]` 可按 oid 拉取对象信息和基础属性；`ivista-lookin attrs --bundle-id <bundle-id> --oid <oid> [--group <filter>] [--json]` 可单独输出属性详情；`ivista-lookin screenshot --bundle-id <bundle-id> --oid <oid> --out <path> [--type group|solo] [--json]` 可导出节点截图；`ivista-lookin export --bundle-id <bundle-id> --out <file.lookin> [--compression <0.01-1>] [--json]` 可导出离线快照；所有设备命令都支持 `--transport simulator|usb`、`--port <port>` 和 `--device-id <id>` 做 disambiguation。
+当前 Phase 1.5 已完成基础链路：设备命令已加跨进程锁和空结果重试，降低真机 USB 并发扫描不稳定；`ivista-lookin inspect --bundle-id <bundle-id> --oid <oid> [--json]` 可按 oid 拉取对象信息和基础属性；`ivista-lookin attrs --bundle-id <bundle-id> --oid <oid> [--group <filter>] [--json]` 可单独输出属性详情；`ivista-lookin screenshot --bundle-id <bundle-id> --oid <oid> --out <path> [--type group|solo] [--json]` 可导出节点截图；`ivista-lookin export --bundle-id <bundle-id> --out <file.lookin> [--compression <0.01-1>] [--json]` 可导出离线快照；`ivista-lookin read <file.lookin> ...` 可离线读取快照的 summary、tree、find、inspect 和 attrs；所有设备命令都支持 `--transport simulator|usb`、`--port <port>` 和 `--device-id <id>` 做 disambiguation。
 
 当前 Phase 2 已开始：`ivista-lookin selectors --bundle-id <bundle-id> (--class <class-name> | --oid <oid>) [--with-args] [--filter <text>] [--json]` 可列出 selector；`ivista-lookin call --bundle-id <bundle-id> --oid <oid> --selector <selector> [--json]` 可调用无参数方法；`ivista-lookin eval --bundle-id <bundle-id> --oid <oid> <property-or-method> [--json]` 和 `ivista-lookin console --bundle-id <bundle-id> --oid <oid>` 覆盖 App Console 的核心“看属性/调用无参方法”能力；`ivista-lookin set --bundle-id <bundle-id> --oid <oid> --attr <identifier> --value <value> [--dry-run] [--json]` 可修改内建属性，以及带 `customSetterID` 的自定义属性。
 

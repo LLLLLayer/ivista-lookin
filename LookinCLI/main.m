@@ -9,6 +9,7 @@
 #import "LKCLIAttrsCommand.h"
 #import "LKCLIScreenshotCommand.h"
 #import "LKCLIExportCommand.h"
+#import "LKCLIReadCommand.h"
 #import "LKCLISelectorsCommand.h"
 #import "LKCLICallCommand.h"
 #import "LKCLIEvalCommand.h"
@@ -113,6 +114,10 @@ int main(int argc, const char * argv[]) {
             return (int)[LKCLIProcessLock runDeviceCommandWithBlock:^LKCLIExitCode{
                 return [LKCLIExportCommand runWithArguments:commandArguments];
             }];
+        }
+
+        if ([command isEqualToString:@"read"]) {
+            return (int)[LKCLIReadCommand runWithArguments:commandArguments];
         }
 
         if ([command isEqualToString:@"selectors"]) {

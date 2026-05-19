@@ -3,6 +3,7 @@
 @interface LKCLIArgumentParser : NSObject
 
 + (BOOL)isHelpArgument:(NSString *)argument;
++ (BOOL)argumentsContainHelp:(NSArray<NSString *> *)arguments;
 + (BOOL)consumeValueForOption:(NSString *)option
                     arguments:(NSArray<NSString *> *)arguments
                         index:(NSUInteger *)index

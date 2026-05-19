@@ -15,6 +15,7 @@
 #import "LKCLIEvalCommand.h"
 #import "LKCLIConsoleCommand.h"
 #import "LKCLISetCommand.h"
+#import "LKCLIArgumentParser.h"
 #import "LKCLIProcessLock.h"
 #import "LKCLIStdIO.h"
 
@@ -26,22 +27,13 @@ static NSArray<NSString *> *LKCLIArguments(int argc, const char * argv[]) {
     return arguments.copy;
 }
 
-static BOOL LKCLIArgumentsContainHelp(NSArray<NSString *> *arguments) {
-    for (NSString *argument in arguments) {
-        if ([argument isEqualToString:@"--help"] || [argument isEqualToString:@"-h"]) {
-            return YES;
-        }
-    }
-    return NO;
-}
-
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
         NSArray<NSString *> *arguments = LKCLIArguments(argc, argv);
         NSString *command = arguments.firstObject;
         NSArray<NSString *> *commandArguments = arguments.count > 1 ? [arguments subarrayWithRange:NSMakeRange(1, arguments.count - 1)] : @[];
 
-        if (!command || [command isEqualToString:@"--help"] || [command isEqualToString:@"-h"] || [command isEqualToString:@"help"]) {
+        if (!command || [LKCLIArgumentParser isHelpArgument:command] || [command isEqualToString:@"help"]) {
             return (int)[LKCLIHelpCommand run];
         }
 
@@ -54,7 +46,7 @@ int main(int argc, const char * argv[]) {
         }
 
         if ([command isEqualToString:@"apps"]) {
-            if (LKCLIArgumentsContainHelp(commandArguments)) {
+            if ([LKCLIArgumentParser argumentsContainHelp:commandArguments]) {
                 return (int)[LKCLIAppsCommand runWithArguments:commandArguments];
             }
             return (int)[LKCLIProcessLock runDeviceCommandWithBlock:^LKCLIExitCode{
@@ -63,7 +55,7 @@ int main(int argc, const char * argv[]) {
         }
 
         if ([command isEqualToString:@"tree"]) {
-            if (LKCLIArgumentsContainHelp(commandArguments)) {
+            if ([LKCLIArgumentParser argumentsContainHelp:commandArguments]) {
                 return (int)[LKCLITreeCommand runWithArguments:commandArguments];
             }
             return (int)[LKCLIProcessLock runDeviceCommandWithBlock:^LKCLIExitCode{
@@ -72,7 +64,7 @@ int main(int argc, const char * argv[]) {
         }
 
         if ([command isEqualToString:@"find"]) {
-            if (LKCLIArgumentsContainHelp(commandArguments)) {
+            if ([LKCLIArgumentParser argumentsContainHelp:commandArguments]) {
                 return (int)[LKCLITreeCommand runFindWithArguments:commandArguments];
             }
             return (int)[LKCLIProcessLock runDeviceCommandWithBlock:^LKCLIExitCode{
@@ -81,7 +73,7 @@ int main(int argc, const char * argv[]) {
         }
 
         if ([command isEqualToString:@"inspect"]) {
-            if (LKCLIArgumentsContainHelp(commandArguments)) {
+            if ([LKCLIArgumentParser argumentsContainHelp:commandArguments]) {
                 return (int)[LKCLIInspectCommand runWithArguments:commandArguments];
             }
             return (int)[LKCLIProcessLock runDeviceCommandWithBlock:^LKCLIExitCode{
@@ -90,7 +82,7 @@ int main(int argc, const char * argv[]) {
         }
 
         if ([command isEqualToString:@"attrs"]) {
-            if (LKCLIArgumentsContainHelp(commandArguments)) {
+            if ([LKCLIArgumentParser argumentsContainHelp:commandArguments]) {
                 return (int)[LKCLIAttrsCommand runWithArguments:commandArguments];
             }
             return (int)[LKCLIProcessLock runDeviceCommandWithBlock:^LKCLIExitCode{
@@ -99,7 +91,7 @@ int main(int argc, const char * argv[]) {
         }
 
         if ([command isEqualToString:@"screenshot"]) {
-            if (LKCLIArgumentsContainHelp(commandArguments)) {
+            if ([LKCLIArgumentParser argumentsContainHelp:commandArguments]) {
                 return (int)[LKCLIScreenshotCommand runWithArguments:commandArguments];
             }
             return (int)[LKCLIProcessLock runDeviceCommandWithBlock:^LKCLIExitCode{
@@ -108,7 +100,7 @@ int main(int argc, const char * argv[]) {
         }
 
         if ([command isEqualToString:@"export"]) {
-            if (LKCLIArgumentsContainHelp(commandArguments)) {
+            if ([LKCLIArgumentParser argumentsContainHelp:commandArguments]) {
                 return (int)[LKCLIExportCommand runWithArguments:commandArguments];
             }
             return (int)[LKCLIProcessLock runDeviceCommandWithBlock:^LKCLIExitCode{
@@ -121,7 +113,7 @@ int main(int argc, const char * argv[]) {
         }
 
         if ([command isEqualToString:@"selectors"]) {
-            if (LKCLIArgumentsContainHelp(commandArguments)) {
+            if ([LKCLIArgumentParser argumentsContainHelp:commandArguments]) {
                 return (int)[LKCLISelectorsCommand runWithArguments:commandArguments];
             }
             return (int)[LKCLIProcessLock runDeviceCommandWithBlock:^LKCLIExitCode{
@@ -130,7 +122,7 @@ int main(int argc, const char * argv[]) {
         }
 
         if ([command isEqualToString:@"call"]) {
-            if (LKCLIArgumentsContainHelp(commandArguments)) {
+            if ([LKCLIArgumentParser argumentsContainHelp:commandArguments]) {
                 return (int)[LKCLICallCommand runWithArguments:commandArguments];
             }
             return (int)[LKCLIProcessLock runDeviceCommandWithBlock:^LKCLIExitCode{
@@ -139,7 +131,7 @@ int main(int argc, const char * argv[]) {
         }
 
         if ([command isEqualToString:@"eval"]) {
-            if (LKCLIArgumentsContainHelp(commandArguments)) {
+            if ([LKCLIArgumentParser argumentsContainHelp:commandArguments]) {
                 return (int)[LKCLIEvalCommand runWithArguments:commandArguments];
             }
             return (int)[LKCLIProcessLock runDeviceCommandWithBlock:^LKCLIExitCode{
@@ -148,7 +140,7 @@ int main(int argc, const char * argv[]) {
         }
 
         if ([command isEqualToString:@"console"]) {
-            if (LKCLIArgumentsContainHelp(commandArguments)) {
+            if ([LKCLIArgumentParser argumentsContainHelp:commandArguments]) {
                 return (int)[LKCLIConsoleCommand runWithArguments:commandArguments];
             }
             return (int)[LKCLIProcessLock runDeviceCommandWithBlock:^LKCLIExitCode{
@@ -157,7 +149,7 @@ int main(int argc, const char * argv[]) {
         }
 
         if ([command isEqualToString:@"set"]) {
-            if (LKCLIArgumentsContainHelp(commandArguments)) {
+            if ([LKCLIArgumentParser argumentsContainHelp:commandArguments]) {
                 return (int)[LKCLISetCommand runWithArguments:commandArguments];
             }
             return (int)[LKCLIProcessLock runDeviceCommandWithBlock:^LKCLIExitCode{

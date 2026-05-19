@@ -1,8 +1,10 @@
 #import "LKCLIReadCommand.h"
+#import "LKCLIArgumentParser.h"
 #import "LKCLIAttrsCommand.h"
 #import "LKCLIConnectedApp.h"
 #import "LKCLIDisplayItemFetcher.h"
 #import "LKCLIInspectCommand.h"
+#import "LKCLIJSONWriter.h"
 #import "LKCLIStdIO.h"
 #import "LKCLITreeCommand.h"
 #import "LookinAppInfo.h"
@@ -18,7 +20,7 @@
 @implementation LKCLIReadCommand
 
 + (LKCLIExitCode)runWithArguments:(NSArray<NSString *> *)arguments {
-    if (arguments.count == 0 || [arguments.firstObject isEqualToString:@"--help"] || [arguments.firstObject isEqualToString:@"-h"]) {
+    if (arguments.count == 0 || [LKCLIArgumentParser isHelpArgument:arguments.firstObject]) {
         [self printHelp];
         return LKCLIExitCodeOK;
     }
@@ -118,7 +120,7 @@
 + (LKCLIExitCode)runSummaryWithFile:(LookinHierarchyFile *)file path:(NSString *)path arguments:(NSArray<NSString *> *)arguments {
     BOOL json = NO;
     for (NSString *argument in arguments) {
-        if ([argument isEqualToString:@"--help"] || [argument isEqualToString:@"-h"]) {
+        if ([LKCLIArgumentParser isHelpArgument:argument]) {
             [self printHelp];
             return LKCLIExitCodeOK;
         }
@@ -144,7 +146,7 @@
                 @"os": info.appInfo.osDescription ?: [NSNull null],
             },
         };
-        return [self printJSONObject:root];
+        return [LKCLIJSONWriter printJSONObject:root];
     }
 
     [LKCLIStdIO writeOut:@"%@ (%@)", info.appInfo.appName ?: @"<unknown>", info.appInfo.appBundleIdentifier ?: @"<unknown>"];
@@ -162,32 +164,36 @@
 
     for (NSUInteger idx = 0; idx < arguments.count; idx++) {
         NSString *argument = arguments[idx];
-        if ([argument isEqualToString:@"--help"] || [argument isEqualToString:@"-h"]) {
+        if ([LKCLIArgumentParser isHelpArgument:argument]) {
             [self printHelp];
             return LKCLIExitCodeOK;
         } else if ([argument isEqualToString:@"--json"]) {
             json = YES;
         } else if ([argument isEqualToString:@"--depth"]) {
-            if (idx + 1 >= arguments.count) {
-                [LKCLIStdIO writeError:@"error: --depth requires a value"];
+            NSString *depthValue = nil;
+            NSString *errorMessage = nil;
+            if (![LKCLIArgumentParser consumeValueForOption:argument arguments:arguments index:&idx value:&depthValue errorMessage:&errorMessage]) {
+                [LKCLIStdIO writeError:@"%@", errorMessage];
                 return LKCLIExitCodeUsage;
             }
-            if (![LKCLITreeCommand parseDepthValue:arguments[++idx] depth:&depth]) {
+            if (![LKCLITreeCommand parseDepthValue:depthValue depth:&depth]) {
                 [LKCLIStdIO writeError:@"error: --depth must be a non-negative integer"];
                 return LKCLIExitCodeUsage;
             }
         } else if ([argument isEqualToString:@"--filter"]) {
-            if (idx + 1 >= arguments.count) {
-                [LKCLIStdIO writeError:@"error: --filter requires a value"];
+            NSString *errorMessage = nil;
+            if (![LKCLIArgumentParser consumeValueForOption:argument arguments:arguments index:&idx value:&filter errorMessage:&errorMessage]) {
+                [LKCLIStdIO writeError:@"%@", errorMessage];
                 return LKCLIExitCodeUsage;
             }
-            filter = arguments[++idx];
         } else if ([argument isEqualToString:@"--oid"]) {
-            if (idx + 1 >= arguments.count) {
-                [LKCLIStdIO writeError:@"error: --oid requires a value"];
+            NSString *oidValue = nil;
+            NSString *errorMessage = nil;
+            if (![LKCLIArgumentParser consumeValueForOption:argument arguments:arguments index:&idx value:&oidValue errorMessage:&errorMessage]) {
+                [LKCLIStdIO writeError:@"%@", errorMessage];
                 return LKCLIExitCodeUsage;
             }
-            if (![LKCLITreeCommand parseOIDValue:arguments[++idx] oid:&focusOID]) {
+            if (![LKCLITreeCommand parseOIDValue:oidValue oid:&focusOID]) {
                 [LKCLIStdIO writeError:@"error: --oid must be a positive integer"];
                 return LKCLIExitCodeUsage;
             }
@@ -226,27 +232,29 @@
 
     for (NSUInteger idx = 0; idx < arguments.count; idx++) {
         NSString *argument = arguments[idx];
-        if ([argument isEqualToString:@"--help"] || [argument isEqualToString:@"-h"]) {
+        if ([LKCLIArgumentParser isHelpArgument:argument]) {
             [self printHelp];
             return LKCLIExitCodeOK;
         } else if ([argument isEqualToString:@"--json"]) {
             json = YES;
         } else if ([argument isEqualToString:@"--oid"]) {
-            if (idx + 1 >= arguments.count) {
-                [LKCLIStdIO writeError:@"error: --oid requires a value"];
+            NSString *errorMessage = nil;
+            if (![LKCLIArgumentParser consumeValueForOption:argument arguments:arguments index:&idx value:&query errorMessage:&errorMessage]) {
+                [LKCLIStdIO writeError:@"%@", errorMessage];
                 return LKCLIExitCodeUsage;
             }
-            query = arguments[++idx];
             if (![LKCLITreeCommand parseOIDValue:query oid:&exactOID]) {
                 [LKCLIStdIO writeError:@"error: --oid must be a positive integer"];
                 return LKCLIExitCodeUsage;
             }
         } else if ([argument isEqualToString:@"--limit"]) {
-            if (idx + 1 >= arguments.count) {
-                [LKCLIStdIO writeError:@"error: --limit requires a value"];
+            NSString *limitValue = nil;
+            NSString *errorMessage = nil;
+            if (![LKCLIArgumentParser consumeValueForOption:argument arguments:arguments index:&idx value:&limitValue errorMessage:&errorMessage]) {
+                [LKCLIStdIO writeError:@"%@", errorMessage];
                 return LKCLIExitCodeUsage;
             }
-            if (![LKCLITreeCommand parseLimitValue:arguments[++idx] limit:&limit]) {
+            if (![LKCLITreeCommand parseLimitValue:limitValue limit:&limit]) {
                 [LKCLIStdIO writeError:@"error: --limit must be a positive integer"];
                 return LKCLIExitCodeUsage;
             }
@@ -276,7 +284,7 @@
 }
 
 + (LKCLIExitCode)runInspectWithFile:(LookinHierarchyFile *)file arguments:(NSArray<NSString *> *)arguments {
-    if ([self argumentsContainHelp:arguments]) {
+    if ([LKCLIArgumentParser argumentsContainHelp:arguments]) {
         [self printHelp];
         return LKCLIExitCodeOK;
     }
@@ -302,7 +310,7 @@
 }
 
 + (LKCLIExitCode)runAttrsWithFile:(LookinHierarchyFile *)file arguments:(NSArray<NSString *> *)arguments {
-    if ([self argumentsContainHelp:arguments]) {
+    if ([LKCLIArgumentParser argumentsContainHelp:arguments]) {
         [self printHelp];
         return LKCLIExitCodeOK;
     }
@@ -331,7 +339,7 @@
 + (LKCLIExitCode)parseObjectArguments:(NSArray<NSString *> *)arguments oid:(unsigned long *)oid groupFilter:(NSString **)groupFilter json:(BOOL *)json {
     for (NSUInteger idx = 0; idx < arguments.count; idx++) {
         NSString *argument = arguments[idx];
-        if ([argument isEqualToString:@"--help"] || [argument isEqualToString:@"-h"]) {
+        if ([LKCLIArgumentParser isHelpArgument:argument]) {
             [self printHelp];
             return LKCLIExitCodeUsage;
         } else if ([argument isEqualToString:@"--json"]) {
@@ -339,20 +347,22 @@
                 *json = YES;
             }
         } else if ([argument isEqualToString:@"--oid"]) {
-            if (idx + 1 >= arguments.count) {
-                [LKCLIStdIO writeError:@"error: --oid requires a value"];
+            NSString *oidValue = nil;
+            NSString *errorMessage = nil;
+            if (![LKCLIArgumentParser consumeValueForOption:argument arguments:arguments index:&idx value:&oidValue errorMessage:&errorMessage]) {
+                [LKCLIStdIO writeError:@"%@", errorMessage];
                 return LKCLIExitCodeUsage;
             }
-            if (![LKCLIDisplayItemFetcher parseOIDValue:arguments[++idx] oid:oid]) {
+            if (![LKCLIDisplayItemFetcher parseOIDValue:oidValue oid:oid]) {
                 [LKCLIStdIO writeError:@"error: --oid must be a positive integer"];
                 return LKCLIExitCodeUsage;
             }
         } else if ([argument isEqualToString:@"--group"] && groupFilter) {
-            if (idx + 1 >= arguments.count) {
-                [LKCLIStdIO writeError:@"error: --group requires a value"];
+            NSString *errorMessage = nil;
+            if (![LKCLIArgumentParser consumeValueForOption:argument arguments:arguments index:&idx value:groupFilter errorMessage:&errorMessage]) {
+                [LKCLIStdIO writeError:@"%@", errorMessage];
                 return LKCLIExitCodeUsage;
             }
-            *groupFilter = arguments[++idx];
         } else {
             [LKCLIStdIO writeError:@"error: unknown option '%@'", argument];
             return LKCLIExitCodeUsage;
@@ -364,15 +374,6 @@
         return LKCLIExitCodeUsage;
     }
     return LKCLIExitCodeOK;
-}
-
-+ (BOOL)argumentsContainHelp:(NSArray<NSString *> *)arguments {
-    for (NSString *argument in arguments) {
-        if ([argument isEqualToString:@"--help"] || [argument isEqualToString:@"-h"]) {
-            return YES;
-        }
-    }
-    return NO;
 }
 
 + (LKCLIDisplayItemFetchResult *)resultForFile:(LookinHierarchyFile *)file oid:(unsigned long)oid {
@@ -406,18 +407,6 @@
         return item.displayingObject;
     }
     return item.displayingObject ?: item.layerObject ?: item.hostViewControllerObject;
-}
-
-+ (LKCLIExitCode)printJSONObject:(NSDictionary *)root {
-    NSError *error = nil;
-    NSData *data = [NSJSONSerialization dataWithJSONObject:root options:NSJSONWritingPrettyPrinted | NSJSONWritingSortedKeys error:&error];
-    if (!data) {
-        [LKCLIStdIO writeError:@"error: %@", error.localizedDescription ?: @"failed to encode JSON"];
-        return LKCLIExitCodeGeneralError;
-    }
-    NSString *jsonString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    [LKCLIStdIO writeOut:@"%@", jsonString];
-    return LKCLIExitCodeOK;
 }
 
 @end

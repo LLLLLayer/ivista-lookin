@@ -1,4 +1,5 @@
 #import "LKCLIEvalCommand.h"
+#import "LKCLIArgumentParser.h"
 #import "LKCLICallCommand.h"
 #import "LKCLIStdIO.h"
 
@@ -10,17 +11,17 @@
 
     for (NSUInteger idx = 0; idx < arguments.count; idx++) {
         NSString *argument = arguments[idx];
-        if ([argument isEqualToString:@"--help"] || [argument isEqualToString:@"-h"]) {
+        if ([LKCLIArgumentParser isHelpArgument:argument]) {
             [self printHelp];
             return LKCLIExitCodeOK;
         }
 
         if ([argument isEqualToString:@"--selector"]) {
-            if (idx + 1 >= arguments.count) {
-                [LKCLIStdIO writeError:@"error: --selector requires a value"];
+            NSString *errorMessage = nil;
+            if (![LKCLIArgumentParser consumeValueForOption:argument arguments:arguments index:&idx value:&expression errorMessage:&errorMessage]) {
+                [LKCLIStdIO writeError:@"%@", errorMessage];
                 return LKCLIExitCodeUsage;
             }
-            expression = arguments[++idx];
             continue;
         }
 
@@ -29,12 +30,14 @@
             [argument isEqualToString:@"--port"] ||
             [argument isEqualToString:@"--device-id"] ||
             [argument isEqualToString:@"--oid"]) {
-            if (idx + 1 >= arguments.count) {
-                [LKCLIStdIO writeError:@"error: %@ requires a value", argument];
+            NSString *value = nil;
+            NSString *errorMessage = nil;
+            if (![LKCLIArgumentParser consumeValueForOption:argument arguments:arguments index:&idx value:&value errorMessage:&errorMessage]) {
+                [LKCLIStdIO writeError:@"%@", errorMessage];
                 return LKCLIExitCodeUsage;
             }
             [callArguments addObject:argument];
-            [callArguments addObject:arguments[++idx]];
+            [callArguments addObject:value];
             continue;
         }
 

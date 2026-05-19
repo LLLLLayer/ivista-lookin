@@ -1,11 +1,11 @@
 #import "LKCLIAppSelector.h"
+#import "LKCLIArgumentParser.h"
 #import "LKCLIConnectedApp.h"
 #import "LKCLIStdIO.h"
 #import "LookinAppInfo.h"
 
 @interface LKCLIAppSelector ()
 
-+ (BOOL)parseIntegerValue:(NSString *)value min:(NSInteger)min max:(NSInteger)max result:(NSInteger *)result;
 + (BOOL)app:(LKCLIConnectedApp *)app matchesSelection:(LKCLIAppSelection *)selection;
 - (NSString *)selectionDescription:(LKCLIAppSelection *)selection;
 
@@ -36,14 +36,11 @@
         return NO;
     }
 
-    if (*index + 1 >= arguments.count) {
-        if (errorMessage) {
-            *errorMessage = [NSString stringWithFormat:@"error: %@ requires a value", argument];
-        }
+    NSString *value = nil;
+    if (![LKCLIArgumentParser consumeValueForOption:argument arguments:arguments index:index value:&value errorMessage:errorMessage]) {
         return NO;
     }
 
-    NSString *value = arguments[++(*index)];
     if ([argument isEqualToString:@"--bundle-id"] || [argument isEqualToString:@"-b"]) {
         selection.bundleID = value;
         return YES;
@@ -60,7 +57,7 @@
     }
     if ([argument isEqualToString:@"--port"]) {
         NSInteger port = 0;
-        if (![self parseIntegerValue:value min:1 max:65535 result:&port]) {
+        if (![LKCLIArgumentParser parseIntegerValue:value min:1 max:65535 result:&port]) {
             if (errorMessage) {
                 *errorMessage = @"error: --port must be an integer between 1 and 65535";
             }
@@ -71,7 +68,7 @@
     }
     if ([argument isEqualToString:@"--device-id"]) {
         NSInteger deviceID = 0;
-        if (![self parseIntegerValue:value min:0 max:NSIntegerMax result:&deviceID]) {
+        if (![LKCLIArgumentParser parseIntegerValue:value min:0 max:NSIntegerMax result:&deviceID]) {
             if (errorMessage) {
                 *errorMessage = @"error: --device-id must be a non-negative integer";
             }
@@ -85,37 +82,6 @@
         *errorMessage = [NSString stringWithFormat:@"error: unknown app selector option '%@'", argument];
     }
     return NO;
-}
-
-+ (BOOL)parseIntegerValue:(NSString *)value min:(NSInteger)min max:(NSInteger)max result:(NSInteger *)result {
-    if (value.length == 0) {
-        return NO;
-    }
-
-    NSCharacterSet *digits = [NSCharacterSet characterSetWithCharactersInString:@"0123456789"];
-    if ([value rangeOfCharacterFromSet:digits.invertedSet].location != NSNotFound) {
-        return NO;
-    }
-
-    NSString *normalizedValue = value;
-    while (normalizedValue.length > 1 && [normalizedValue hasPrefix:@"0"]) {
-        normalizedValue = [normalizedValue substringFromIndex:1];
-    }
-
-    NSString *maxValue = [NSString stringWithFormat:@"%ld", (long)max];
-    if (normalizedValue.length > maxValue.length ||
-        (normalizedValue.length == maxValue.length && [normalizedValue compare:maxValue] == NSOrderedDescending)) {
-        return NO;
-    }
-
-    NSInteger integerValue = value.integerValue;
-    if (integerValue < min || integerValue > max) {
-        return NO;
-    }
-    if (result) {
-        *result = integerValue;
-    }
-    return YES;
 }
 
 + (NSArray<LKCLIConnectedApp *> *)appsFromAppsValue:(id)appsValue

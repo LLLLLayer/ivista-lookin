@@ -1,7 +1,9 @@
 #import "LKCLIAppsCommand.h"
 #import "LKCLIAppScanner.h"
 #import "LKCLIAppSelector.h"
+#import "LKCLIArgumentParser.h"
 #import "LKCLIConnectedApp.h"
+#import "LKCLIJSONWriter.h"
 #import "LKCLISignalRunner.h"
 #import "LKCLIStdIO.h"
 #import "LookinAppInfo.h"
@@ -15,7 +17,7 @@
         NSString *argument = arguments[idx];
         if ([argument isEqualToString:@"--json"]) {
             json = YES;
-        } else if ([argument isEqualToString:@"--help"] || [argument isEqualToString:@"-h"]) {
+        } else if ([LKCLIArgumentParser isHelpArgument:argument]) {
             [self printHelp];
             return LKCLIExitCodeOK;
         } else if ([LKCLIAppSelector isSelectionArgument:argument]) {
@@ -118,16 +120,7 @@
         [objects addObject:object.copy];
     }
 
-    NSError *error = nil;
-    NSJSONWritingOptions options = objects.count ? (NSJSONWritingPrettyPrinted | NSJSONWritingSortedKeys) : NSJSONWritingSortedKeys;
-    NSData *data = [NSJSONSerialization dataWithJSONObject:objects options:options error:&error];
-    if (!data) {
-        [LKCLIStdIO writeError:@"error: %@", error.localizedDescription ?: @"failed to encode JSON"];
-        return LKCLIExitCodeGeneralError;
-    }
-    NSString *jsonString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    [LKCLIStdIO writeOut:@"%@", jsonString];
-    return LKCLIExitCodeOK;
+    return [LKCLIJSONWriter printJSONObject:objects];
 }
 
 + (NSString *)deviceTypeName:(LookinAppInfoDevice)deviceType {

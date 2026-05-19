@@ -8,6 +8,15 @@
     return [argument isEqualToString:@"--help"] || [argument isEqualToString:@"-h"];
 }
 
++ (BOOL)argumentsContainHelp:(NSArray<NSString *> *)arguments {
+    for (NSString *argument in arguments) {
+        if ([self isHelpArgument:argument]) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
 + (BOOL)consumeValueForOption:(NSString *)option
                     arguments:(NSArray<NSString *> *)arguments
                         index:(NSUInteger *)index

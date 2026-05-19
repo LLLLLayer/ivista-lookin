@@ -1,8 +1,10 @@
 #import "LKCLICallCommand.h"
 #import "LKCLIAppScanner.h"
 #import "LKCLIAppSelector.h"
+#import "LKCLIArgumentParser.h"
 #import "LKCLIConnectedApp.h"
 #import "LKCLIDisplayItemFetcher.h"
+#import "LKCLIJSONWriter.h"
 #import "LKCLISignalRunner.h"
 #import "LKCLIStdIO.h"
 #import "LookinAppInfo.h"
@@ -19,7 +21,7 @@
 
     for (NSUInteger idx = 0; idx < arguments.count; idx++) {
         NSString *argument = arguments[idx];
-        if ([argument isEqualToString:@"--help"] || [argument isEqualToString:@"-h"]) {
+        if ([LKCLIArgumentParser isHelpArgument:argument]) {
             [self printHelp];
             return LKCLIExitCodeOK;
         } else if ([argument isEqualToString:@"--json"]) {
@@ -31,21 +33,22 @@
                 return LKCLIExitCodeUsage;
             }
         } else if ([argument isEqualToString:@"--oid"]) {
-            if (idx + 1 >= arguments.count) {
-                [LKCLIStdIO writeError:@"error: --oid requires a value"];
+            NSString *oidValue = nil;
+            NSString *errorMessage = nil;
+            if (![LKCLIArgumentParser consumeValueForOption:argument arguments:arguments index:&idx value:&oidValue errorMessage:&errorMessage]) {
+                [LKCLIStdIO writeError:@"%@", errorMessage];
                 return LKCLIExitCodeUsage;
             }
-            NSString *oidValue = arguments[++idx];
             if (![LKCLIDisplayItemFetcher parseOIDValue:oidValue oid:&oid]) {
                 [LKCLIStdIO writeError:@"error: --oid must be a positive integer"];
                 return LKCLIExitCodeUsage;
             }
         } else if ([argument isEqualToString:@"--selector"]) {
-            if (idx + 1 >= arguments.count) {
-                [LKCLIStdIO writeError:@"error: --selector requires a value"];
+            NSString *errorMessage = nil;
+            if (![LKCLIArgumentParser consumeValueForOption:argument arguments:arguments index:&idx value:&selectorName errorMessage:&errorMessage]) {
+                [LKCLIStdIO writeError:@"%@", errorMessage];
                 return LKCLIExitCodeUsage;
             }
-            selectorName = arguments[++idx];
         } else {
             [LKCLIStdIO writeError:@"error: unknown option '%@'", argument];
             [LKCLIStdIO writeError:@"hint: run 'ivista-lookin call --help'"];
@@ -158,15 +161,7 @@
     root[@"returnDescription"] = [self returnDescriptionFromResult:result] ?: [NSNull null];
     root[@"returnObject"] = object ? [self JSONObjectForObject:object] : [NSNull null];
 
-    NSError *error = nil;
-    NSData *data = [NSJSONSerialization dataWithJSONObject:root options:NSJSONWritingPrettyPrinted | NSJSONWritingSortedKeys error:&error];
-    if (!data) {
-        [LKCLIStdIO writeError:@"error: %@", error.localizedDescription ?: @"failed to encode JSON"];
-        return LKCLIExitCodeGeneralError;
-    }
-    NSString *jsonString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    [LKCLIStdIO writeOut:@"%@", jsonString];
-    return LKCLIExitCodeOK;
+    return [LKCLIJSONWriter printJSONObject:root];
 }
 
 + (NSString *)returnDescriptionFromResult:(NSDictionary *)result {

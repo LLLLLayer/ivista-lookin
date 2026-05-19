@@ -48,19 +48,19 @@
             selectorName = arguments[++idx];
         } else {
             [LKCLIStdIO writeError:@"error: unknown option '%@'", argument];
-            [LKCLIStdIO writeError:@"hint: run 'lookin call --help'"];
+            [LKCLIStdIO writeError:@"hint: run 'ivista-lookin call --help'"];
             return LKCLIExitCodeUsage;
         }
     }
 
     if (selection.bundleID.length == 0) {
         [LKCLIStdIO writeError:@"error: --bundle-id is required"];
-        [LKCLIStdIO writeError:@"hint: run 'lookin apps --json' to find bundle identifiers"];
+        [LKCLIStdIO writeError:@"hint: run 'ivista-lookin apps --json' to find bundle identifiers"];
         return LKCLIExitCodeUsage;
     }
     if (oid == 0) {
         [LKCLIStdIO writeError:@"error: --oid is required"];
-        [LKCLIStdIO writeError:@"hint: run 'lookin tree --bundle-id %@' to find object ids", selection.bundleID];
+        [LKCLIStdIO writeError:@"hint: run 'ivista-lookin tree --bundle-id %@' to find object ids", selection.bundleID];
         return LKCLIExitCodeUsage;
     }
     if (selectorName.length == 0) {
@@ -69,7 +69,7 @@
     }
     if ([selectorName containsString:@":"]) {
         [LKCLIStdIO writeError:@"error: LookinCLI only supports no-argument selectors for now"];
-        [LKCLIStdIO writeError:@"hint: run 'lookin selectors --bundle-id %@ --oid %lu' to list supported methods", selection.bundleID, oid];
+        [LKCLIStdIO writeError:@"hint: run 'ivista-lookin selectors --bundle-id %@ --oid %lu' to list supported methods", selection.bundleID, oid];
         return LKCLIExitCodeUnsupported;
     }
 
@@ -115,7 +115,7 @@
 + (void)printHelp {
     [LKCLIStdIO writeOut:
      @"Usage:\n"
-      "  lookin call --bundle-id <bundle-id> --oid <oid> --selector <selector> [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
+      "  ivista-lookin call --bundle-id <bundle-id> --oid <oid> --selector <selector> [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
       "\n"
       "Invoke a no-argument selector on an object."];
 }

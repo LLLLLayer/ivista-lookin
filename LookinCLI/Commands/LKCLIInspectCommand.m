@@ -41,19 +41,19 @@
             }
         } else {
             [LKCLIStdIO writeError:@"error: unknown option '%@'", argument];
-            [LKCLIStdIO writeError:@"hint: run 'lookin inspect --help'"];
+            [LKCLIStdIO writeError:@"hint: run 'ivista-lookin inspect --help'"];
             return LKCLIExitCodeUsage;
         }
     }
 
     if (selection.bundleID.length == 0) {
         [LKCLIStdIO writeError:@"error: --bundle-id is required"];
-        [LKCLIStdIO writeError:@"hint: run 'lookin apps --json' to find bundle identifiers"];
+        [LKCLIStdIO writeError:@"hint: run 'ivista-lookin apps --json' to find bundle identifiers"];
         return LKCLIExitCodeUsage;
     }
     if (oid == 0) {
         [LKCLIStdIO writeError:@"error: --oid is required"];
-        [LKCLIStdIO writeError:@"hint: run 'lookin tree --bundle-id %@' to find object ids", selection.bundleID];
+        [LKCLIStdIO writeError:@"hint: run 'ivista-lookin tree --bundle-id %@' to find object ids", selection.bundleID];
         return LKCLIExitCodeUsage;
     }
 
@@ -73,7 +73,7 @@
 + (void)printHelp {
     [LKCLIStdIO writeOut:
      @"Usage:\n"
-      "  lookin inspect --bundle-id <bundle-id> --oid <oid> [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
+      "  ivista-lookin inspect --bundle-id <bundle-id> --oid <oid> [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
       "\n"
       "Fetch object metadata and dashboard attributes for a reachable iOS app."];
 }

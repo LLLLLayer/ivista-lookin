@@ -10,12 +10,12 @@ Environment:
   FORMULA_PATH  Formula path. Default: Formula/ivista-lookin.rb
 
 Examples:
-  ./Scripts/update-homebrew-formula.sh v0.1.0 \
-    https://github.com/LLLLLayer/ivista-lookin/releases/download/v0.1.0/lookin-cli-macos-universal.zip
+  ./Scripts/update-homebrew-formula.sh v0.1.1 \
+    https://github.com/LLLLLayer/ivista-lookin/releases/download/v0.1.1/ivista-lookin-macos-universal.zip
 
-  ./Scripts/update-homebrew-formula.sh v0.1.0 \
-    https://github.com/LLLLLayer/ivista-lookin/releases/download/v0.1.0/lookin-cli-macos-universal.zip \
-    build/LookinCLI/lookin-cli-macos-universal.zip
+  ./Scripts/update-homebrew-formula.sh v0.1.1 \
+    https://github.com/LLLLLayer/ivista-lookin/releases/download/v0.1.1/ivista-lookin-macos-universal.zip \
+    build/LookinCLI/ivista-lookin-macos-universal.zip
 USAGE
 }
 
@@ -34,7 +34,7 @@ ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 VERSION_INPUT="$1"
 ZIP_URL="$2"
-ZIP_PATH="${3:-${ROOT_DIR}/build/LookinCLI/lookin-cli-macos-universal.zip}"
+ZIP_PATH="${3:-${ROOT_DIR}/build/LookinCLI/ivista-lookin-macos-universal.zip}"
 FORMULA_PATH="${FORMULA_PATH:-${ROOT_DIR}/Formula/ivista-lookin.rb}"
 
 if [[ ! -f "${ZIP_PATH}" ]]; then

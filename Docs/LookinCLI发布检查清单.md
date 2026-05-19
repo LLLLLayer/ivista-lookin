@@ -30,8 +30,8 @@ pod install
 期望产物：
 
 ```text
-build/LookinCLI/lookin-cli-macos-universal/
-build/LookinCLI/lookin-cli-macos-universal.zip
+build/LookinCLI/ivista-lookin-macos-universal/
+build/LookinCLI/ivista-lookin-macos-universal.zip
 ```
 
 默认产物是 universal binary。如果只构建单架构，package 名称会根据 `lipo -archs` 自动变成对应架构。
@@ -41,18 +41,18 @@ build/LookinCLI/lookin-cli-macos-universal.zip
 检查 zip 清单：
 
 ```bash
-zipinfo -1 build/LookinCLI/lookin-cli-macos-universal.zip | head -80
+zipinfo -1 build/LookinCLI/ivista-lookin-macos-universal.zip | head -80
 ```
 
 必须包含：
 
 ```text
-lookin-cli-macos-universal/lookin
-lookin-cli-macos-universal/Frameworks/LookinShared.framework/
-lookin-cli-macos-universal/Frameworks/ReactiveObjC.framework/
-lookin-cli-macos-universal/LICENSE
-lookin-cli-macos-universal/README.md
-lookin-cli-macos-universal/install.sh
+ivista-lookin-macos-universal/ivista-lookin
+ivista-lookin-macos-universal/Frameworks/LookinShared.framework/
+ivista-lookin-macos-universal/Frameworks/ReactiveObjC.framework/
+ivista-lookin-macos-universal/LICENSE
+ivista-lookin-macos-universal/README.md
+ivista-lookin-macos-universal/install.sh
 ```
 
 不应包含：
@@ -68,7 +68,7 @@ Lookin.app
 确认架构：
 
 ```bash
-lipo -archs build/LookinCLI/lookin-cli-macos-universal/lookin
+lipo -archs build/LookinCLI/ivista-lookin-macos-universal/ivista-lookin
 ```
 
 universal 产物应输出：
@@ -80,7 +80,7 @@ x86_64 arm64
 确认 rpath：
 
 ```bash
-otool -l build/LookinCLI/lookin-cli-macos-universal/lookin | rg -A2 LC_RPATH
+otool -l build/LookinCLI/ivista-lookin-macos-universal/ivista-lookin | rg -A2 LC_RPATH
 ```
 
 必须包含：
@@ -92,7 +92,7 @@ otool -l build/LookinCLI/lookin-cli-macos-universal/lookin | rg -A2 LC_RPATH
 确认没有开发机临时路径：
 
 ```bash
-otool -L build/LookinCLI/lookin-cli-macos-universal/lookin | rg 'DerivedData|Lookin.app|/Applications' || true
+otool -L build/LookinCLI/ivista-lookin-macos-universal/ivista-lookin | rg 'DerivedData|Lookin.app|/Applications' || true
 ```
 
 期望无输出。
@@ -102,7 +102,7 @@ otool -L build/LookinCLI/lookin-cli-macos-universal/lookin | rg 'DerivedData|Loo
 MVP 内部验证使用 ad-hoc signing：
 
 ```bash
-codesign --verify --deep --strict build/LookinCLI/lookin-cli-macos-universal/lookin
+codesign --verify --deep --strict build/LookinCLI/ivista-lookin-macos-universal/ivista-lookin
 ```
 
 正式公开发布时，应改用 Developer ID 签名并 notarize。
@@ -113,8 +113,8 @@ codesign --verify --deep --strict build/LookinCLI/lookin-cli-macos-universal/loo
 
 ```bash
 TMP_ZIP="$(mktemp -d)"
-unzip -q build/LookinCLI/lookin-cli-macos-universal.zip -d "$TMP_ZIP"
-"$TMP_ZIP/lookin-cli-macos-universal/lookin" --version
+unzip -q build/LookinCLI/ivista-lookin-macos-universal.zip -d "$TMP_ZIP"
+"$TMP_ZIP/ivista-lookin-macos-universal/ivista-lookin" --version
 rm -rf "$TMP_ZIP"
 ```
 
@@ -127,13 +127,13 @@ rm -rf "$TMP_ZIP"
 ```bash
 TMP_INSTALL="$(mktemp -d)"
 INSTALL_PREFIX="$TMP_INSTALL/prefix" BIN_DIR="$TMP_INSTALL/bin" SUDO= \
-  build/LookinCLI/lookin-cli-macos-universal/install.sh \
-  build/LookinCLI/lookin-cli-macos-universal
-"$TMP_INSTALL/bin/lookin" --version
+  build/LookinCLI/ivista-lookin-macos-universal/install.sh \
+  build/LookinCLI/ivista-lookin-macos-universal
+"$TMP_INSTALL/bin/ivista-lookin" --version
 rm -rf "$TMP_INSTALL"
 ```
 
-期望安装脚本成功创建 symlink，并且安装后的 `lookin` 可运行。
+期望安装脚本成功创建 symlink，并且安装后的 `ivista-lookin` 可运行。
 
 ## 8. 本地 Smoke Test
 
@@ -141,24 +141,24 @@ rm -rf "$TMP_INSTALL"
 
 ```bash
 SKIP_DEVICE_TESTS=1 \
-./Scripts/smoke-lookin-cli.sh build/LookinCLI/lookin-cli-macos-universal
+./Scripts/smoke-lookin-cli.sh build/LookinCLI/ivista-lookin-macos-universal
 ```
 
 覆盖：
 
-1. `lookin --version`
-2. `lookin --help`
-3. `lookin tree --help`
-4. `lookin find --help`
-5. `lookin set --help`
-6. `lookin doctor`
+1. `ivista-lookin --version`
+2. `ivista-lookin --help`
+3. `ivista-lookin tree --help`
+4. `ivista-lookin find --help`
+5. `ivista-lookin set --help`
+6. `ivista-lookin doctor`
 
 ## 9. App 连接 Smoke Test
 
 如果当前有可连接 App，运行：
 
 ```bash
-./Scripts/smoke-lookin-cli.sh build/LookinCLI/lookin-cli-macos-universal
+./Scripts/smoke-lookin-cli.sh build/LookinCLI/ivista-lookin-macos-universal
 ```
 
 如果要强制指定真机 App：
@@ -168,7 +168,7 @@ BUNDLE_ID=com.example.demo \
 TRANSPORT=usb \
 QUERY=UILabel \
 REQUIRE_APP=1 \
-./Scripts/smoke-lookin-cli.sh build/LookinCLI/lookin-cli-macos-universal
+./Scripts/smoke-lookin-cli.sh build/LookinCLI/ivista-lookin-macos-universal
 ```
 
 如果指定 `OID`，还会额外验证 `tree --oid`、`inspect --json` 和 `attrs --json`。如果同时指定 `SET_ATTR` 和 `SET_VALUE`，还会额外验证 `set --dry-run --json`：
@@ -180,7 +180,7 @@ OID=130 \
 SET_ATTR=l_f_f \
 SET_VALUE='0,0,120,44' \
 REQUIRE_APP=1 \
-./Scripts/smoke-lookin-cli.sh build/LookinCLI/lookin-cli-macos-universal
+./Scripts/smoke-lookin-cli.sh build/LookinCLI/ivista-lookin-macos-universal
 ```
 
 ## 10. Release Zip 验收
@@ -188,14 +188,14 @@ REQUIRE_APP=1 \
 发布前用 zip 做一次从零解压验收：
 
 ```bash
-./Scripts/verify-lookin-cli-release.sh build/LookinCLI/lookin-cli-macos-universal.zip
+./Scripts/verify-lookin-cli-release.sh build/LookinCLI/ivista-lookin-macos-universal.zip
 ```
 
 该脚本会：
 
 1. 输出 `shasum -a 256`。
 2. 解压 zip 到临时目录。
-3. 检查 `lookin`、`Frameworks/LookinShared.framework`、`Frameworks/ReactiveObjC.framework`、`install.sh` 和 `README.md`。
+3. 检查 `ivista-lookin`、`Frameworks/LookinShared.framework`、`Frameworks/ReactiveObjC.framework`、`install.sh` 和 `README.md`。
 4. 检查 `@executable_path/Frameworks` rpath。
 5. 执行 `codesign --verify --deep`。
 6. 使用解压出的二进制运行 `smoke-lookin-cli.sh`。
@@ -206,7 +206,7 @@ REQUIRE_APP=1 \
 BUNDLE_ID=com.example.demo \
 TRANSPORT=usb \
 REQUIRE_APP=1 \
-./Scripts/verify-lookin-cli-release.sh build/LookinCLI/lookin-cli-macos-universal.zip
+./Scripts/verify-lookin-cli-release.sh build/LookinCLI/ivista-lookin-macos-universal.zip
 ```
 
 ## 11. 手动抽查
@@ -214,15 +214,15 @@ REQUIRE_APP=1 \
 建议至少抽查以下命令：
 
 ```bash
-build/LookinCLI/lookin-cli-macos-universal/lookin apps --json
-build/LookinCLI/lookin-cli-macos-universal/lookin tree --bundle-id com.example.demo --depth 1 --json
-build/LookinCLI/lookin-cli-macos-universal/lookin find --bundle-id com.example.demo UILabel --limit 5 --json
+build/LookinCLI/ivista-lookin-macos-universal/ivista-lookin apps --json
+build/LookinCLI/ivista-lookin-macos-universal/ivista-lookin tree --bundle-id com.example.demo --depth 1 --json
+build/LookinCLI/ivista-lookin-macos-universal/ivista-lookin find --bundle-id com.example.demo UILabel --limit 5 --json
 ```
 
 JSON 输出应能被解析：
 
 ```bash
-build/LookinCLI/lookin-cli-macos-universal/lookin apps --json | jq .
+build/LookinCLI/ivista-lookin-macos-universal/ivista-lookin apps --json | jq .
 ```
 
 ## 12. 发布前记录
@@ -239,20 +239,20 @@ build/LookinCLI/lookin-cli-macos-universal/lookin apps --json | jq .
 生成 checksum：
 
 ```bash
-shasum -a 256 build/LookinCLI/lookin-cli-macos-universal.zip
+shasum -a 256 build/LookinCLI/ivista-lookin-macos-universal.zip
 ```
 
 ## 13. Homebrew Formula
 
-本仓库维护 `Formula/ivista-lookin.rb`，可复制到 `homebrew-lookin` tap 仓库的 `Formula/ivista-lookin.rb`。
+本仓库维护 `Formula/ivista-lookin.rb`，可复制到 `homebrew-ivista-lookin` tap 仓库的 `Formula/ivista-lookin.rb`。
 
 更新 formula 的 URL、version 和 sha256：
 
 ```bash
 ./Scripts/update-homebrew-formula.sh \
-  v0.1.0 \
-  https://github.com/LLLLLayer/ivista-lookin/releases/download/v0.1.0/lookin-cli-macos-universal.zip \
-  build/LookinCLI/lookin-cli-macos-universal.zip
+  v0.1.1 \
+  https://github.com/LLLLLayer/ivista-lookin/releases/download/v0.1.1/ivista-lookin-macos-universal.zip \
+  build/LookinCLI/ivista-lookin-macos-universal.zip
 ```
 
 语法检查：
@@ -264,19 +264,19 @@ ruby -c Formula/ivista-lookin.rb
 发布到 tap 后，用户安装命令：
 
 ```bash
-brew install LLLLLayer/lookin/ivista-lookin
-lookin --version
+brew install LLLLLayer/ivista-lookin/ivista-lookin
+ivista-lookin --version
 ```
 
 本地调试 formula 时，可先创建临时 tap，再把 formula 放入 tap 中执行安装和测试。Homebrew 5.1 起不再接受从任意 path 直接安装 formula：
 
 ```bash
-brew tap-new LLLLLayer/lookin
-cp Formula/ivista-lookin.rb "$(brew --repository LLLLLayer/lookin)/Formula/ivista-lookin.rb"
-brew install LLLLLayer/lookin/ivista-lookin
-brew test LLLLLayer/lookin/ivista-lookin
+brew tap-new LLLLLayer/ivista-lookin
+cp Formula/ivista-lookin.rb "$(brew --repository LLLLLayer/ivista-lookin)/Formula/ivista-lookin.rb"
+brew install LLLLLayer/ivista-lookin/ivista-lookin
+brew test LLLLLayer/ivista-lookin/ivista-lookin
 brew uninstall ivista-lookin
-brew untap LLLLLayer/lookin
+brew untap LLLLLayer/ivista-lookin
 ```
 
 ## 14. 当前 MVP 边界

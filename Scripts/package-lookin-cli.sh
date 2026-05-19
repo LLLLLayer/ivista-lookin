@@ -9,10 +9,10 @@ Usage:
 Environment:
   PRODUCT_DIR      Xcode build product dir. Default: DerivedData/LookinCLIRelease/Build/Products/Release
   OUTPUT_DIR       Output root. Default: build/LookinCLI
-  PACKAGE_NAME     Package directory and zip basename. Default: derived from lookin binary archs
+  PACKAGE_NAME     Package directory and zip basename. Default: derived from ivista-lookin binary archs
   SKIP_CODESIGN    Set to 1 to skip ad-hoc signing.
 
-The package contains lookin, Frameworks/, LICENSE, README.md, and install.sh.
+The package contains ivista-lookin, Frameworks/, LICENSE, README.md, and install.sh.
 USAGE
 }
 
@@ -28,23 +28,24 @@ PRODUCT_DIR="${PRODUCT_DIR:-${ROOT_DIR}/DerivedData/LookinCLIRelease/Build/Produ
 OUTPUT_DIR="${OUTPUT_DIR:-${ROOT_DIR}/build/LookinCLI}"
 PACKAGE_NAME="${PACKAGE_NAME:-}"
 SKIP_CODESIGN="${SKIP_CODESIGN:-0}"
+CLI_NAME="ivista-lookin"
 
-LOOKIN_BIN="${PRODUCT_DIR}/lookin"
+CLI_BIN="${PRODUCT_DIR}/${CLI_NAME}"
 
-if [[ ! -x "${LOOKIN_BIN}" ]]; then
-  echo "error: executable not found: ${LOOKIN_BIN}" >&2
+if [[ ! -x "${CLI_BIN}" ]]; then
+  echo "error: executable not found: ${CLI_BIN}" >&2
   echo "hint: run Scripts/build-lookin-cli.sh first, or set PRODUCT_DIR." >&2
   exit 1
 fi
 
 if [[ -z "${PACKAGE_NAME}" ]]; then
-  BINARY_ARCHS="$(lipo -archs "${LOOKIN_BIN}" 2>/dev/null || uname -m)"
+  BINARY_ARCHS="$(lipo -archs "${CLI_BIN}" 2>/dev/null || uname -m)"
   if [[ "${BINARY_ARCHS}" == *"arm64"* && "${BINARY_ARCHS}" == *"x86_64"* ]]; then
     PACKAGE_ARCH="universal"
   else
     PACKAGE_ARCH="${BINARY_ARCHS// /-}"
   fi
-  PACKAGE_NAME="lookin-cli-macos-${PACKAGE_ARCH}"
+  PACKAGE_NAME="ivista-lookin-macos-${PACKAGE_ARCH}"
 fi
 
 PACKAGE_DIR="${OUTPUT_DIR}/${PACKAGE_NAME}"
@@ -53,7 +54,7 @@ ZIP_PATH="${OUTPUT_DIR}/${PACKAGE_NAME}.zip"
 rm -rf "${PACKAGE_DIR}" "${ZIP_PATH}"
 mkdir -p "${PACKAGE_DIR}/Frameworks"
 
-cp -f "${LOOKIN_BIN}" "${PACKAGE_DIR}/lookin"
+cp -f "${CLI_BIN}" "${PACKAGE_DIR}/${CLI_NAME}"
 
 if [[ -d "${PRODUCT_DIR}/Frameworks" ]]; then
   cp -R "${PRODUCT_DIR}/Frameworks/." "${PACKAGE_DIR}/Frameworks/"
@@ -87,11 +88,11 @@ cat > "${PACKAGE_DIR}/README.md" <<'README'
 Run from this directory:
 
 ```bash
-./lookin --version
-./lookin apps
+./ivista-lookin --version
+./ivista-lookin apps
 ```
 
-Install into `/usr/local/bin/lookin`:
+Install into `/usr/local/bin/ivista-lookin`:
 
 ```bash
 ./install.sh
@@ -112,12 +113,12 @@ has_rpath() {
   otool -l "${binary}" | awk '/LC_RPATH/{flag=1; next} flag && /path /{print $2; flag=0}' | grep -Fxq "${rpath}"
 }
 
-if ! has_rpath "${PACKAGE_DIR}/lookin" "@executable_path/Frameworks"; then
-  install_name_tool -add_rpath "@executable_path/Frameworks" "${PACKAGE_DIR}/lookin"
+if ! has_rpath "${PACKAGE_DIR}/${CLI_NAME}" "@executable_path/Frameworks"; then
+  install_name_tool -add_rpath "@executable_path/Frameworks" "${PACKAGE_DIR}/${CLI_NAME}"
 fi
 
 if [[ "${SKIP_CODESIGN}" != "1" ]]; then
-  codesign --force --deep --sign - "${PACKAGE_DIR}/lookin" >/dev/null
+  codesign --force --deep --sign - "${PACKAGE_DIR}/${CLI_NAME}" >/dev/null
   find "${PACKAGE_DIR}/Frameworks" -maxdepth 1 -type d -name '*.framework' -print0 | while IFS= read -r -d '' framework; do
     codesign --force --deep --sign - "${framework}" >/dev/null
   done

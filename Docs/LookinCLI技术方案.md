@@ -58,7 +58,7 @@ LookinCLI
 
 ```text
 Target: LookinCLI
-Product: lookin
+Product: ivista-lookin
 Language: Objective-C
 Deployment Target: macOS 11.0，或跟随 LookinClient
 ```
@@ -269,7 +269,7 @@ CLI 第一版可以复用相同流程，但建议加一层命令行服务：
 4. `--device-id <id>` 用于锁定 USB 设备。
 5. 匹配 0 个 App 返回 `LKCLIExitCodeNoApp`。
 6. 匹配多个 App 返回 `LKCLIExitCodeAmbiguousApp`，并提示继续补选择参数。
-7. `lookin apps` 可以使用同一组选项进行过滤，但会保留 server version error 记录，方便诊断。
+7. `ivista-lookin apps` 可以使用同一组选项进行过滤，但会保留 server version error 记录，方便诊断。
 
 ## tree 输出方案
 
@@ -413,22 +413,22 @@ JSON 错误可后续支持：
 支持：
 
 ```text
-lookin --help
-lookin --version
-lookin doctor
-lookin apps [--json] [--bundle-id ...] [--transport simulator|usb] [--port ...] [--device-id ...]
-lookin inspect --bundle-id ... --oid ... [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
-lookin attrs --bundle-id ... --oid ... [--group ...] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
-lookin screenshot --bundle-id ... --oid ... --out ... [--type group|solo] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
-lookin export --bundle-id ... --out ... [--compression 0.01-1] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
-lookin tree --bundle-id ... [--depth N] [--filter ...] [--oid ...] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
-lookin find --bundle-id ... <query> [--limit N] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
-lookin find --bundle-id ... --oid ... [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
-lookin selectors --bundle-id ... (--class ... | --oid ...) [--with-args] [--filter ...] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
-lookin call --bundle-id ... --oid ... --selector ... [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
-lookin eval --bundle-id ... --oid ... <property-or-method> [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
-lookin console --bundle-id ... --oid ... [--transport simulator|usb] [--port ...] [--device-id ...]
-lookin set --bundle-id ... --oid ... --attr ... --value ... [--dry-run] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
+ivista-lookin --help
+ivista-lookin --version
+ivista-lookin doctor
+ivista-lookin apps [--json] [--bundle-id ...] [--transport simulator|usb] [--port ...] [--device-id ...]
+ivista-lookin inspect --bundle-id ... --oid ... [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
+ivista-lookin attrs --bundle-id ... --oid ... [--group ...] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
+ivista-lookin screenshot --bundle-id ... --oid ... --out ... [--type group|solo] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
+ivista-lookin export --bundle-id ... --out ... [--compression 0.01-1] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
+ivista-lookin tree --bundle-id ... [--depth N] [--filter ...] [--oid ...] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
+ivista-lookin find --bundle-id ... <query> [--limit N] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
+ivista-lookin find --bundle-id ... --oid ... [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
+ivista-lookin selectors --bundle-id ... (--class ... | --oid ...) [--with-args] [--filter ...] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
+ivista-lookin call --bundle-id ... --oid ... --selector ... [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
+ivista-lookin eval --bundle-id ... --oid ... <property-or-method> [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
+ivista-lookin console --bundle-id ... --oid ... [--transport simulator|usb] [--port ...] [--device-id ...]
+ivista-lookin set --bundle-id ... --oid ... --attr ... --value ... [--dry-run] [--json] [--transport simulator|usb] [--port ...] [--device-id ...]
 ```
 
 如果后续命令复杂度显著上升，再评估是否引入 argument parser 库。
@@ -438,7 +438,7 @@ lookin set --bundle-id ... --oid ... --attr ... --value ... [--dry-run] [--json]
 Release zip 内容：
 
 ```text
-lookin
+ivista-lookin
 Frameworks/
   LookinShared.framework
   ReactiveObjC.framework
@@ -456,8 +456,8 @@ install.sh
 该脚本会执行 `LookinCLI` Release build，并继续调用 `Scripts/package-lookin-cli.sh` 产出：
 
 ```text
-build/LookinCLI/lookin-cli-macos-<arch-or-universal>/
-build/LookinCLI/lookin-cli-macos-<arch-or-universal>.zip
+build/LookinCLI/ivista-lookin-macos-<arch-or-universal>/
+build/LookinCLI/ivista-lookin-macos-<arch-or-universal>.zip
 ```
 
 `package-lookin-cli.sh` 支持以下环境变量：
@@ -472,19 +472,19 @@ SKIP_CODESIGN=1      # 跳过 ad-hoc codesign
 打包后处理：
 
 ```bash
-otool -L lookin
-install_name_tool -add_rpath @executable_path/Frameworks lookin
-codesign --force --deep --sign - lookin Frameworks/*.framework
+otool -L ivista-lookin
+install_name_tool -add_rpath @executable_path/Frameworks ivista-lookin
+codesign --force --deep --sign - ivista-lookin Frameworks/*.framework
 ```
 
 正式发布时应使用 Developer ID 签名和 notarization；MVP 可以先 ad-hoc 签名用于内部验证。
 
 发布验收：
 
-1. 在未安装 Lookin.app 的机器上运行 `./lookin --version`。
-2. `otool -L lookin` 不包含 DerivedData、Pods build 临时目录、`/Applications/Lookin.app`。
-3. `lookin apps` 能发现模拟器 Debug App。
-4. `lookin tree --json` 能输出合法 JSON。
+1. 在未安装 Lookin.app 的机器上运行 `./ivista-lookin --version`。
+2. `otool -L ivista-lookin` 不包含 DerivedData、Pods build 临时目录、`/Applications/Lookin.app`。
+3. `ivista-lookin apps` 能发现模拟器 Debug App。
+4. `ivista-lookin tree --json` 能输出合法 JSON。
 
 ## 实现顺序
 
@@ -501,8 +501,8 @@ codesign --force --deep --sign - lookin Frameworks/*.framework
 1. 在 CLI 内新增轻量连接扫描器，复用 Peertalk、`LookinConnectionAttachment`、`LookinConnectionResponseAttachment` 和 `LookinAppInfo`。
 2. 暂不把 `LKConnectionManager` / `LKAppsManager` / `LKInspectableApp` 直接加入 CLI target，避免把 `LKNavigationManager`、`LKHelper` 等 AppKit/UI 依赖带进命令行工具。
 3. 实现 `LKCLISignalRunner`，用 run loop 驱动 RAC/Peertalk 异步回调。
-4. 实现 `lookin apps` 文本输出。
-5. 实现 `lookin apps --json`。
+4. 实现 `ivista-lookin apps` 文本输出。
+5. 实现 `ivista-lookin apps --json`。
 
 ### Step 2.5: core extraction
 
@@ -529,7 +529,7 @@ codesign --force --deep --sign - lookin Frameworks/*.framework
 
 1. `selectors`：调用 `LookinRequestTypeAllSelectorNames`，支持按 class 直接查询，也支持按 oid 先取 `LookinObject.rawClassName` 再查询。
 2. `call`：调用 `LookinRequestTypeInvokeMethod`，第一版只允许无参数 selector，直接拒绝包含 `:` 的方法名。
-3. `eval`：`call` 的控制台友好别名，支持 `lookin eval ... frame --json` 这类“看属性/变量”的使用方式。
+3. `eval`：`call` 的控制台友好别名，支持 `ivista-lookin eval ... frame --json` 这类“看属性/变量”的使用方式。
 4. `console`：复用 `LookinRequestTypeFetchObject`、`LookinRequestTypeAllSelectorNames` 和 `LookinRequestTypeInvokeMethod`，提供轻量交互式控制台。
 5. `set`：先用 `attrs` 同源链路获取 `LookinAttribute`。内建属性由 `LookinDashboardBlueprint` 推导 setter 和目标 view/layer oid，再调用 `LookinRequestTypeInbuiltAttrModification`；自定义属性要求 `customSetterID` 非空，再调用 `LookinRequestTypeCustomAttrModification`。
 6. 类型转换和写操作安全提示：支持 bool、数字、字符串、point/size/rect/insets、color、enum 数值；没有 setter 的属性和复杂对象先返回 unsupported。
@@ -557,12 +557,12 @@ codesign --force --deep --sign - lookin Frameworks/*.framework
 
 当前 Phase 0 已完成：`LookinCLI` target、`--help`、`--version`、`doctor`、独立 framework 嵌入和原 `LookinClient` build 验证均已通过。
 
-当前 Phase 0.5 已完成：`lookin apps [--json]` 已打通发现可调试 App 的链路。
+当前 Phase 0.5 已完成：`ivista-lookin apps [--json]` 已打通发现可调试 App 的链路。
 
-当前 Phase 1 基础版已完成：`lookin tree --bundle-id <bundle-id> [--json] [--depth N] [--filter <text>] [--oid <oid>]` 可按 bundle id 拉取 UI 层级，并输出稳定文本或 JSON；`lookin find --bundle-id <bundle-id> <query> [--limit N] [--json]` 可按 class、custom title、memory address 或 oid 扁平搜索层级节点。
+当前 Phase 1 基础版已完成：`ivista-lookin tree --bundle-id <bundle-id> [--json] [--depth N] [--filter <text>] [--oid <oid>]` 可按 bundle id 拉取 UI 层级，并输出稳定文本或 JSON；`ivista-lookin find --bundle-id <bundle-id> <query> [--limit N] [--json]` 可按 class、custom title、memory address 或 oid 扁平搜索层级节点。
 
-当前 Phase 1.5 已完成基础链路：设备命令已加跨进程锁和空结果重试，降低真机 USB 并发扫描不稳定；`lookin inspect --bundle-id <bundle-id> --oid <oid> [--json]` 可按 oid 拉取对象信息和基础属性；`lookin attrs --bundle-id <bundle-id> --oid <oid> [--group <filter>] [--json]` 可单独输出属性详情；`lookin screenshot --bundle-id <bundle-id> --oid <oid> --out <path> [--type group|solo] [--json]` 可导出节点截图；`lookin export --bundle-id <bundle-id> --out <file.lookin> [--compression <0.01-1>] [--json]` 可导出离线快照；所有设备命令都支持 `--transport simulator|usb`、`--port <port>` 和 `--device-id <id>` 做 disambiguation。
+当前 Phase 1.5 已完成基础链路：设备命令已加跨进程锁和空结果重试，降低真机 USB 并发扫描不稳定；`ivista-lookin inspect --bundle-id <bundle-id> --oid <oid> [--json]` 可按 oid 拉取对象信息和基础属性；`ivista-lookin attrs --bundle-id <bundle-id> --oid <oid> [--group <filter>] [--json]` 可单独输出属性详情；`ivista-lookin screenshot --bundle-id <bundle-id> --oid <oid> --out <path> [--type group|solo] [--json]` 可导出节点截图；`ivista-lookin export --bundle-id <bundle-id> --out <file.lookin> [--compression <0.01-1>] [--json]` 可导出离线快照；所有设备命令都支持 `--transport simulator|usb`、`--port <port>` 和 `--device-id <id>` 做 disambiguation。
 
-当前 Phase 2 已开始：`lookin selectors --bundle-id <bundle-id> (--class <class-name> | --oid <oid>) [--with-args] [--filter <text>] [--json]` 可列出 selector；`lookin call --bundle-id <bundle-id> --oid <oid> --selector <selector> [--json]` 可调用无参数方法；`lookin eval --bundle-id <bundle-id> --oid <oid> <property-or-method> [--json]` 和 `lookin console --bundle-id <bundle-id> --oid <oid>` 覆盖 App Console 的核心“看属性/调用无参方法”能力；`lookin set --bundle-id <bundle-id> --oid <oid> --attr <identifier> --value <value> [--dry-run] [--json]` 可修改内建属性，以及带 `customSetterID` 的自定义属性。
+当前 Phase 2 已开始：`ivista-lookin selectors --bundle-id <bundle-id> (--class <class-name> | --oid <oid>) [--with-args] [--filter <text>] [--json]` 可列出 selector；`ivista-lookin call --bundle-id <bundle-id> --oid <oid> --selector <selector> [--json]` 可调用无参数方法；`ivista-lookin eval --bundle-id <bundle-id> --oid <oid> <property-or-method> [--json]` 和 `ivista-lookin console --bundle-id <bundle-id> --oid <oid>` 覆盖 App Console 的核心“看属性/调用无参方法”能力；`ivista-lookin set --bundle-id <bundle-id> --oid <oid> --attr <identifier> --value <value> [--dry-run] [--json]` 可修改内建属性，以及带 `customSetterID` 的自定义属性。
 
-当前 Phase 2.5 已开始：`Scripts/build-lookin-cli.sh` 可构建 Release 版 CLI 并调用 `Scripts/package-lookin-cli.sh` 生成可移动目录和 zip；zip 内包含 `install.sh`，支持安装到 `/usr/local/bin/lookin` 或用户自定义本地目录。后续需要在干净机器上做独立安装验收，并补 Homebrew tap。
+当前 Phase 2.5 已开始：`Scripts/build-lookin-cli.sh` 可构建 Release 版 CLI 并调用 `Scripts/package-lookin-cli.sh` 生成可移动目录和 zip；zip 内包含 `install.sh`，支持安装到 `/usr/local/bin/ivista-lookin` 或用户自定义本地目录。后续需要在干净机器上做独立安装验收，并补 Homebrew tap。

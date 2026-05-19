@@ -7,7 +7,7 @@
 @implementation LKCLIProcessLock
 
 + (LKCLIExitCode)runDeviceCommandWithBlock:(LKCLIExitCode (^)(void))block {
-    NSString *lockPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"lookin-cli-device.lock"];
+    NSString *lockPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"ivista-lookin-device.lock"];
     int fd = open(lockPath.fileSystemRepresentation, O_CREAT | O_RDWR, 0600);
     if (fd < 0) {
         [LKCLIStdIO writeError:@"warning: failed to open device lock, continuing without process serialization"];

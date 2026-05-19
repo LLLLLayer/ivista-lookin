@@ -7,7 +7,7 @@ Usage:
   verify-lookin-cli-release.sh [zip-path]
 
 Environment:
-  ZIP_PATH            Release zip path. Default: build/LookinCLI/lookin-cli-macos-universal.zip
+  ZIP_PATH            Release zip path. Default: build/LookinCLI/ivista-lookin-macos-universal.zip
   BUNDLE_ID           Optional target app bundle id for device smoke tests.
   TRANSPORT           Optional app selector: simulator or usb.
   PORT                Optional app selector port.
@@ -23,7 +23,7 @@ Environment:
 Examples:
   ./Scripts/verify-lookin-cli-release.sh
   REQUIRE_APP=1 BUNDLE_ID=com.example.demo TRANSPORT=usb ./Scripts/verify-lookin-cli-release.sh
-  OID=130 SET_ATTR=l_f_f SET_VALUE='0,0,120,44' ./Scripts/verify-lookin-cli-release.sh build/LookinCLI/lookin-cli-macos-universal.zip
+  OID=130 SET_ATTR=l_f_f SET_VALUE='0,0,120,44' ./Scripts/verify-lookin-cli-release.sh build/LookinCLI/ivista-lookin-macos-universal.zip
 USAGE
 }
 
@@ -40,7 +40,8 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-ZIP_PATH="${1:-${ZIP_PATH:-${ROOT_DIR}/build/LookinCLI/lookin-cli-macos-universal.zip}}"
+CLI_NAME="ivista-lookin"
+ZIP_PATH="${1:-${ZIP_PATH:-${ROOT_DIR}/build/LookinCLI/ivista-lookin-macos-universal.zip}}"
 
 log() {
   printf '==> %s\n' "$*"
@@ -71,20 +72,20 @@ shasum -a 256 "${ZIP_PATH}"
 log "Unzipping release package"
 /usr/bin/unzip -q "${ZIP_PATH}" -d "${TMP_DIR}"
 
-LOOKIN_BIN="$(find "${TMP_DIR}" -mindepth 2 -maxdepth 2 -type f -name lookin -perm -111 | head -n 1)"
-[[ -n "${LOOKIN_BIN}" ]] || fail "lookin executable not found in zip"
+CLI_BIN="$(find "${TMP_DIR}" -mindepth 2 -maxdepth 2 -type f -name "${CLI_NAME}" -perm -111 | head -n 1)"
+[[ -n "${CLI_BIN}" ]] || fail "${CLI_NAME} executable not found in zip"
 
-PACKAGE_DIR="$(cd "$(dirname "${LOOKIN_BIN}")" && pwd)"
+PACKAGE_DIR="$(cd "$(dirname "${CLI_BIN}")" && pwd)"
 [[ -d "${PACKAGE_DIR}/Frameworks/LookinShared.framework" ]] || fail "LookinShared.framework missing"
 [[ -d "${PACKAGE_DIR}/Frameworks/ReactiveObjC.framework" ]] || fail "ReactiveObjC.framework missing"
 [[ -f "${PACKAGE_DIR}/install.sh" ]] || fail "install.sh missing"
 [[ -f "${PACKAGE_DIR}/README.md" ]] || fail "README.md missing"
 
 log "Verifying binary layout"
-has_rpath "${LOOKIN_BIN}" "@executable_path/Frameworks" || fail "missing @executable_path/Frameworks rpath"
-codesign --verify --deep "${LOOKIN_BIN}"
+has_rpath "${CLI_BIN}" "@executable_path/Frameworks" || fail "missing @executable_path/Frameworks rpath"
+codesign --verify --deep "${CLI_BIN}"
 
 log "Running smoke tests from unpacked package"
-LOOKIN_BIN="${LOOKIN_BIN}" "${SCRIPT_DIR}/smoke-lookin-cli.sh"
+IVISTA_LOOKIN_BIN="${CLI_BIN}" "${SCRIPT_DIR}/smoke-lookin-cli.sh"
 
 log "Release verification passed: ${PACKAGE_DIR}"

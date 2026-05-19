@@ -67,24 +67,24 @@
             rawValue = arguments[++idx];
         } else {
             [LKCLIStdIO writeError:@"error: unknown option '%@'", argument];
-            [LKCLIStdIO writeError:@"hint: run 'lookin set --help'"];
+            [LKCLIStdIO writeError:@"hint: run 'ivista-lookin set --help'"];
             return LKCLIExitCodeUsage;
         }
     }
 
     if (selection.bundleID.length == 0) {
         [LKCLIStdIO writeError:@"error: --bundle-id is required"];
-        [LKCLIStdIO writeError:@"hint: run 'lookin apps --json' to find bundle identifiers"];
+        [LKCLIStdIO writeError:@"hint: run 'ivista-lookin apps --json' to find bundle identifiers"];
         return LKCLIExitCodeUsage;
     }
     if (oid == 0) {
         [LKCLIStdIO writeError:@"error: --oid is required"];
-        [LKCLIStdIO writeError:@"hint: run 'lookin tree --bundle-id %@' to find object ids", selection.bundleID];
+        [LKCLIStdIO writeError:@"hint: run 'ivista-lookin tree --bundle-id %@' to find object ids", selection.bundleID];
         return LKCLIExitCodeUsage;
     }
     if (attributeIdentifier.length == 0) {
         [LKCLIStdIO writeError:@"error: --attr is required"];
-        [LKCLIStdIO writeError:@"hint: run 'lookin attrs --bundle-id %@ --oid %lu --json' to find attribute identifiers", selection.bundleID, oid];
+        [LKCLIStdIO writeError:@"hint: run 'ivista-lookin attrs --bundle-id %@ --oid %lu --json' to find attribute identifiers", selection.bundleID, oid];
         return LKCLIExitCodeUsage;
     }
     if (rawValue == nil) {
@@ -101,7 +101,7 @@
     LookinAttribute *attribute = [self attributeWithIdentifier:attributeIdentifier inGroups:result.attributeGroups];
     if (!attribute) {
         [LKCLIStdIO writeError:@"error: no attribute found for identifier '%@'", attributeIdentifier];
-        [LKCLIStdIO writeError:@"hint: run 'lookin attrs --bundle-id %@ --oid %lu --json'", selection.bundleID, oid];
+        [LKCLIStdIO writeError:@"hint: run 'ivista-lookin attrs --bundle-id %@ --oid %lu --json'", selection.bundleID, oid];
         return LKCLIExitCodeUsage;
     }
     SEL setter = NULL;
@@ -185,9 +185,9 @@
 + (void)printHelp {
     [LKCLIStdIO writeOut:
      @"Usage:\n"
-      "  lookin set --bundle-id <bundle-id> --oid <oid> --attr <identifier> --value <value> [--dry-run] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
+      "  ivista-lookin set --bundle-id <bundle-id> --oid <oid> --attr <identifier> --value <value> [--dry-run] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
       "\n"
-      "Modify a settable built-in or custom dashboard attribute. Use 'lookin attrs --json' to find attribute identifiers or custom setter ids."];
+      "Modify a settable built-in or custom dashboard attribute. Use 'ivista-lookin attrs --json' to find attribute identifiers or custom setter ids."];
 }
 
 + (LookinAttribute *)attributeWithIdentifier:(NSString *)identifier inGroups:(NSArray<LookinAttributesGroup *> *)groups {
@@ -283,7 +283,7 @@
             return [self parsedColorComponentsFromString:rawValue errorMessage:errorMessage];
         default:
             if (errorMessage) {
-                *errorMessage = [NSString stringWithFormat:@"attribute type '%@' is not supported by 'lookin set' yet", [LKCLIAttributeFormatter nameForAttrType:attribute.attrType]];
+                *errorMessage = [NSString stringWithFormat:@"attribute type '%@' is not supported by 'ivista-lookin set' yet", [LKCLIAttributeFormatter nameForAttrType:attribute.attrType]];
             }
             return nil;
     }

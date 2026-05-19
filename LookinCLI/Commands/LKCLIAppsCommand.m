@@ -26,7 +26,7 @@
             }
         } else {
             [LKCLIStdIO writeError:@"error: unknown option '%@'", argument];
-            [LKCLIStdIO writeError:@"hint: run 'lookin apps --help'"];
+            [LKCLIStdIO writeError:@"hint: run 'ivista-lookin apps --help'"];
             return LKCLIExitCodeUsage;
         }
     }
@@ -53,7 +53,7 @@
 + (void)printHelp {
     [LKCLIStdIO writeOut:
      @"Usage:\n"
-      "  lookin apps [--json] [--bundle-id <bundle-id>] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
+      "  ivista-lookin apps [--json] [--bundle-id <bundle-id>] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
       "\n"
       "List iOS apps that are currently reachable through LookinServer."];
 }

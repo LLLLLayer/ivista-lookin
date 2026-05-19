@@ -614,7 +614,7 @@
 		AAF418C622BA2D1300111554 /* LKImageTextView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LKImageTextView.h; sourceTree = "<group>"; };
 		AAF418C722BA2D1300111554 /* LKImageTextView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LKImageTextView.m; sourceTree = "<group>"; };
 		B13DF084DE70E2EBB708DEAF /* main.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		BD54602A9B4BAB1803C8EE5E /* lookin */ = {isa = PBXFileReference; includeInIndex = 0; name = lookin; path = lookin; sourceTree = BUILT_PRODUCTS_DIR; };
+		BD54602A9B4BAB1803C8EE5E /* ivista-lookin */ = {isa = PBXFileReference; includeInIndex = 0; name = "ivista-lookin"; path = "ivista-lookin"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C082449E1182E7B05E60D70B /* LKCLIAppScanner.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLIAppScanner.m; sourceTree = "<group>"; };
 		C42A3EB7C5A022694F09C934 /* LKCLIExitCode.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = LKCLIExitCode.h; sourceTree = "<group>"; };
 		CFF597A8F0CA52E15C2FF56E /* LKCLITreeCommand.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = LKCLITreeCommand.m; sourceTree = "<group>"; };
@@ -1001,7 +1001,7 @@
 			isa = PBXGroup;
 			children = (
 				AA48F29B21CC0CA50032EC2C /* Lookin.app */,
-				BD54602A9B4BAB1803C8EE5E /* lookin */,
+				BD54602A9B4BAB1803C8EE5E /* ivista-lookin */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1387,8 +1387,8 @@
 			dependencies = (
 			);
 			name = LookinCLI;
-			productName = lookin;
-			productReference = BD54602A9B4BAB1803C8EE5E /* lookin */;
+			productName = "ivista-lookin";
+			productReference = BD54602A9B4BAB1803C8EE5E /* ivista-lookin */;
 			productType = "com.apple.product-type.tool";
 		};
 		AA48F29A21CC0CA50032EC2C /* LookinClient */ = {
@@ -1805,8 +1805,8 @@
 					"$(SRCROOT)/LookinCLI/**",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 0.1.0;
-				PRODUCT_NAME = lookin;
+				MARKETING_VERSION = 0.1.1;
+				PRODUCT_NAME = "ivista-lookin";
 				SDKROOT = macosx;
 				SKIP_INSTALL = NO;
 			};
@@ -1832,8 +1832,8 @@
 					"$(SRCROOT)/LookinCLI/**",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 0.1.0;
-				PRODUCT_NAME = lookin;
+				MARKETING_VERSION = 0.1.1;
+				PRODUCT_NAME = "ivista-lookin";
 				SDKROOT = macosx;
 				SKIP_INSTALL = NO;
 			};

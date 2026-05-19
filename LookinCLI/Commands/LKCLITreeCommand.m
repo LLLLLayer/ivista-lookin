@@ -61,14 +61,14 @@
             }
         } else {
             [LKCLIStdIO writeError:@"error: unknown option '%@'", argument];
-            [LKCLIStdIO writeError:@"hint: run 'lookin tree --help'"];
+            [LKCLIStdIO writeError:@"hint: run 'ivista-lookin tree --help'"];
             return LKCLIExitCodeUsage;
         }
     }
 
     if (selection.bundleID.length == 0) {
         [LKCLIStdIO writeError:@"error: --bundle-id is required"];
-        [LKCLIStdIO writeError:@"hint: run 'lookin apps --json' to find bundle identifiers"];
+        [LKCLIStdIO writeError:@"hint: run 'ivista-lookin apps --json' to find bundle identifiers"];
         return LKCLIExitCodeUsage;
     }
 
@@ -175,25 +175,25 @@
             limit = parsedLimit;
         } else if ([argument hasPrefix:@"-"]) {
             [LKCLIStdIO writeError:@"error: unknown option '%@'", argument];
-            [LKCLIStdIO writeError:@"hint: run 'lookin find --help'"];
+            [LKCLIStdIO writeError:@"hint: run 'ivista-lookin find --help'"];
             return LKCLIExitCodeUsage;
         } else if (query.length == 0) {
             query = argument;
         } else {
             [LKCLIStdIO writeError:@"error: unexpected argument '%@'", argument];
-            [LKCLIStdIO writeError:@"hint: run 'lookin find --help'"];
+            [LKCLIStdIO writeError:@"hint: run 'ivista-lookin find --help'"];
             return LKCLIExitCodeUsage;
         }
     }
 
     if (selection.bundleID.length == 0) {
         [LKCLIStdIO writeError:@"error: --bundle-id is required"];
-        [LKCLIStdIO writeError:@"hint: run 'lookin apps --json' to find bundle identifiers"];
+        [LKCLIStdIO writeError:@"hint: run 'ivista-lookin apps --json' to find bundle identifiers"];
         return LKCLIExitCodeUsage;
     }
     if (query.length == 0) {
         [LKCLIStdIO writeError:@"error: query is required"];
-        [LKCLIStdIO writeError:@"hint: run 'lookin find --bundle-id %@ UILabel'", selection.bundleID];
+        [LKCLIStdIO writeError:@"hint: run 'ivista-lookin find --bundle-id %@ UILabel'", selection.bundleID];
         return LKCLIExitCodeUsage;
     }
 
@@ -239,7 +239,7 @@
 + (void)printHelp {
     [LKCLIStdIO writeOut:
      @"Usage:\n"
-      "  lookin tree --bundle-id <bundle-id> [--json] [--depth N] [--filter <text>] [--oid <oid>] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
+      "  ivista-lookin tree --bundle-id <bundle-id> [--json] [--depth N] [--filter <text>] [--oid <oid>] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
       "\n"
       "Fetch and print the UI hierarchy for a reachable iOS app.\n"
       "\n"
@@ -251,8 +251,8 @@
 + (void)printFindHelp {
     [LKCLIStdIO writeOut:
      @"Usage:\n"
-      "  lookin find --bundle-id <bundle-id> <query> [--json] [--limit N] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
-      "  lookin find --bundle-id <bundle-id> --oid <oid> [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
+      "  ivista-lookin find --bundle-id <bundle-id> <query> [--json] [--limit N] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
+      "  ivista-lookin find --bundle-id <bundle-id> --oid <oid> [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
       "\n"
       "Find hierarchy nodes by class name, custom title, memory address, or object id."];
 }

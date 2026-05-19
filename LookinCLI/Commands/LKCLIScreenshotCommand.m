@@ -64,19 +64,19 @@ typedef NS_ENUM(NSInteger, LKCLIScreenshotKind) {
             outPath = arguments[++idx];
         } else {
             [LKCLIStdIO writeError:@"error: unknown option '%@'", argument];
-            [LKCLIStdIO writeError:@"hint: run 'lookin screenshot --help'"];
+            [LKCLIStdIO writeError:@"hint: run 'ivista-lookin screenshot --help'"];
             return LKCLIExitCodeUsage;
         }
     }
 
     if (selection.bundleID.length == 0) {
         [LKCLIStdIO writeError:@"error: --bundle-id is required"];
-        [LKCLIStdIO writeError:@"hint: run 'lookin apps --json' to find bundle identifiers"];
+        [LKCLIStdIO writeError:@"hint: run 'ivista-lookin apps --json' to find bundle identifiers"];
         return LKCLIExitCodeUsage;
     }
     if (oid == 0) {
         [LKCLIStdIO writeError:@"error: --oid is required"];
-        [LKCLIStdIO writeError:@"hint: run 'lookin tree --bundle-id %@' to find object ids", selection.bundleID];
+        [LKCLIStdIO writeError:@"hint: run 'ivista-lookin tree --bundle-id %@' to find object ids", selection.bundleID];
         return LKCLIExitCodeUsage;
     }
     if (outPath.length == 0) {
@@ -132,7 +132,7 @@ typedef NS_ENUM(NSInteger, LKCLIScreenshotKind) {
 + (void)printHelp {
     [LKCLIStdIO writeOut:
      @"Usage:\n"
-      "  lookin screenshot --bundle-id <bundle-id> --oid <oid> --out <path> [--type group|solo] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
+      "  ivista-lookin screenshot --bundle-id <bundle-id> --oid <oid> --out <path> [--type group|solo] [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
       "\n"
       "Fetch and write a display item screenshot. The output format is selected from the file extension: .png writes PNG, everything else writes TIFF."];
 }

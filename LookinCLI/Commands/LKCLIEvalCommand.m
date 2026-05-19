@@ -45,7 +45,7 @@
 
         if ([argument hasPrefix:@"-"]) {
             [LKCLIStdIO writeError:@"error: unknown option '%@'", argument];
-            [LKCLIStdIO writeError:@"hint: run 'lookin eval --help'"];
+            [LKCLIStdIO writeError:@"hint: run 'ivista-lookin eval --help'"];
             return LKCLIExitCodeUsage;
         }
 
@@ -58,7 +58,7 @@
 
     if (expression.length == 0) {
         [LKCLIStdIO writeError:@"error: property or method name is required"];
-        [LKCLIStdIO writeError:@"hint: run 'lookin eval --help'"];
+        [LKCLIStdIO writeError:@"hint: run 'ivista-lookin eval --help'"];
         return LKCLIExitCodeUsage;
     }
     if ([expression containsString:@"."]) {
@@ -75,10 +75,10 @@
 + (void)printHelp {
     [LKCLIStdIO writeOut:
      @"Usage:\n"
-      "  lookin eval --bundle-id <bundle-id> --oid <oid> <property-or-method> [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
-      "  lookin eval --bundle-id <bundle-id> --oid <oid> --selector <selector> [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
+      "  ivista-lookin eval --bundle-id <bundle-id> --oid <oid> <property-or-method> [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
+      "  ivista-lookin eval --bundle-id <bundle-id> --oid <oid> --selector <selector> [--json] [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
       "\n"
-      "Evaluate a direct property getter or no-argument method on an object. This is a console-friendly alias of 'lookin call'."];
+      "Evaluate a direct property getter or no-argument method on an object. This is a console-friendly alias of 'ivista-lookin call'."];
 }
 
 @end

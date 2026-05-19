@@ -4,10 +4,10 @@ set -euo pipefail
 usage() {
   cat <<'USAGE'
 Usage:
-  smoke-lookin-cli.sh [lookin-bin-or-package-dir]
+  smoke-lookin-cli.sh [ivista-lookin-bin-or-package-dir]
 
 Environment:
-  LOOKIN_BIN          Path to lookin. Default: auto-detect Debug/package/system lookin.
+  IVISTA_LOOKIN_BIN   Path to ivista-lookin. Default: auto-detect package/Debug/system ivista-lookin.
   BUNDLE_ID           Optional target app bundle id for device smoke tests.
   TRANSPORT           Optional app selector: simulator or usb.
   PORT                Optional app selector port.
@@ -23,8 +23,8 @@ Environment:
 Examples:
   ./Scripts/smoke-lookin-cli.sh
   BUNDLE_ID=com.example.demo TRANSPORT=usb ./Scripts/smoke-lookin-cli.sh
-  ./Scripts/smoke-lookin-cli.sh build/LookinCLI/lookin-cli-macos-universal
-  LOOKIN_BIN=build/LookinCLI/lookin-cli-macos-universal/lookin BUNDLE_ID=com.example.demo OID=130 ./Scripts/smoke-lookin-cli.sh
+  ./Scripts/smoke-lookin-cli.sh build/LookinCLI/ivista-lookin-macos-universal
+  IVISTA_LOOKIN_BIN=build/LookinCLI/ivista-lookin-macos-universal/ivista-lookin BUNDLE_ID=com.example.demo OID=130 ./Scripts/smoke-lookin-cli.sh
 USAGE
 }
 
@@ -41,8 +41,9 @@ if [[ $# -gt 1 ]]; then
   exit 2
 fi
 
-LOOKIN_BIN="${LOOKIN_BIN:-}"
-LOOKIN_PATH_ARG="${1:-}"
+CLI_NAME="ivista-lookin"
+IVISTA_LOOKIN_BIN="${IVISTA_LOOKIN_BIN:-}"
+CLI_PATH_ARG="${1:-}"
 BUNDLE_ID="${BUNDLE_ID:-}"
 TRANSPORT="${TRANSPORT:-}"
 PORT="${PORT:-}"
@@ -81,30 +82,30 @@ fail() {
   exit 1
 }
 
-normalize_lookin_bin() {
+normalize_cli_bin() {
   local path="$1"
   if [[ -d "${path}" ]]; then
-    path="${path}/lookin"
+    path="${path}/${CLI_NAME}"
   fi
   printf '%s\n' "${path}"
 }
 
-detect_lookin_bin() {
-  if [[ -n "${LOOKIN_PATH_ARG}" ]]; then
-    normalize_lookin_bin "${LOOKIN_PATH_ARG}"
+detect_cli_bin() {
+  if [[ -n "${CLI_PATH_ARG}" ]]; then
+    normalize_cli_bin "${CLI_PATH_ARG}"
     return
   fi
 
-  if [[ -n "${LOOKIN_BIN}" ]]; then
-    normalize_lookin_bin "${LOOKIN_BIN}"
+  if [[ -n "${IVISTA_LOOKIN_BIN}" ]]; then
+    normalize_cli_bin "${IVISTA_LOOKIN_BIN}"
     return
   fi
 
   local candidates=(
-    "${ROOT_DIR}/build/LookinCLI/lookin-cli-macos-universal/lookin"
-    "${ROOT_DIR}/build/LookinCLI/lookin-cli-macos-arm64/lookin"
-    "${ROOT_DIR}/build/LookinCLI/lookin-cli-macos-x86_64/lookin"
-    "${ROOT_DIR}/DerivedData/LookinCLI/Build/Products/Debug/lookin"
+    "${ROOT_DIR}/build/LookinCLI/ivista-lookin-macos-universal/${CLI_NAME}"
+    "${ROOT_DIR}/build/LookinCLI/ivista-lookin-macos-arm64/${CLI_NAME}"
+    "${ROOT_DIR}/build/LookinCLI/ivista-lookin-macos-x86_64/${CLI_NAME}"
+    "${ROOT_DIR}/DerivedData/LookinCLI/Build/Products/Debug/${CLI_NAME}"
   )
 
   for candidate in "${candidates[@]}"; do
@@ -114,12 +115,12 @@ detect_lookin_bin() {
     fi
   done
 
-  if command -v lookin >/dev/null 2>&1; then
-    command -v lookin
+  if command -v "${CLI_NAME}" >/dev/null 2>&1; then
+    command -v "${CLI_NAME}"
     return
   fi
 
-  fail "lookin executable not found; set LOOKIN_BIN or run xcodebuild/Scripts/build-lookin-cli.sh first"
+  fail "${CLI_NAME} executable not found; set IVISTA_LOOKIN_BIN or run xcodebuild/Scripts/build-lookin-cli.sh first"
 }
 
 validate_json_file() {
@@ -147,18 +148,18 @@ if [[ -n "${DEVICE_ID}" ]]; then
   selector_args+=(--device-id "${DEVICE_ID}")
 fi
 
-LOOKIN_BIN="$(detect_lookin_bin)"
-[[ -x "${LOOKIN_BIN}" ]] || fail "lookin is not executable: ${LOOKIN_BIN}"
+CLI_BIN="$(detect_cli_bin)"
+[[ -x "${CLI_BIN}" ]] || fail "${CLI_NAME} is not executable: ${CLI_BIN}"
 
-log "Using ${LOOKIN_BIN}"
+log "Using ${CLI_BIN}"
 
 log "Local command smoke tests"
-"${LOOKIN_BIN}" --version >/dev/null
-"${LOOKIN_BIN}" --help | grep -q "lookin find"
-"${LOOKIN_BIN}" tree --help | grep -q -- "--filter"
-"${LOOKIN_BIN}" find --help | grep -q "Find hierarchy"
-"${LOOKIN_BIN}" set --help | grep -q "custom"
-"${LOOKIN_BIN}" doctor >/dev/null
+"${CLI_BIN}" --version >/dev/null
+"${CLI_BIN}" --help | grep -q "ivista-lookin find"
+"${CLI_BIN}" tree --help | grep -q -- "--filter"
+"${CLI_BIN}" find --help | grep -q "Find hierarchy"
+"${CLI_BIN}" set --help | grep -q "custom"
+"${CLI_BIN}" doctor >/dev/null
 
 if [[ "${SKIP_DEVICE_TESTS}" == "1" ]]; then
   log "Skipping device smoke tests"
@@ -167,11 +168,11 @@ fi
 
 log "Fetching apps"
 apps_json="${OUT_DIR}/apps.json"
-if ! "${LOOKIN_BIN}" apps --json "${selector_args[@]}" > "${apps_json}"; then
+if ! "${CLI_BIN}" apps --json "${selector_args[@]}" > "${apps_json}"; then
   if [[ "${REQUIRE_APP}" == "1" ]]; then
-    fail "lookin apps failed"
+    fail "${CLI_NAME} apps failed"
   fi
-  warn "lookin apps failed; skipping device smoke tests"
+  warn "${CLI_NAME} apps failed; skipping device smoke tests"
   exit 0
 fi
 validate_json_file "${apps_json}"
@@ -192,29 +193,29 @@ app_args=(--bundle-id "${BUNDLE_ID}" "${selector_args[@]}")
 log "Device command smoke tests for ${BUNDLE_ID}"
 
 tree_json="${OUT_DIR}/tree.json"
-"${LOOKIN_BIN}" tree "${app_args[@]}" --depth 1 --json > "${tree_json}"
+"${CLI_BIN}" tree "${app_args[@]}" --depth 1 --json > "${tree_json}"
 validate_json_file "${tree_json}"
 
 find_json="${OUT_DIR}/find.json"
-"${LOOKIN_BIN}" find "${app_args[@]}" "${QUERY}" --limit 5 --json > "${find_json}"
+"${CLI_BIN}" find "${app_args[@]}" "${QUERY}" --limit 5 --json > "${find_json}"
 validate_json_file "${find_json}"
 
 if [[ -n "${OID}" ]]; then
   tree_oid_json="${OUT_DIR}/tree-oid.json"
-  "${LOOKIN_BIN}" tree "${app_args[@]}" --oid "${OID}" --depth 1 --json > "${tree_oid_json}"
+  "${CLI_BIN}" tree "${app_args[@]}" --oid "${OID}" --depth 1 --json > "${tree_oid_json}"
   validate_json_file "${tree_oid_json}"
 
   inspect_json="${OUT_DIR}/inspect.json"
-  "${LOOKIN_BIN}" inspect "${app_args[@]}" --oid "${OID}" --json > "${inspect_json}"
+  "${CLI_BIN}" inspect "${app_args[@]}" --oid "${OID}" --json > "${inspect_json}"
   validate_json_file "${inspect_json}"
 
   attrs_json="${OUT_DIR}/attrs.json"
-  "${LOOKIN_BIN}" attrs "${app_args[@]}" --oid "${OID}" --json > "${attrs_json}"
+  "${CLI_BIN}" attrs "${app_args[@]}" --oid "${OID}" --json > "${attrs_json}"
   validate_json_file "${attrs_json}"
 
   if [[ -n "${SET_ATTR}" && -n "${SET_VALUE}" ]]; then
     set_json="${OUT_DIR}/set-dry-run.json"
-    "${LOOKIN_BIN}" set "${app_args[@]}" --oid "${OID}" --attr "${SET_ATTR}" --value "${SET_VALUE}" --dry-run --json > "${set_json}"
+    "${CLI_BIN}" set "${app_args[@]}" --oid "${OID}" --attr "${SET_ATTR}" --value "${SET_VALUE}" --dry-run --json > "${set_json}"
     validate_json_file "${set_json}"
   fi
 fi

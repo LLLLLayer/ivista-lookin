@@ -39,19 +39,19 @@
             }
         } else {
             [LKCLIStdIO writeError:@"error: unknown option '%@'", argument];
-            [LKCLIStdIO writeError:@"hint: run 'lookin console --help'"];
+            [LKCLIStdIO writeError:@"hint: run 'ivista-lookin console --help'"];
             return LKCLIExitCodeUsage;
         }
     }
 
     if (selection.bundleID.length == 0) {
         [LKCLIStdIO writeError:@"error: --bundle-id is required"];
-        [LKCLIStdIO writeError:@"hint: run 'lookin apps --json' to find bundle identifiers"];
+        [LKCLIStdIO writeError:@"hint: run 'ivista-lookin apps --json' to find bundle identifiers"];
         return LKCLIExitCodeUsage;
     }
     if (oid == 0) {
         [LKCLIStdIO writeError:@"error: --oid is required"];
-        [LKCLIStdIO writeError:@"hint: run 'lookin tree --bundle-id %@' to find object ids", selection.bundleID];
+        [LKCLIStdIO writeError:@"hint: run 'ivista-lookin tree --bundle-id %@' to find object ids", selection.bundleID];
         return LKCLIExitCodeUsage;
     }
 
@@ -77,7 +77,7 @@
     char *line = NULL;
     size_t linecap = 0;
     while (true) {
-        printf("lookin:%lu> ", currentObject.oid);
+        printf("ivista-lookin:%lu> ", currentObject.oid);
         fflush(stdout);
 
         ssize_t length = getline(&line, &linecap, stdin);
@@ -141,7 +141,7 @@
 + (void)printHelp {
     [LKCLIStdIO writeOut:
      @"Usage:\n"
-      "  lookin console --bundle-id <bundle-id> --oid <oid> [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
+      "  ivista-lookin console --bundle-id <bundle-id> --oid <oid> [--transport simulator|usb] [--port <port>] [--device-id <id>]\n"
       "\n"
       "Open a lightweight Lookin console for direct property getters and no-argument methods."];
 }

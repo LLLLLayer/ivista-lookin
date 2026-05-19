@@ -161,7 +161,7 @@ int main(int argc, const char * argv[]) {
         }
 
         [LKCLIStdIO writeError:@"error: unknown command '%@'", command];
-        [LKCLIStdIO writeError:@"hint: run 'lookin --help'"];
+        [LKCLIStdIO writeError:@"hint: run 'ivista-lookin --help'"];
         return (int)LKCLIExitCodeUsage;
     }
 }

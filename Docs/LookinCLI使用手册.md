@@ -57,12 +57,20 @@ BUNDLE_ID=com.example.demo TRANSPORT=usb ./Scripts/smoke-lookin-cli.sh
 
 ```bash
 LOOKIN_BIN=build/LookinCLI/lookin-cli-macos-universal/lookin BUNDLE_ID=com.example.demo ./Scripts/smoke-lookin-cli.sh
+./Scripts/smoke-lookin-cli.sh build/LookinCLI/lookin-cli-macos-universal
 ```
 
 默认情况下，如果没有发现可连接 App，smoke test 会跳过层级相关命令。发布前可以强制要求目标 App 存在：
 
 ```bash
 REQUIRE_APP=1 BUNDLE_ID=com.example.demo TRANSPORT=usb ./Scripts/smoke-lookin-cli.sh
+```
+
+发布 zip 前建议跑 release 验收。该脚本会解压 zip 到临时目录，验证 framework/rpath/codesign，再使用解压出的二进制跑 smoke：
+
+```bash
+./Scripts/verify-lookin-cli-release.sh
+REQUIRE_APP=1 BUNDLE_ID=com.example.demo TRANSPORT=usb ./Scripts/verify-lookin-cli-release.sh
 ```
 
 ## 发现 App

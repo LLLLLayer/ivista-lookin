@@ -4,7 +4,7 @@ set -euo pipefail
 usage() {
   cat <<'USAGE'
 Usage:
-  smoke-lookin-cli.sh
+  smoke-lookin-cli.sh [lookin-bin-or-package-dir]
 
 Environment:
   LOOKIN_BIN          Path to lookin. Default: auto-detect Debug/package/system lookin.
@@ -14,6 +14,8 @@ Environment:
   DEVICE_ID           Optional app selector device id.
   QUERY               Query used by find smoke test. Default: UILabel
   OID                 Optional oid used by tree --oid and inspect smoke tests.
+  SET_ATTR            Optional attribute identifier used by set --dry-run when OID is set.
+  SET_VALUE           Optional value used by set --dry-run when OID and SET_ATTR are set.
   REQUIRE_APP         Set to 1 to fail when no reachable target app is found.
   SKIP_DEVICE_TESTS   Set to 1 to run only local command smoke tests.
   OUT_DIR             Optional output directory for captured JSON.
@@ -21,6 +23,7 @@ Environment:
 Examples:
   ./Scripts/smoke-lookin-cli.sh
   BUNDLE_ID=com.example.demo TRANSPORT=usb ./Scripts/smoke-lookin-cli.sh
+  ./Scripts/smoke-lookin-cli.sh build/LookinCLI/lookin-cli-macos-universal
   LOOKIN_BIN=build/LookinCLI/lookin-cli-macos-universal/lookin BUNDLE_ID=com.example.demo OID=130 ./Scripts/smoke-lookin-cli.sh
 USAGE
 }
@@ -33,13 +36,21 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
+if [[ $# -gt 1 ]]; then
+  usage >&2
+  exit 2
+fi
+
 LOOKIN_BIN="${LOOKIN_BIN:-}"
+LOOKIN_PATH_ARG="${1:-}"
 BUNDLE_ID="${BUNDLE_ID:-}"
 TRANSPORT="${TRANSPORT:-}"
 PORT="${PORT:-}"
 DEVICE_ID="${DEVICE_ID:-}"
 QUERY="${QUERY:-UILabel}"
 OID="${OID:-}"
+SET_ATTR="${SET_ATTR:-}"
+SET_VALUE="${SET_VALUE:-}"
 REQUIRE_APP="${REQUIRE_APP:-0}"
 SKIP_DEVICE_TESTS="${SKIP_DEVICE_TESTS:-0}"
 OUT_DIR="${OUT_DIR:-}"
@@ -70,17 +81,30 @@ fail() {
   exit 1
 }
 
+normalize_lookin_bin() {
+  local path="$1"
+  if [[ -d "${path}" ]]; then
+    path="${path}/lookin"
+  fi
+  printf '%s\n' "${path}"
+}
+
 detect_lookin_bin() {
+  if [[ -n "${LOOKIN_PATH_ARG}" ]]; then
+    normalize_lookin_bin "${LOOKIN_PATH_ARG}"
+    return
+  fi
+
   if [[ -n "${LOOKIN_BIN}" ]]; then
-    printf '%s\n' "${LOOKIN_BIN}"
+    normalize_lookin_bin "${LOOKIN_BIN}"
     return
   fi
 
   local candidates=(
-    "${ROOT_DIR}/DerivedData/LookinCLI/Build/Products/Debug/lookin"
     "${ROOT_DIR}/build/LookinCLI/lookin-cli-macos-universal/lookin"
     "${ROOT_DIR}/build/LookinCLI/lookin-cli-macos-arm64/lookin"
     "${ROOT_DIR}/build/LookinCLI/lookin-cli-macos-x86_64/lookin"
+    "${ROOT_DIR}/DerivedData/LookinCLI/Build/Products/Debug/lookin"
   )
 
   for candidate in "${candidates[@]}"; do
@@ -133,6 +157,7 @@ log "Local command smoke tests"
 "${LOOKIN_BIN}" --help | grep -q "lookin find"
 "${LOOKIN_BIN}" tree --help | grep -q -- "--filter"
 "${LOOKIN_BIN}" find --help | grep -q "Find hierarchy"
+"${LOOKIN_BIN}" set --help | grep -q "custom"
 "${LOOKIN_BIN}" doctor >/dev/null
 
 if [[ "${SKIP_DEVICE_TESTS}" == "1" ]]; then
@@ -182,10 +207,19 @@ if [[ -n "${OID}" ]]; then
   inspect_json="${OUT_DIR}/inspect.json"
   "${LOOKIN_BIN}" inspect "${app_args[@]}" --oid "${OID}" --json > "${inspect_json}"
   validate_json_file "${inspect_json}"
+
+  attrs_json="${OUT_DIR}/attrs.json"
+  "${LOOKIN_BIN}" attrs "${app_args[@]}" --oid "${OID}" --json > "${attrs_json}"
+  validate_json_file "${attrs_json}"
+
+  if [[ -n "${SET_ATTR}" && -n "${SET_VALUE}" ]]; then
+    set_json="${OUT_DIR}/set-dry-run.json"
+    "${LOOKIN_BIN}" set "${app_args[@]}" --oid "${OID}" --attr "${SET_ATTR}" --value "${SET_VALUE}" --dry-run --json > "${set_json}"
+    validate_json_file "${set_json}"
+  fi
 fi
 
 log "Smoke tests passed"
 if [[ -z "${TEMP_OUT_DIR}" ]]; then
   log "Output: ${OUT_DIR}"
 fi
-

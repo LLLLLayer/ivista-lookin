@@ -140,9 +140,8 @@ rm -rf "$TMP_INSTALL"
 使用 package 内的二进制跑本地 smoke：
 
 ```bash
-LOOKIN_BIN=build/LookinCLI/lookin-cli-macos-universal/lookin \
 SKIP_DEVICE_TESTS=1 \
-./Scripts/smoke-lookin-cli.sh
+./Scripts/smoke-lookin-cli.sh build/LookinCLI/lookin-cli-macos-universal
 ```
 
 覆盖：
@@ -151,40 +150,66 @@ SKIP_DEVICE_TESTS=1 \
 2. `lookin --help`
 3. `lookin tree --help`
 4. `lookin find --help`
-5. `lookin doctor`
+5. `lookin set --help`
+6. `lookin doctor`
 
 ## 9. App 连接 Smoke Test
 
 如果当前有可连接 App，运行：
 
 ```bash
-LOOKIN_BIN=build/LookinCLI/lookin-cli-macos-universal/lookin \
-./Scripts/smoke-lookin-cli.sh
+./Scripts/smoke-lookin-cli.sh build/LookinCLI/lookin-cli-macos-universal
 ```
 
 如果要强制指定真机 App：
 
 ```bash
-LOOKIN_BIN=build/LookinCLI/lookin-cli-macos-universal/lookin \
 BUNDLE_ID=com.example.demo \
 TRANSPORT=usb \
 QUERY=UILabel \
 REQUIRE_APP=1 \
-./Scripts/smoke-lookin-cli.sh
+./Scripts/smoke-lookin-cli.sh build/LookinCLI/lookin-cli-macos-universal
 ```
 
-如果指定 `OID`，还会额外验证 `tree --oid` 和 `inspect --json`：
+如果指定 `OID`，还会额外验证 `tree --oid`、`inspect --json` 和 `attrs --json`。如果同时指定 `SET_ATTR` 和 `SET_VALUE`，还会额外验证 `set --dry-run --json`：
 
 ```bash
-LOOKIN_BIN=build/LookinCLI/lookin-cli-macos-universal/lookin \
 BUNDLE_ID=com.example.demo \
 TRANSPORT=usb \
 OID=130 \
+SET_ATTR=l_f_f \
+SET_VALUE='0,0,120,44' \
 REQUIRE_APP=1 \
-./Scripts/smoke-lookin-cli.sh
+./Scripts/smoke-lookin-cli.sh build/LookinCLI/lookin-cli-macos-universal
 ```
 
-## 10. 手动抽查
+## 10. Release Zip 验收
+
+发布前用 zip 做一次从零解压验收：
+
+```bash
+./Scripts/verify-lookin-cli-release.sh build/LookinCLI/lookin-cli-macos-universal.zip
+```
+
+该脚本会：
+
+1. 输出 `shasum -a 256`。
+2. 解压 zip 到临时目录。
+3. 检查 `lookin`、`Frameworks/LookinShared.framework`、`Frameworks/ReactiveObjC.framework`、`install.sh` 和 `README.md`。
+4. 检查 `@executable_path/Frameworks` rpath。
+5. 执行 `codesign --verify --deep`。
+6. 使用解压出的二进制运行 `smoke-lookin-cli.sh`。
+
+如果要强制连真机 App：
+
+```bash
+BUNDLE_ID=com.example.demo \
+TRANSPORT=usb \
+REQUIRE_APP=1 \
+./Scripts/verify-lookin-cli-release.sh build/LookinCLI/lookin-cli-macos-universal.zip
+```
+
+## 11. 手动抽查
 
 建议至少抽查以下命令：
 
@@ -200,7 +225,7 @@ JSON 输出应能被解析：
 build/LookinCLI/lookin-cli-macos-universal/lookin apps --json | jq .
 ```
 
-## 11. 发布前记录
+## 12. 发布前记录
 
 发布说明中建议记录：
 
@@ -217,10 +242,9 @@ build/LookinCLI/lookin-cli-macos-universal/lookin apps --json | jq .
 shasum -a 256 build/LookinCLI/lookin-cli-macos-universal.zip
 ```
 
-## 12. 当前 MVP 边界
+## 13. 当前 MVP 边界
 
 1. CLI 不要求安装 Lookin.app。
 2. 目标 iOS App 仍必须集成兼容 LookinServer。
 3. 第一版公开 zip 仍是 ad-hoc signing，正式发布前应补 Developer ID signing 和 notarization。
 4. 新增 Server 协议前必须考虑旧 LookinServer 兼容性。
-

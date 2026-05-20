@@ -1,6 +1,6 @@
 # LookinCLI 使用手册
 
-本文档面向 LookinCLI 使用者，重点说明如何安装、发现 App、定位节点、查看/修改属性、截图和导出。设计背景和实现细节分别见 `LookinCLI设计预期.md` 和 `LookinCLI技术方案.md`。
+本文档面向 LookinCLI 使用者，重点说明如何安装、发现 App、定位节点、查看/修改属性、截图和导出。JSON 输出字段见 `LookinCLI字段说明.md`，设计背景和实现细节分别见 `LookinCLI设计预期.md` 和 `LookinCLI技术方案.md`。
 
 ## 安装
 

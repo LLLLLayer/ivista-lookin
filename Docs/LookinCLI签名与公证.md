@@ -40,6 +40,8 @@ Scripts/build-lookin-cli.sh
 
 `Scripts/package-lookin-cli.sh` 在检测到 `CODESIGN_IDENTITY` 时会使用 Developer ID 签名并启用 hardened runtime；未设置时继续使用 ad-hoc 签名，适合本地开发和 CI smoke。
 
+Homebrew 安装时会把文件复制到 Cellar。为避免安装后的 Mach-O 签名与 bundled frameworks 出现 library validation 冲突，formula 会在安装阶段对 `ivista-lookin` 和 `Frameworks/*.framework` 做一次一致的 ad-hoc 重签名，并清除 runtime flag。直接下载 release zip 的用户仍使用 Developer ID 签名包。
+
 ## 公证
 
 ```bash

@@ -17,6 +17,11 @@ class IvistaLookin < Formula
     odie "ivista-lookin executable not found in package" if package_dir.nil?
 
     libexec.install package_dir.children
+    Dir[libexec/"Frameworks/*.framework"].each do |framework|
+      system "codesign", "--force", "--deep", "--sign", "-", "--options", "0", framework
+    end
+    system "codesign", "--force", "--deep", "--sign", "-", "--options", "0", libexec/"ivista-lookin"
+
     bin.install_symlink libexec/"ivista-lookin" => "ivista-lookin"
   end
 

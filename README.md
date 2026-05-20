@@ -9,7 +9,36 @@ Official Website：https://lookin.work/
 
 This fork includes `ivista-lookin`, a standalone command-line interface for inspecting iOS apps that integrate LookinServer.
 
-Install and usage docs are maintained in the Homebrew tap:
+Install:
+
+```bash
+brew tap LLLLLayer/ivista-lookin
+brew install ivista-lookin
+ivista-lookin doctor
+```
+
+Recommended first workflow:
+
+```bash
+ivista-lookin apps --json
+ivista-lookin tree --bundle-id com.example.demo --depth 2
+ivista-lookin find --bundle-id com.example.demo UILabel --limit 10
+ivista-lookin inspect --bundle-id com.example.demo --oid 123 --json
+ivista-lookin attrs --bundle-id com.example.demo --oid 123
+```
+
+Common follow-up commands:
+
+```bash
+ivista-lookin screenshot --bundle-id com.example.demo --oid 123 --out view.png
+ivista-lookin export --bundle-id com.example.demo --out snapshot.lookin
+ivista-lookin read snapshot.lookin tree --depth 2
+ivista-lookin selectors --bundle-id com.example.demo --oid 123 --filter title
+ivista-lookin eval --bundle-id com.example.demo --oid 123 description
+ivista-lookin set --bundle-id com.example.demo --oid 123 --attr hidden --value true --dry-run
+```
+
+Homebrew tap and full usage docs:
 
 https://github.com/LLLLLayer/homebrew-ivista-lookin
 
@@ -51,7 +80,36 @@ Lookin 可以查看与修改 iOS App 里的 UI 对象，类似于 Xcode 自带�
 
 这个 fork 包含独立命令行工具 `ivista-lookin`，用于检查已经集成 LookinServer 的 iOS App。
 
-安装和使用文档维护在 Homebrew tap：
+安装：
+
+```bash
+brew tap LLLLLayer/ivista-lookin
+brew install ivista-lookin
+ivista-lookin doctor
+```
+
+推荐第一次使用路径：
+
+```bash
+ivista-lookin apps --json
+ivista-lookin tree --bundle-id com.example.demo --depth 2
+ivista-lookin find --bundle-id com.example.demo UILabel --limit 10
+ivista-lookin inspect --bundle-id com.example.demo --oid 123 --json
+ivista-lookin attrs --bundle-id com.example.demo --oid 123
+```
+
+常用后续命令：
+
+```bash
+ivista-lookin screenshot --bundle-id com.example.demo --oid 123 --out view.png
+ivista-lookin export --bundle-id com.example.demo --out snapshot.lookin
+ivista-lookin read snapshot.lookin tree --depth 2
+ivista-lookin selectors --bundle-id com.example.demo --oid 123 --filter title
+ivista-lookin eval --bundle-id com.example.demo --oid 123 description
+ivista-lookin set --bundle-id com.example.demo --oid 123 --attr hidden --value true --dry-run
+```
+
+Homebrew tap 和完整使用文档：
 
 https://github.com/LLLLLayer/homebrew-ivista-lookin
 

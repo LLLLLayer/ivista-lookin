@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - ivista/cli
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  lookin-cli:
+    name: LookinCLI
+    runs-on: macos-14
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install CocoaPods
+        run: |
+          if ! command -v pod >/dev/null 2>&1; then
+            sudo gem install cocoapods --no-document
+          fi
+
+      - name: Install pods
+        run: pod install
+
+      - name: Check formula syntax
+        run: ruby -c Formula/ivista-lookin.rb
+
+      - name: Build LookinCLI
+        run: |
+          xcodebuild \
+            -workspace Lookin.xcworkspace \
+            -scheme LookinCLI \
+            -configuration Debug \
+            -derivedDataPath build/CI-DerivedData \
+            build
+
+      - name: Local smoke tests
+        env:
+          SKIP_DEVICE_TESTS: "1"
+        run: Scripts/smoke-lookin-cli.sh build/CI-DerivedData/Build/Products/Debug/ivista-lookin
+

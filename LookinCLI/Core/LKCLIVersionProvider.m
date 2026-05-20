@@ -9,7 +9,7 @@
     if (version.length > 0) {
         return version;
     }
-    return @"0.1.3";
+    return @"0.1.4";
 }
 
 + (NSString *)architectureName {

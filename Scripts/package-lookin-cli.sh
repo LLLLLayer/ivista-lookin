@@ -10,6 +10,7 @@ Environment:
   PRODUCT_DIR      Xcode build product dir. Default: DerivedData/LookinCLIRelease/Build/Products/Release
   OUTPUT_DIR       Output root. Default: build/LookinCLI
   PACKAGE_NAME     Package directory and zip basename. Default: derived from ivista-lookin binary archs
+  CODESIGN_IDENTITY Developer ID identity. Default: - (ad-hoc signing).
   SKIP_CODESIGN    Set to 1 to skip ad-hoc signing.
 
 The package contains ivista-lookin, Frameworks/, LICENSE, README.md, and install.sh.
@@ -28,6 +29,7 @@ PRODUCT_DIR="${PRODUCT_DIR:-${ROOT_DIR}/DerivedData/LookinCLIRelease/Build/Produ
 OUTPUT_DIR="${OUTPUT_DIR:-${ROOT_DIR}/build/LookinCLI}"
 PACKAGE_NAME="${PACKAGE_NAME:-}"
 SKIP_CODESIGN="${SKIP_CODESIGN:-0}"
+CODESIGN_IDENTITY="${CODESIGN_IDENTITY:--}"
 CLI_NAME="ivista-lookin"
 
 CLI_BIN="${PRODUCT_DIR}/${CLI_NAME}"
@@ -118,9 +120,14 @@ if ! has_rpath "${PACKAGE_DIR}/${CLI_NAME}" "@executable_path/Frameworks"; then
 fi
 
 if [[ "${SKIP_CODESIGN}" != "1" ]]; then
-  codesign --force --deep --sign - "${PACKAGE_DIR}/${CLI_NAME}" >/dev/null
+  codesign_args=(--force --deep --sign "${CODESIGN_IDENTITY}")
+  if [[ "${CODESIGN_IDENTITY}" != "-" ]]; then
+    codesign_args+=(--options runtime --timestamp)
+  fi
+
+  codesign "${codesign_args[@]}" "${PACKAGE_DIR}/${CLI_NAME}" >/dev/null
   find "${PACKAGE_DIR}/Frameworks" -maxdepth 1 -type d -name '*.framework' -print0 | while IFS= read -r -d '' framework; do
-    codesign --force --deep --sign - "${framework}" >/dev/null
+    codesign "${codesign_args[@]}" "${framework}" >/dev/null
   done
 fi
 

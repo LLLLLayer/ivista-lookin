@@ -1,6 +1,6 @@
 # LookinCLI 签名与公证
 
-当前公开包默认使用 ad-hoc 签名，Homebrew 可以安装和运行。更正式的公开分发应使用 Apple Developer ID 签名并提交 notarization。
+当前公开包使用 Apple Developer ID 签名，Homebrew 可以安装和运行。更正式的公开分发还应提交 notarization。
 
 ## 目标状态
 
@@ -38,7 +38,7 @@ CODESIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)" \
 Scripts/build-lookin-cli.sh
 ```
 
-`Scripts/package-lookin-cli.sh` 在检测到 `CODESIGN_IDENTITY` 时会使用 Developer ID 签名；未设置时继续使用 ad-hoc 签名，适合本地开发和 CI smoke。
+`Scripts/package-lookin-cli.sh` 在检测到 `CODESIGN_IDENTITY` 时会使用 Developer ID 签名并启用 hardened runtime；未设置时继续使用 ad-hoc 签名，适合本地开发和 CI smoke。
 
 ## 公证
 
@@ -68,5 +68,4 @@ xcrun stapler staple <artifact.dmg>
 
 ## 当前结论
 
-`v0.1.4` 仍可以先按 ad-hoc 签名发布；Developer ID 签名和 notarization 的脚本、文档路径已经准备好。拿到 Apple Developer 凭证后，可以不改源码直接切换到正式签名发布流程。
-
+`v0.1.4` 已使用 Developer ID 签名发布，但尚未 notarize。拿到 notarytool 凭证后，可以不改源码直接提交 release zip；若要支持 stapling，应新增 `.dmg` 或 `.pkg` 分发格式。

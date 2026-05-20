@@ -38,13 +38,15 @@ ivista-lookin eval --bundle-id com.example.demo --oid 123 description
 ivista-lookin set --bundle-id com.example.demo --oid 123 --attr hidden --value true --dry-run
 ```
 
-Homebrew tap and full usage docs:
+Homebrew tap and user-facing install docs:
 
 https://github.com/LLLLLayer/homebrew-ivista-lookin
 
-JSON field reference:
+Canonical source-bound docs:
 
-Docs/LookinCLI字段说明.md
+- Docs/LookinCLI使用手册.md
+- Docs/LookinCLI字段说明.md
+- Docs/LookinCLI技术方案.md
 
 # Integration Guide
 To use Lookin macOS app, you need to integrate LookinServer (iOS Framework of Lookin) into your iOS project.
@@ -113,13 +115,15 @@ ivista-lookin eval --bundle-id com.example.demo --oid 123 description
 ivista-lookin set --bundle-id com.example.demo --oid 123 --attr hidden --value true --dry-run
 ```
 
-Homebrew tap 和完整使用文档：
+Homebrew tap 和面向用户的安装文档：
 
 https://github.com/LLLLLayer/homebrew-ivista-lookin
 
-JSON 字段说明：
+主仓库维护的源码绑定文档：
 
-Docs/LookinCLI字段说明.md
+- Docs/LookinCLI使用手册.md
+- Docs/LookinCLI字段说明.md
+- Docs/LookinCLI技术方案.md
 
 # 安装 LookinServer Framework
 如果这是你的 iOS 项目第一次使用 Lookin，则需要先把 LookinServer 这款 iOS Framework 集成到你的 iOS 项目中。
